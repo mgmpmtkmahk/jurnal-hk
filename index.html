@@ -3,11 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research Proposal Builder Pro - AI Powered</title>
+    <title>Scientific Document Generator - AI Powered</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Animasi Kustom Fade In Up (Super Ringan) */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen relative pb-20">
 
@@ -16,7 +32,7 @@
             <div class="flex items-center space-x-3">
                 <i class="fas fa-graduation-cap text-3xl"></i>
                 <div>
-                    <h1 class="text-2xl font-bold">Research Proposal Builder Pro</h1>
+                    <h1 class="text-2xl font-bold">Scientific Document Generator</h1>
                     <p class="text-sm opacity-90">Aplikasi pendamping bagi para Peneliti Pontren Husnul Khotimah</p>
                 </div>
             </div>
@@ -30,65 +46,89 @@
         </div>
     </header>
 
-    <div class="bg-white shadow-sm border-b relative z-40">
-        <div class="container mx-auto px-6 py-4">
+    <main class="container mx-auto px-6 py-8 max-w-7xl">
+
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-indigo-100 text-center relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-yellow-500 text-white text-xs font-bold px-4 py-1 rounded-bl-xl shadow-sm">
+                <i class="fas fa-star mr-1"></i> SUPER-APP V5 (FINAL)
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Pilih Target Dokumen Anda Hari Ini:</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
+                <button onclick="setDocumentType('proposal')" id="btn-mode-proposal" class="mode-btn border-2 border-indigo-500 bg-indigo-50 text-indigo-700 font-bold py-4 px-3 rounded-xl flex items-center justify-center transition-all shadow-md transform scale-105">
+                    <i class="fas fa-file-alt md:mr-3 text-xl md:text-2xl mb-1 md:mb-0"></i> 
+                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Proposal</span><span class="text-xs font-normal opacity-80">Riset Awal</span></div>
+                    <span class="block md:hidden text-xs mt-1">Proposal</span>
+                </button>
+                <button onclick="setDocumentType('skripsi')" id="btn-mode-skripsi" class="mode-btn border-2 border-gray-200 bg-white text-gray-600 font-bold py-4 px-3 rounded-xl flex items-center justify-center hover:border-indigo-300 transition-all">
+                    <i class="fas fa-user-graduate md:mr-3 text-xl md:text-2xl mb-1 md:mb-0 text-yellow-600"></i> 
+                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Skripsi</span><span class="text-xs font-normal opacity-80">Bab 4-5</span></div>
+                    <span class="block md:hidden text-xs mt-1">Skripsi</span>
+                </button>
+                <button onclick="setDocumentType('makalah')" id="btn-mode-makalah" class="mode-btn border-2 border-gray-200 bg-white text-gray-600 font-bold py-4 px-3 rounded-xl flex items-center justify-center hover:border-indigo-300 transition-all">
+                    <i class="fas fa-file-word md:mr-3 text-xl md:text-2xl mb-1 md:mb-0"></i> 
+                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Makalah</span><span class="text-xs font-normal opacity-80">Tugas Kuliah</span></div>
+                    <span class="block md:hidden text-xs mt-1">Makalah</span>
+                </button>
+                <button onclick="setDocumentType('jurnal')" id="btn-mode-jurnal" class="mode-btn border-2 border-gray-200 bg-white text-gray-600 font-bold py-4 px-3 rounded-xl flex items-center justify-center hover:border-indigo-300 transition-all">
+                    <i class="fas fa-book-open md:mr-3 text-xl md:text-2xl mb-1 md:mb-0"></i> 
+                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Artikel</span><span class="text-xs font-normal opacity-80">Riset Lapangan</span></div>
+                    <span class="block md:hidden text-xs mt-1">Artikel</span>
+                </button>
+                <button onclick="setDocumentType('slr')" id="btn-mode-slr" class="mode-btn border-2 border-gray-200 bg-white text-gray-600 font-bold py-4 px-3 rounded-xl flex items-center justify-center hover:border-indigo-300 transition-all col-span-2 md:col-span-1 lg:col-span-1">
+                    <i class="fas fa-layer-group md:mr-3 text-xl md:text-2xl mb-1 md:mb-0 text-purple-600"></i> 
+                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Review (SLR)</span><span class="text-xs font-normal opacity-80">Studi Pustaka</span></div>
+                    <span class="block md:hidden text-xs mt-1">Review (SLR)</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white shadow-sm border rounded-2xl p-4 mb-8">
             <div class="flex justify-between items-center max-w-4xl mx-auto">
                 <div class="flex flex-col items-center">
-                    <div id="step1-indicator" class="w-10 h-10 rounded-full step-active flex items-center justify-center font-bold mb-2">1</div>
-                    <span class="text-xs font-medium text-center mt-1">Cari Jurnal</span>
+                    <div id="step1-indicator" class="w-10 h-10 rounded-full step-active flex items-center justify-center font-bold mb-2 shadow-inner">1</div>
+                    <span class="text-xs font-bold text-center mt-1 text-gray-700">Cari Jurnal</span>
                 </div>
                 <div class="flex-1 h-1 bg-gray-200 mx-2 md:mx-4 rounded">
                     <div id="progress-line" class="h-full bg-gradient-to-r from-indigo-500 to-purple-600 w-0 transition-all duration-500 rounded"></div>
                 </div>
                 <div class="flex flex-col items-center">
-                    <div id="step2-indicator" class="w-10 h-10 rounded-full step-inactive flex items-center justify-center font-bold mb-2">2</div>
-                    <span class="text-xs font-medium text-center mt-1">Kaji (Tik-Tok)</span>
+                    <div id="step2-indicator" class="w-10 h-10 rounded-full step-inactive flex items-center justify-center font-bold mb-2 shadow-inner">2</div>
+                    <span class="text-xs font-bold text-center mt-1 text-gray-700">Kaji Jurnal</span>
                 </div>
                 <div class="flex-1 h-1 bg-gray-200 mx-2 md:mx-4 rounded"></div>
                 <div class="flex flex-col items-center">
-                    <div id="step3-indicator" class="w-10 h-10 rounded-full step-inactive flex items-center justify-center font-bold mb-2">3</div>
-                    <span class="text-xs font-medium text-center mt-1">Analisis</span>
+                    <div id="step3-indicator" class="w-10 h-10 rounded-full step-inactive flex items-center justify-center font-bold mb-2 shadow-inner">3</div>
+                    <span class="text-xs font-bold text-center mt-1 text-gray-700">Analisis Gap</span>
                 </div>
                 <div class="flex-1 h-1 bg-gray-200 mx-2 md:mx-4 rounded"></div>
                 <div class="flex flex-col items-center">
-                    <div id="step4-indicator" class="w-10 h-10 rounded-full step-inactive flex items-center justify-center font-bold mb-2">4</div>
-                    <span class="text-xs font-medium text-center mt-1">Judul Baru</span>
+                    <div id="step4-indicator" class="w-10 h-10 rounded-full step-inactive flex items-center justify-center font-bold mb-2 shadow-inner">4</div>
+                    <span class="text-xs font-bold text-center mt-1 text-gray-700">Judul Baru</span>
                 </div>
                 <div class="flex-1 h-1 bg-gray-200 mx-2 md:mx-4 rounded"></div>
                 <div class="flex flex-col items-center">
-                    <div id="step5-indicator" class="w-10 h-10 rounded-full step-inactive flex items-center justify-center font-bold mb-2">5</div>
-                    <span class="text-xs font-medium text-center mt-1">Proposal Final</span>
+                    <div id="step5-indicator" class="w-10 h-10 rounded-full step-inactive flex items-center justify-center font-bold mb-2 shadow-inner">5</div>
+                    <span class="text-xs font-bold text-center mt-1 text-gray-700">Susun Dokumen</span>
                 </div>
             </div>
         </div>
-    </div>
-
-    <main class="container mx-auto px-6 py-8 max-w-6xl">
 
         <section id="step1" class="visible-section relative">
             <div class="text-center mb-10">
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">Langkah 1: Cari Referensi Jurnal</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">Masukkan keyword penelitian Anda untuk menemukan jurnal-jurnal akademik yang relevan.</p>
+                <p class="text-gray-600 max-w-2xl mx-auto">Masukkan keyword topik untuk menemukan jurnal-jurnal akademik yang relevan.</p>
             </div>
 
             <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
                 <div class="flex gap-4 mb-4">
                     <div class="flex-1 relative">
                         <i class="fas fa-search absolute left-4 top-4 text-gray-400"></i>
-                        <input type="text" id="searchKeyword" placeholder="Contoh: machine learning, renewable energy, behavioral economics..." 
+                        <input type="text" id="searchKeyword" placeholder="Contoh: machine learning, manajemen pendidikan, fiqih kontemporer..." 
                                class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none text-lg">
                     </div>
                     <button onclick="searchJournals()" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all flex-shrink-0">
                         <i class="fas fa-search md:mr-2"></i><span class="hidden md:inline">Cari Jurnal</span>
                     </button>
-                </div>
-                
-                <div class="flex gap-2 flex-wrap justify-center pt-4 mt-2 border-t border-gray-100">
-                    <span class="text-sm text-gray-500 flex items-center mr-1">Sumber Utama:</span>
-                    <span class="px-3 py-1 bg-blue-50 border border-blue-100 text-blue-600 rounded-full text-xs font-medium">Google Scholar</span>
-                    <span class="px-3 py-1 bg-green-50 border border-green-100 text-green-600 rounded-full text-xs font-medium">SINTA</span>
-                    <span class="px-3 py-1 bg-yellow-50 border border-yellow-100 text-yellow-600 rounded-full text-xs font-medium">Garuda</span>
-                    <span class="px-3 py-1 bg-teal-50 border border-teal-100 text-teal-600 rounded-full text-xs font-medium">DOAJ</span>
                 </div>
             </div>
 
@@ -108,7 +148,7 @@
 
         <section id="step2" class="hidden-section relative">
             <div class="text-center mb-10">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Langkah 2: Kaji Jurnal (Sistem Tik-Tok)</h2>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Langkah 2: Kaji Jurnal</h2>
                 <p class="text-gray-600 max-w-2xl mx-auto">Copy prompt → Paste ke Gemini + Teks Jurnal → Copy hasil tabel → Paste ke aplikasi.</p>
             </div>
 
@@ -305,7 +345,7 @@ OUTPUT HARUS PERSIS FORMAT INI:
 
         <section id="step4" class="hidden-section relative">
             <div class="text-center mb-10">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Langkah 4: Generate Judul Penelitian Baru</h2>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Langkah 4: Generate Judul Baru</h2>
                 <p class="text-gray-600 max-w-2xl mx-auto">Generate judul unik berdasarkan research gap dengan format tabel siap pilih.</p>
             </div>
 
@@ -321,7 +361,7 @@ OUTPUT HARUS PERSIS FORMAT INI:
                                 <i class="fas fa-copy mr-1"></i>Copy
                             </button>
                             <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                <pre id="step4-prompt" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">GENERATE JUDUL PENELITIAN - OUTPUT FORMAT TABEL
+                                <pre id="step4-prompt" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">GENERATE JUDUL PENELITIAN/MAKALAH/JURNAL
 
 Berdasarkan research gap berikut, buatkan rekomendasi judul:
 
@@ -329,8 +369,8 @@ Berdasarkan research gap berikut, buatkan rekomendasi judul:
 
 OUTPUT HARUS PERSIS FORMAT INI:
 
-| No | Judul Penelitian | Alasan Pemilihan | Metode yang Disarankan | Target Populasi |
-|----|------------------|------------------|------------------------|-----------------|
+| No | Judul Ilmiah | Alasan Pemilihan | Metode/Pendekatan | Target Subjek |
+|----|--------------|------------------|-------------------|---------------|
 | 1 | [judul lengkap] | [mengapa unik] | [metode detail] | [subjek] |
 | 2 | [judul lengkap] | [mengapa unik] | [metode detail] | [subjek] |
 | 3 | [judul lengkap] | [mengapa unik] | [metode detail] | [subjek] |
@@ -343,15 +383,7 @@ OUTPUT HARUS PERSIS FORMAT INI:
 |----------|-------------|
 | Judul Paling Inovatif | [nomor] - [alasan] |
 | Judul Paling Feasible | [nomor] - [alasan] |
-| Judul dengan Impact Tertinggi | [nomor] - [alasan] |
-| Judul untuk Pemula | [nomor] - [alasan] |
-
-KRITERIA JUDUL:
-- UNIK - belum pernah diteliti spesifik
-- RELEVAN - menjawab masalah aktual
-- FEASIBLE - bisa dikerjakan
-- NOVEL - variabel/teknik baru
-- JELAS - kaidah akademik terpenuhi</pre>
+| Judul untuk Pemula | [nomor] - [alasan] |</pre>
                             </div>
                         </div>
                     </div>
@@ -392,69 +424,153 @@ KRITERIA JUDUL:
 
         <section id="step5" class="hidden-section relative">
             <div class="text-center mb-10">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">Langkah 5: Penyusunan Proposal (Standar Akademik)</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">9 Bagian proposal dengan prompt standar SINTA/Scopus siap copy-paste.</p>
+                <h2 id="step5-title" class="text-3xl font-bold text-gray-800 mb-4">Langkah 5: Penyusunan Dokumen Akademik</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Gunakan prompt di bawah ini untuk menyusun dokumen Anda bab demi bab.</p>
                 
                 <div class="mt-6 inline-flex items-center bg-indigo-50 border-2 border-indigo-200 px-6 py-3 rounded-full shadow-sm hover:shadow-md transition-all">
-                    <input type="checkbox" id="humanizerToggle" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer">
+                    <input type="checkbox" id="humanizerToggle" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" checked>
                     <label for="humanizerToggle" class="ml-3 text-sm font-bold text-indigo-800 cursor-pointer select-none">
-                        <i class="fas fa-user-edit mr-2"></i>Aktifkan Mode Humanizer (Lolos Turnitin < 10%)
+                        <i class="fas fa-user-shield mr-2"></i>Aktifkan Mode Humanizer (Lolos Turnitin < 5%)
                     </label>
                 </div>
             </div>
 
             <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl shadow-xl p-6 mb-8 text-white">
-                <h3 class="text-lg font-bold mb-2">Judul Penelitian yang Dipilih:</h3>
+                <h3 class="text-lg font-bold mb-2">Judul Terpilih:</h3>
                 <p id="selectedTitleDisplayStep5" class="text-xl font-semibold">-</p>
             </div>
 
-            <div class="grid md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8" id="proposal-nav-buttons">
-                <button data-section="latar" class="proposal-nav-btn bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-indigo-500">
-                    <i class="fas fa-file-alt text-2xl text-indigo-600 mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">1. Latar Belakang</p>
-                </button>
-                <button data-section="rumusan" class="proposal-nav-btn bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-gray-200">
-                    <i class="fas fa-question-circle text-2xl text-gray-600 mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">2. Rumusan Masalah</p>
-                </button>
-                <button data-section="tujuan" class="proposal-nav-btn bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-gray-200">
-                    <i class="fas fa-bullseye text-2xl text-gray-600 mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">3. Tujuan</p>
-                </button>
-                <button data-section="manfaat" class="proposal-nav-btn bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-gray-200">
-                    <i class="fas fa-hand-holding-heart text-2xl text-gray-600 mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">4. Manfaat</p>
-                </button>
-                <button data-section="metode" class="proposal-nav-btn bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-gray-200">
-                    <i class="fas fa-flask text-2xl text-gray-600 mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">5. Metode</p>
-                </button>
-                <button data-section="landasan" class="proposal-nav-btn bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-gray-200">
-                    <i class="fas fa-book text-2xl text-gray-600 mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">6. Landasan Teori</p>
-                </button>
-                <button data-section="hipotesis" class="proposal-nav-btn bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-gray-200">
-                    <i class="fas fa-balance-scale text-2xl text-gray-600 mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">7. Hipotesis</p>
-                </button>
-                <button data-section="jadwal" class="proposal-nav-btn bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-gray-200">
-                    <i class="fas fa-calendar-alt text-2xl text-gray-600 mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">8. Jadwal & Biaya</p>
-                </button>
-                <button data-section="daftar" class="proposal-nav-btn bg-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-gray-200">
-                    <i class="fas fa-list-ol text-2xl text-gray-600 mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">9. Daftar Pustaka</p>
-                </button>
-                <button data-section="final" class="proposal-nav-btn bg-gradient-to-r from-green-500 to-teal-500 text-white p-4 rounded-xl shadow hover:shadow-lg transition-all text-center border-2 border-transparent">
-                    <i class="fas fa-check-circle text-2xl mb-2"></i>
-                    <p class="text-sm font-semibold mt-2">Final Review</p>
-                </button>
+            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="proposal-nav-buttons">
+                <button data-section="latar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-file-alt text-2xl mb-2"></i><span class="text-sm font-semibold">1. Latar Belakang</span></button>
+                <button data-section="rumusan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-question-circle text-2xl mb-2"></i><span class="text-sm font-semibold">2. Rumusan</span></button>
+                <button data-section="tujuan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-bullseye text-2xl mb-2"></i><span class="text-sm font-semibold">3. Tujuan</span></button>
+                <button data-section="manfaat" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-hand-holding-heart text-2xl mb-2"></i><span class="text-sm font-semibold">4. Manfaat</span></button>
+                <button data-section="metode" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flask text-2xl mb-2"></i><span class="text-sm font-semibold">5. Metode</span></button>
+                <button data-section="landasan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-book text-2xl mb-2"></i><span class="text-sm font-semibold">6. Landasan Teori</span></button>
+                <button data-section="hipotesis" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-balance-scale text-2xl mb-2"></i><span class="text-sm font-semibold">7. Hipotesis</span></button>
+                <button data-section="jadwal" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-calendar-alt text-2xl mb-2"></i><span class="text-sm font-semibold">8. Jadwal & Biaya</span></button>
+                <button data-section="daftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list-ol text-2xl mb-2"></i><span class="text-sm font-semibold">9. Pustaka</span></button>
+                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
+            </div>
+
+            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="skripsi-nav-buttons">
+                <button data-section="sdeskripsi" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-users text-2xl mb-2"></i><span class="text-sm font-semibold">1. Deskripsi Data</span></button>
+                <button data-section="sanalisis" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-chart-pie text-2xl mb-2"></i><span class="text-sm font-semibold">2. Analisis Hasil</span></button>
+                <button data-section="spembahasan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-comments text-2xl mb-2"></i><span class="text-sm font-semibold">3. Pembahasan</span></button>
+                <button data-section="skesimpulan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-check-double text-2xl mb-2"></i><span class="text-sm font-semibold">4. Kesimpulan</span></button>
+                <button data-section="ssaran" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-lightbulb text-2xl mb-2"></i><span class="text-sm font-semibold">5. Saran</span></button>
+                <button data-section="sdaftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list text-2xl mb-2"></i><span class="text-sm font-semibold">6. Pustaka</span></button>
+                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
+            </div>
+
+            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="makalah-nav-buttons">
+                <button data-section="mpendahuluan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flag text-2xl mb-2"></i><span class="text-sm font-semibold">1. Pendahuluan</span></button>
+                <button data-section="mpembahasan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-comments text-2xl mb-2"></i><span class="text-sm font-semibold">2. Pembahasan</span></button>
+                <button data-section="mpenutup" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-check-square text-2xl mb-2"></i><span class="text-sm font-semibold">3. Penutup</span></button>
+                <button data-section="mdaftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list-ol text-2xl mb-2"></i><span class="text-sm font-semibold">4. Pustaka</span></button>
+                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
+            </div>
+
+            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="jurnal-nav-buttons">
+                <button data-section="jpendahuluan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flag text-2xl mb-2"></i><span class="text-sm font-semibold">1. Pendahuluan</span></button>
+                <button data-section="jmetode" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flask text-2xl mb-2"></i><span class="text-sm font-semibold">2. Metode</span></button>
+                <button data-section="jhasil" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-chart-bar text-2xl mb-2"></i><span class="text-sm font-semibold">3. Hasil & Bahas</span></button>
+                <button data-section="jkesimpulan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-check-double text-2xl mb-2"></i><span class="text-sm font-semibold">4. Kesimpulan</span></button>
+                <button data-section="jabstrak" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-align-center text-2xl mb-2"></i><span class="text-sm font-semibold">5. Abstrak</span></button>
+                <button data-section="jdaftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list text-2xl mb-2"></i><span class="text-sm font-semibold">6. Pustaka</span></button>
+                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
+            </div>
+
+            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="slr-nav-buttons">
+                <button data-section="slrpendahuluan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flag text-2xl mb-2 text-purple-600"></i><span class="text-sm font-semibold">1. Pendahuluan</span></button>
+                <button data-section="slrmetode" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-search-plus text-2xl mb-2 text-gray-600"></i><span class="text-sm font-semibold">2. Metode PRISMA</span></button>
+                <button data-section="slrhasil" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-table text-2xl mb-2 text-gray-600"></i><span class="text-sm font-semibold">3. Hasil Ekstraksi</span></button>
+                <button data-section="slrpembahasan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-comments text-2xl mb-2 text-gray-600"></i><span class="text-sm font-semibold">4. Pembahasan</span></button>
+                <button data-section="slrkesimpulan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-check-double text-2xl mb-2 text-gray-600"></i><span class="text-sm font-semibold">5. Kesimpulan</span></button>
+                <button data-section="slrdaftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list text-2xl mb-2 text-gray-600"></i><span class="text-sm font-semibold">6. Pustaka</span></button>
+                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
+            </div>
+
+            <div id="section-final" class="proposal-section hidden bg-white rounded-2xl shadow-xl p-8 mb-6 border border-gray-100">
+                
+                <div class="text-center mb-10">
+                    <div class="w-24 h-24 bg-gradient-to-tr from-green-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg shadow-teal-200">
+                        <i class="fas fa-check text-5xl text-white"></i>
+                    </div>
+                    <h3 class="text-3xl font-extrabold text-gray-800">Dokumen Siap Diekspor!</h3>
+                    <p class="text-gray-500 mt-3 max-w-lg mx-auto">Atur tata letak (layout) dokumen sesuai dengan pedoman kampus atau jurnal target Anda sebelum mengunduh.</p>
+                </div>
+
+                <div class="max-w-3xl mx-auto bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden shadow-sm mb-8">
+                    <div class="bg-gray-100 px-6 py-4 border-b border-gray-200 flex items-center">
+                        <i class="fas fa-sliders-h text-indigo-600 mr-3 text-lg"></i>
+                        <h4 class="font-bold text-gray-800 text-lg">Control Panel Format MS Word</h4>
+                    </div>
+                    
+                    <div class="p-6 grid md:grid-cols-2 gap-6 text-sm">
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-2">Ukuran Kertas</label>
+                            <select id="settingPaper" class="w-full p-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-700">
+                                <option value="21cm 29.7cm">A4 (Standar Skripsi & Jurnal)</option>
+                                <option value="21.59cm 27.94cm">Letter (Standar Internasional)</option>
+                                <option value="21.5cm 33cm">F4 / Folio (Laporan Instansi)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-2">Margin (Tepi Kertas)</label>
+                            <select id="settingMargin" class="w-full p-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-700">
+                                <option value="4cm 3cm 3cm 4cm">Kiri 4, Atas 4, Kanan 3, Bawah 3 (Skripsi)</option>
+                                <option value="3cm 2.5cm 2.5cm 2.5cm">Kiri 3, Atas 3, Kanan 2.5, Bawah 2.5 (Proposal)</option>
+                                <option value="2.54cm 2.54cm 2.54cm 2.54cm">2.54cm di Semua Sisi (Jurnal IEEE/SINTA)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-2">Jenis Font Utama</label>
+                            <select id="settingFont" class="w-full p-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-700">
+                                <option value="'Times New Roman', serif">Times New Roman (Akademik)</option>
+                                <option value="'Arial', sans-serif">Arial (Modern/Laporan)</option>
+                                <option value="'Calibri', sans-serif">Calibri (Bawaan MS Word)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block font-bold text-gray-700 mb-2">Spasi Baris (Line Spacing)</label>
+                            <select id="settingSpacing" class="w-full p-3 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-700">
+                                <option value="1.5">1.5 Lines (Standar Makalah & Skripsi)</option>
+                                <option value="2.0">Double / 2.0 (Untuk Review Draft Jurnal)</option>
+                                <option value="1.15">1.15 Lines (Standar Jurnal 2 Kolom)</option>
+                            </select>
+                        </div>
+
+                        <div id="proposalFormatContainer" class="md:col-span-2 pt-4 border-t border-gray-200 mt-2">
+                            <label class="block font-bold text-gray-700 mb-2">Struktur Penomoran Bab</label>
+                            <select id="proposalFormat" class="w-full p-3 bg-white border border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-indigo-800 font-semibold shadow-inner">
+                                <option value="bab">Format Lengkap (BAB I, BAB II, BAB III) - Tugas Akhir</option>
+                                <option value="mini">Format Sederhana (A, B, C, D) - Pengajuan Ringkas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-md mx-auto text-center">
+                    <button id="btnDownloadStandard" onclick="downloadDOCX()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-5 px-6 rounded-2xl font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-xl hover:shadow-indigo-500/40 transform hover:-translate-y-1 flex items-center justify-center">
+                        <i class="fas fa-file-word text-2xl mr-3"></i> Export ke MS Word (.docx)
+                    </button>
+                    
+                    <button id="btnDownloadJurnal" onclick="downloadDOCX()" class="hidden w-full bg-gradient-to-r from-teal-500 to-emerald-600 text-white py-5 px-6 rounded-2xl font-bold text-lg hover:from-teal-600 hover:to-emerald-700 transition-all shadow-xl hover:shadow-emerald-500/40 transform hover:-translate-y-1 flex items-center justify-center">
+                        <i class="fas fa-columns text-2xl mr-3"></i> Export Format Jurnal (2 Kolom)
+                    </button>
+                    
+                    <p class="text-xs text-gray-400 mt-4"><i class="fas fa-info-circle mr-1"></i> File dapat langsung dibuka dan diedit lebih lanjut di Microsoft Word.</p>
+                </div>
             </div>
 
             <div id="proposal-content">
                 
                 <div id="section-latar" class="proposal-section mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.1 Latar Belakang</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.1 Latar Belakang (Proposal)</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Latar Belakang</h4>
@@ -462,7 +578,7 @@ KRITERIA JUDUL:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-latar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-latar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                        <pre id="prompt-latar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">LATAR BELAKANG - STANDAR SINTA/SCOPUS
+<pre id="prompt-latar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">LATAR BELAKANG - STANDAR SINTA/SCOPUS
 
 Buatkan latar belakang untuk:
 Judul: [JUDUL]
@@ -482,24 +598,20 @@ ATURAN OUTPUT MUTLAK:
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="openGeminiWithPrompt('prompt-latar')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0">
-                                <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                            </button>
+                            <button onclick="openGeminiWithPrompt('prompt-latar')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
                             <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
                                 <textarea id="output-latar" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil latar belakang dari Gemini..."></textarea>
                             </div>
-                            <button onclick="saveProposalSection('latar')" class="mt-auto w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all flex-shrink-0">
-                                <i class="fas fa-save mr-2"></i>Simpan & Lanjut
-                            </button>
+                            <button onclick="saveProposalSection('latar')" class="mt-auto w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all flex-shrink-0"><i class="fas fa-save mr-2"></i>Simpan & Lanjut</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="section-rumusan" class="proposal-section hidden mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.2 Rumusan Masalah</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.2 Rumusan Masalah (Proposal)</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Rumusan</h4>
@@ -507,7 +619,7 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-rumusan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-rumusan"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                        <pre id="prompt-rumusan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">RUMUSAN MASALAH - FORMAT AKADEMIK
+<pre id="prompt-rumusan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">RUMUSAN MASALAH - FORMAT AKADEMIK
 
 Buatkan rumusan masalah untuk judul: [JUDUL]
 
@@ -516,8 +628,7 @@ ATURAN KETAT:
 2. Tidak boleh ada tabel.
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI (Dilarang memberi kalimat sapaan/pengantar/penutup).
-- DILARANG menulis ulang judul bab.
+- TANPA BASA-BASI. DILARANG menulis ulang judul bab.
 - Langsung ikuti format teks di bawah ini:
 
 Berdasarkan latar belakang masalah yang telah diuraikan, maka rumusan masalah dalam penelitian ini adalah:
@@ -530,9 +641,7 @@ Adapun batasan masalah difokuskan pada:
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="openGeminiWithPrompt('prompt-rumusan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0">
-                                <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                            </button>
+                            <button onclick="openGeminiWithPrompt('prompt-rumusan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
@@ -548,7 +657,7 @@ Adapun batasan masalah difokuskan pada:
                 </div>
 
                 <div id="section-tujuan" class="proposal-section hidden mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.3 Tujuan Penelitian</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.3 Tujuan Penelitian (Proposal)</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Tujuan</h4>
@@ -556,17 +665,16 @@ Adapun batasan masalah difokuskan pada:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-tujuan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-tujuan"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                        <pre id="prompt-tujuan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">TUJUAN PENELITIAN - FORMAT AKADEMIK
+<pre id="prompt-tujuan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">TUJUAN PENELITIAN - FORMAT AKADEMIK
 
 Buatkan tujuan penelitian untuk rumusan masalah berikut: [RUMUSAN]
 
 ATURAN KETAT:
 1. Jumlah poin WAJIB sama persis dengan jumlah rumusan masalah.
-2. WAJIB gunakan Kata Kerja Operasional (KKO) yang bisa diukur (Menganalisis, Mengevaluasi, Mengembangkan). Dilarang menggunakan kata "Mengetahui".
+2. WAJIB gunakan Kata Kerja Operasional (KKO) yang bisa diukur. Dilarang menggunakan kata "Mengetahui".
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI (Dilarang memberi kalimat sapaan/pengantar/penutup).
-- DILARANG menulis ulang judul bab.
+- TANPA BASA-BASI. DILARANG menulis ulang judul bab.
 - Langsung ikuti format teks di bawah ini:
 
 Sejalan dengan rumusan masalah di atas, tujuan yang ingin dicapai dalam penelitian ini adalah:
@@ -576,9 +684,7 @@ Sejalan dengan rumusan masalah di atas, tujuan yang ingin dicapai dalam peneliti
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="openGeminiWithPrompt('prompt-tujuan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0">
-                                <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                            </button>
+                            <button onclick="openGeminiWithPrompt('prompt-tujuan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
@@ -594,7 +700,7 @@ Sejalan dengan rumusan masalah di atas, tujuan yang ingin dicapai dalam peneliti
                 </div>
 
                 <div id="section-manfaat" class="proposal-section hidden mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.4 Manfaat Penelitian</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.4 Manfaat Penelitian (Proposal)</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Manfaat</h4>
@@ -602,7 +708,7 @@ Sejalan dengan rumusan masalah di atas, tujuan yang ingin dicapai dalam peneliti
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-manfaat')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-manfaat"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                        <pre id="prompt-manfaat" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">MANFAAT PENELITIAN - FORMAT NARATIF
+<pre id="prompt-manfaat" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">MANFAAT PENELITIAN - FORMAT NARATIF
 
 Buatkan manfaat penelitian untuk judul: [JUDUL] dan tujuan: [TUJUAN]
 
@@ -612,8 +718,7 @@ ATURAN KETAT:
 3. Manfaat Praktis: Solusi nyata untuk stakeholder terkait.
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI (Dilarang memberi kalimat sapaan/pengantar/penutup).
-- DILARANG menulis ulang judul bab.
+- TANPA BASA-BASI. DILARANG menulis ulang judul bab.
 - Langsung ikuti format teks di bawah ini:
 
 Penelitian ini diharapkan dapat memberikan manfaat secara teoritis maupun praktis, yaitu:
@@ -626,9 +731,7 @@ Penelitian ini diharapkan dapat memberikan manfaat secara teoritis maupun prakti
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="openGeminiWithPrompt('prompt-manfaat')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0">
-                                <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                            </button>
+                            <button onclick="openGeminiWithPrompt('prompt-manfaat')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
@@ -644,7 +747,7 @@ Penelitian ini diharapkan dapat memberikan manfaat secara teoritis maupun prakti
                 </div>
 
                 <div id="section-metode" class="proposal-section hidden mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.5 Metode Penelitian</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.5 Metode Penelitian (Proposal)</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Metode</h4>
@@ -652,17 +755,12 @@ Penelitian ini diharapkan dapat memberikan manfaat secara teoritis maupun prakti
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-metode')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-metode"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                        <pre id="prompt-metode" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">METODE PENELITIAN - FORMAT PARAGRAF TERSTRUKTUR
+<pre id="prompt-metode" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">METODE PENELITIAN - FORMAT PARAGRAF TERSTRUKTUR
 
 Buatkan untuk judul: [JUDUL]
 
-ATURAN KETAT:
-1. Jangan gunakan tabel. Tulis dalam bentuk Sub-Bab paragraf deskriptif.
-2. Pastikan sesuai jenis penelitian (Kuantitatif / Kualitatif / R&D).
-
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI (Dilarang memberi kalimat sapaan/pengantar/penutup).
-- DILARANG menulis ulang judul bab "Metode Penelitian".
+- TANPA BASA-BASI. DILARANG menulis ulang judul bab.
 - Langsung outputkan dengan struktur tebal berikut:
 
 **1. Desain Penelitian**
@@ -682,9 +780,7 @@ ATURAN OUTPUT MUTLAK:
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="openGeminiWithPrompt('prompt-metode')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0">
-                                <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                            </button>
+                            <button onclick="openGeminiWithPrompt('prompt-metode')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
@@ -700,7 +796,7 @@ ATURAN OUTPUT MUTLAK:
                 </div>
 
                 <div id="section-landasan" class="proposal-section hidden mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.6 Landasan Teori</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.6 Landasan Teori (Proposal)</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Landasan</h4>
@@ -708,13 +804,12 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-landasan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-landasan"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                        <pre id="prompt-landasan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">LANDASAN TEORI & STATE OF THE ART
+<pre id="prompt-landasan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">LANDASAN TEORI & STATE OF THE ART
 
 Buatkan untuk judul: [JUDUL] dan variabel: [VARIABEL]
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI (Dilarang memberi kalimat sapaan/pengantar/penutup).
-- DILARANG menulis ulang judul bab utama.
+- TANPA BASA-BASI. DILARANG menulis ulang judul bab utama.
 - Langsung ikuti format di bawah ini:
 
 **1. Kajian Teori**
@@ -728,9 +823,7 @@ ATURAN OUTPUT MUTLAK:
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="openGeminiWithPrompt('prompt-landasan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0">
-                                <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                            </button>
+                            <button onclick="openGeminiWithPrompt('prompt-landasan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
@@ -746,7 +839,7 @@ ATURAN OUTPUT MUTLAK:
                 </div>
 
                 <div id="section-hipotesis" class="proposal-section hidden mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.7 Hipotesis</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.7 Hipotesis (Proposal)</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Hipotesis</h4>
@@ -754,15 +847,14 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-hipotesis')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-hipotesis"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                        <pre id="prompt-hipotesis" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">HIPOTESIS / PERTANYAAN PENELITIAN
+<pre id="prompt-hipotesis" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">HIPOTESIS / PERTANYAAN PENELITIAN
 
 Buatkan untuk rumusan: [RUMUSAN] dan variabel: [VARIABEL]
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI (Dilarang memberi kalimat sapaan/pengantar/penutup).
-- DILARANG menggunakan tabel.
+- TANPA BASA-BASI. DILARANG menggunakan tabel.
 - DILARANG menulis ulang judul bab.
-- Langsung ikuti format di bawah ini (Pilih jika Kuantitatif/Kualitatif):
+- Langsung ikuti format di bawah ini (Pilih Kuantitatif/Kualitatif):
 
 Berdasarkan kajian teori dan kerangka pemikiran, hipotesis dalam penelitian ini dirumuskan sebagai berikut:
 1. Hipotesis Pertama:
@@ -774,15 +866,13 @@ Berdasarkan kajian teori dan kerangka pemikiran, hipotesis dalam penelitian ini 
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="openGeminiWithPrompt('prompt-hipotesis')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0">
-                                <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                            </button>
+                            <button onclick="openGeminiWithPrompt('prompt-hipotesis')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
                             <div class="flex items-center mb-4 bg-yellow-50 p-3 rounded-xl border border-yellow-100">
                                 <input type="checkbox" id="skip-hipotesis" class="mr-3 w-5 h-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer" onchange="toggleHipotesis()">
-                                <label for="skip-hipotesis" class="text-sm font-medium text-yellow-800 cursor-pointer">Centang jika penelitian Anda Kualitatif murni (Lewati Hipotesis)</label>
+                                <label for="skip-hipotesis" class="text-sm font-medium text-yellow-800 cursor-pointer">Centang jika Kualitatif murni (Lewati Hipotesis)</label>
                             </div>
                             <div class="flex-grow mb-4 flex flex-col relative min-h-[200px]">
                                 <textarea id="output-hipotesis" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil teks hipotesis..."></textarea>
@@ -796,7 +886,7 @@ Berdasarkan kajian teori dan kerangka pemikiran, hipotesis dalam penelitian ini 
                 </div>
 
                 <div id="section-jadwal" class="proposal-section hidden mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.8 Jadwal & Anggaran</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.8 Jadwal & Anggaran (Proposal)</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Jadwal</h4>
@@ -804,13 +894,12 @@ Berdasarkan kajian teori dan kerangka pemikiran, hipotesis dalam penelitian ini 
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-jadwal')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jadwal"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                        <pre id="prompt-jadwal" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">JADWAL & ANGGARAN - WAJIB FORMAT TABEL
+<pre id="prompt-jadwal" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">JADWAL & ANGGARAN - WAJIB FORMAT TABEL
 
 Buatkan untuk judul: [JUDUL], durasi: [X bulan], lokasi: [LOKASI]
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI (Dilarang memberi kalimat sapaan/pengantar/penutup).
-- DILARANG menulis ulang judul bab.
+- TANPA BASA-BASI. DILARANG menulis ulang judul bab.
 - HANYA output 2 Tabel ini saja secara berurutan:
 
 **1. Jadwal Penelitian**
@@ -833,9 +922,7 @@ ATURAN OUTPUT MUTLAK:
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="openGeminiWithPrompt('prompt-jadwal')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0">
-                                <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                            </button>
+                            <button onclick="openGeminiWithPrompt('prompt-jadwal')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
@@ -851,7 +938,7 @@ ATURAN OUTPUT MUTLAK:
                 </div>
 
                 <div id="section-daftar" class="proposal-section hidden mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5.9 Daftar Pustaka</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">Daftar Pustaka</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pustaka</h4>
@@ -859,13 +946,12 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-daftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-daftar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                        <pre id="prompt-daftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - REFERENCE MANAGER READY
+<pre id="prompt-daftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - REFERENCE MANAGER READY
 
 Buatkan daftar pustaka untuk jurnal: [DATA JURNAL YANG DIKAJI]
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI (Dilarang memberi kalimat sapaan/pengantar/penutup).
-- DILARANG menggunakan tabel.
+- TANPA BASA-BASI. DILARANG menggunakan tabel.
 - DILARANG menulis ulang judul bab.
 - HANYA output teks paragraf dengan style [APA 7th Edition], terurut A-Z. 
 
@@ -873,9 +959,7 @@ Tuliskan minimal 10-15 referensi terkait penelitian ini, prioritas 5 tahun terak
                                     </div>
                                 </div>
                             </div>
-                            <button onclick="openGeminiWithPrompt('prompt-daftar')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0">
-                                <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                            </button>
+                            <button onclick="openGeminiWithPrompt('prompt-daftar')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
@@ -890,24 +974,944 @@ Tuliskan minimal 10-15 referensi terkait penelitian ini, prioritas 5 tahun terak
                     </div>
                 </div>
 
+                <div id="section-sdeskripsi" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-yellow-600 border-b pb-2">1. Deskripsi Data (Bab IV)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Deskripsi</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-sdeskripsi')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-sdeskripsi"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-sdeskripsi" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 4 - DESKRIPSI DATA PENELITIAN
+
+Judul: [JUDUL]
+
+ATURAN KHUSUS UNTUK USER:
+(Isi/Paste ringkasan data mentah responden, demografi, atau hasil survei awal Anda di bawah ini sebelum dikirim ke AI)
+DATA PROFIL/DESKRIPTIF SAYA:
+...
+
+ATURAN OUTPUT MUTLAK (UNTUK AI):
+- DILARANG menulis ulang kata "Bab 4".
+- Buat narasi akademik (minimal 3 paragraf) yang menjelaskan profil data di atas secara profesional.
+- Gunakan bahasa baku skripsi/tesis.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4">
+                                <p class="text-xs text-yellow-800"><i class="fas fa-exclamation-triangle mr-1"></i> Paste data responden/statistik deskriptif di Gemini sebelum Enter!</p>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-sdeskripsi')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-sdeskripsi" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Deskripsi Data..."></textarea>
+                            </div>
+                            <button onclick="saveProposalSection('sdeskripsi')" class="mt-auto w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all flex-shrink-0"><i class="fas fa-save mr-2"></i>Simpan & Lanjut</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-sanalisis" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-yellow-600 border-b pb-2">2. Analisis Data / Hasil Pengujian (Bab IV)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Analisis</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-sanalisis')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-sanalisis"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-sanalisis" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 4 - ANALISIS DATA & PENGUJIAN
+
+Judul: [JUDUL]
+
+ATURAN KHUSUS UNTUK USER:
+(Paste output tabel SPSS / hasil uji lab / kutipan wawancara Anda di bawah ini)
+HASIL UJI SAYA:
+...
+
+ATURAN OUTPUT MUTLAK (UNTUK AI):
+- DILARANG menulis ulang kata "Bab 4".
+- Tafsirkan hasil uji tersebut ke dalam paragraf naratif.
+- Jika ada angka statistik (t-hitung, p-value), sebutkan apakah itu signifikan atau tidak.
+- Jika kualitatif, narasikan temanya.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-sanalisis')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-sanalisis" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Analisis Pengujian..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('sanalisis')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('sanalisis')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-spembahasan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-yellow-600 border-b pb-2">3. Pembahasan Penelitian (Bab IV)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pembahasan</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-spembahasan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-spembahasan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-spembahasan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 4 - PEMBAHASAN HASIL (DISCUSSION)
+
+Judul: [JUDUL]
+Referensi Teori: [DATA JURNAL]
+
+ATURAN KHUSUS UNTUK USER:
+(Ceritakan singkat hasil kesimpulan uji di langkah sebelumnya)
+KESIMPULAN UJI SAYA:
+...
+
+ATURAN OUTPUT MUTLAK (UNTUK AI):
+- DILARANG menulis ulang kata "Bab 4".
+- Bahas temuan uji tersebut SECARA MENDALAM (minimal 800 kata).
+- Wajib kaitkan dan bandingkan hasil tersebut dengan teori/referensi di atas.
+- Jelaskan MENGAPA hasilnya demikian (berikan argumentasi rasional).
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-spembahasan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-spembahasan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Pembahasan..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('spembahasan')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('spembahasan')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-skesimpulan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-yellow-600 border-b pb-2">4. Kesimpulan (Bab V)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Kesimpulan</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-skesimpulan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-skesimpulan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-skesimpulan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 5 - KESIMPULAN
+
+Rumusan Masalah: [RUMUSAN]
+Tujuan: [TUJUAN]
+
+ATURAN KHUSUS UNTUK USER:
+(Ceritakan inti temuan Anda secara singkat)
+INTI TEMUAN SAYA:
+...
+
+ATURAN OUTPUT MUTLAK (UNTUK AI):
+- DILARANG menulis ulang kata "Bab 5".
+- Buat kesimpulan yang menjawab LANGSUNG poin Rumusan Masalah.
+- Tulis dalam bentuk List Bernomor (1, 2, 3...) yang sejajar dengan jumlah tujuan penelitian.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-skesimpulan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-skesimpulan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Kesimpulan Bab 5..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('skesimpulan')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('skesimpulan')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-ssaran" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-yellow-600 border-b pb-2">5. Saran Penelitian (Bab V)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Saran</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-ssaran')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-ssaran"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-ssaran" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 5 - SARAN
+
+Judul: [JUDUL]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "Bab 5".
+- Berdasarkan topik tersebut, berikan saran konstruktif yang dibagi menjadi dua bagian:
+1. Bagi Akademisi/Peneliti Selanjutnya (Metode apa yang perlu diperbaiki).
+2. Bagi Praktisi/Masyarakat Terkait (Bagaimana temuan ini dimanfaatkan).
+- Format berupa paragraf atau poin.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-ssaran')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-ssaran" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Saran Bab 5..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('ssaran')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('ssaran')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-sdaftar" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-yellow-600 border-b pb-2">6. Daftar Pustaka Akhir</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pustaka</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-sdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-sdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-sdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - SKRIPSI FINAL
+
+Referensi Utama: [DATA JURNAL YANG DIKAJI]
+
+ATURAN OUTPUT MUTLAK:
+- TANPA BASA-BASI. DILARANG menggunakan tabel.
+- HANYA output teks paragraf dengan style [APA 7th Edition], terurut A-Z. 
+- Tuliskan minimal 15 referensi terkait dikombinasi dengan [DATA JURNAL YANG DIKAJI].</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-sdaftar')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-sdaftar" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil daftar pustaka..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('sdaftar')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('sdaftar')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan & Finalisasi</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-mpendahuluan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">1. Pendahuluan (Makalah)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pendahuluan</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-mpendahuluan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-mpendahuluan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-mpendahuluan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB I PENDAHULUAN (MAKALAH)
+
+Topik/Judul: [JUDUL]
+Referensi Terkait: [DATA JURNAL]
+
+ATURAN OUTPUT MUTLAK:
+- TANPA BASA-BASI. DILARANG menggunakan tabel.
+- DILARANG menulis ulang judul "BAB I PENDAHULUAN".
+- Langsung ikuti format di bawah ini dengan lengkap dan mendalam:
+
+**A. Latar Belakang**
+[Buat 3-4 paragraf naratif yang menjelaskan fenomena, teori dasar, dan urgensi topik ini dibahas. Wajib sertakan sitasi (Penulis, Tahun) dari referensi di atas].
+
+**B. Rumusan Masalah**
+Berdasarkan latar belakang di atas, rumusan masalah dalam makalah ini adalah:
+1. [Tulis pertanyaan 1]
+2. [Tulis pertanyaan 2]
+3. [Tulis pertanyaan 3]
+
+**C. Tujuan Penulisan**
+1. [Tujuan sinkron dengan masalah 1]
+2. [Tujuan sinkron dengan masalah 2]
+3. [Tujuan sinkron dengan masalah 3]</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-mpendahuluan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-mpendahuluan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Pendahuluan Makalah..."></textarea>
+                            </div>
+                            <button onclick="saveProposalSection('mpendahuluan')" class="mt-auto w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all flex-shrink-0"><i class="fas fa-save mr-2"></i>Simpan & Lanjut</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-mpembahasan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">2. Pembahasan (Makalah)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pembahasan</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-mpembahasan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-mpembahasan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-mpembahasan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB II PEMBAHASAN (MAKALAH)
+
+Topik/Judul: [JUDUL]
+Referensi Utama: [DATA JURNAL]
+
+ATURAN OUTPUT MUTLAK:
+- TANPA BASA-BASI. DILARANG menggunakan tabel kecuali sangat perlu.
+- DILARANG menulis ulang judul "BAB II PEMBAHASAN".
+- Buat pembahasan sepanjang 1000-1500 kata yang padat materi.
+
+STRUKTUR OUTPUT YANG DIWAJIBKAN:
+**A. [Sub-Bab 1: Konsep Dasar / Teori Utama]**
+[Bahas teori dari jurnal dengan sangat detail. Gunakan banyak sitasi (Nama, Tahun)].
+
+**B. [Sub-Bab 2: Analisis / Implementasi pada Topik]**
+[Sintesiskan temuan dari jurnal-jurnal di atas. Bandingkan metode/hasil mereka, apa kelebihan dan kekurangannya].
+
+**C. [Sub-Bab 3: Solusi / Pandangan Kritis]**
+[Bahas kesimpulan analitis terkait topik ini berdasarkan fakta akademik].</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-mpembahasan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-mpembahasan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Pembahasan Makalah..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('mpembahasan')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('mpembahasan')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-mpenutup" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">3. Penutup (Makalah)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Penutup</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-mpenutup')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-mpenutup"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-mpenutup" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB III PENUTUP (MAKALAH)
+
+Topik/Judul: [JUDUL]
+
+ATURAN OUTPUT MUTLAK:
+- TANPA BASA-BASI. DILARANG menggunakan tabel.
+- DILARANG menulis ulang judul "BAB III PENUTUP".
+- Langsung ikuti format di bawah ini:
+
+**A. Kesimpulan**
+[Buat 2 paragraf kesimpulan yang padat dan tajam, merangkum inti dari pembahasan sebelumnya dan menjawab rumusan masalah].
+
+**B. Saran**
+[Buat 1-2 paragraf saran atau rekomendasi yang konstruktif dan bisa diaplikasikan di lapangan terkait topik ini].</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-mpenutup')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-mpenutup" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Penutup Makalah..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('mpenutup')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('mpenutup')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-mdaftar" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">4. Daftar Pustaka (Makalah)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pustaka</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-mdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-mdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-mdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - MAKALAH
+
+Buatkan daftar pustaka berdasarkan referensi ini: [DATA JURNAL YANG DIKAJI]
+
+ATURAN OUTPUT MUTLAK:
+- TANPA BASA-BASI. DILARANG menggunakan tabel.
+- DILARANG menulis ulang judul bab.
+- HANYA output teks paragraf dengan style [APA 7th Edition], terurut A-Z. 
+
+Tuliskan minimal 5-10 referensi akademik yang terkait dengan topik makalah ini, dikombinasi dengan [DATA JURNAL YANG DIKAJI].</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-mdaftar')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-mdaftar" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil daftar pustaka..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('mdaftar')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('mdaftar')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan & Finalisasi</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-jpendahuluan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">1. Introduction (Artikel Jurnal)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pendahuluan</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-jpendahuluan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jpendahuluan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-jpendahuluan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">1. INTRODUCTION (PENDAHULUAN JURNAL IMRaD)
+
+Judul Artikel: [JUDUL]
+Referensi Kajian: [DATA JURNAL]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "1. Introduction" atau "Pendahuluan".
+- Buat 4-5 paragraf naratif tingkat tinggi (Standar Jurnal Q1/SINTA 1).
+- Paragraf 1-2: Fenomena global & urgensi.
+- Paragraf 3: State of the Art (Sintesis dari referensi di atas, sebutkan Penulis, Tahun).
+- Paragraf 4: Temukan Research Gap secara eksplisit.
+- Paragraf 5: Statement Tujuan Utama Artikel ini.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-jpendahuluan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-jpendahuluan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Introduction Jurnal..."></textarea>
+                            </div>
+                            <button onclick="saveProposalSection('jpendahuluan')" class="mt-auto w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all flex-shrink-0"><i class="fas fa-save mr-2"></i>Simpan & Lanjut</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-jmetode" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">2. Methods (Artikel Jurnal)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Metode</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-jmetode')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jmetode"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-jmetode" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">2. METHODS (METODE PENELITIAN JURNAL IMRaD)
+
+Judul Artikel: [JUDUL]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "2. Methods".
+- Dilarang membuat sub-bab bernomor (seperti 2.1, 2.2). Tulis mengalir dalam 2-3 paragraf utuh yang menceritakan urutan riset.
+- Jelaskan desain, populasi/partisipan, instrumen, dan teknik analisis data yang digunakan secara padat dan teknis.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-jmetode')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-jmetode" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Metode Jurnal..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('jmetode')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('jmetode')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-jhasil" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">3. Results & Discussion (Artikel Jurnal)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Hasil & Bahas</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-jhasil')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jhasil"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-jhasil" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">3. RESULTS AND DISCUSSION (HASIL DAN PEMBAHASAN)
+
+Judul Artikel: [JUDUL]
+Referensi Terdahulu: [DATA JURNAL]
+
+ATURAN KHUSUS UNTUK USER:
+(Isi/Paste temuan riset mentah Anda di baris bawah sebelum dikirim ke AI)
+DATA MENTAH SAYA:
+...
+
+ATURAN OUTPUT MUTLAK (UNTUK AI):
+- DILARANG menulis ulang kata "3. Results and Discussion".
+- Susun menjadi 2 sub: "**A. Hasil Penelitian**" (Bahas data mentah di atas) dan "**B. Pembahasan**" (Bandingkan hasil tersebut dengan Referensi Terdahulu).
+- Buat pembahasan sangat analitis, sebutkan apakah hasil ini mendukung atau menolak teori sebelumnya.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4">
+                                <p class="text-xs text-yellow-800 flex items-start">
+                                    <i class="fas fa-exclamation-triangle mr-2 mt-0.5"></i>
+                                    <span>Penting: Tambahkan ringkasan data hasil riset Anda di dalam Gemini sebelum menekan Enter!</span>
+                                </p>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-jhasil')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-jhasil" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Results & Discussion jurnal..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('jhasil')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('jhasil')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-jkesimpulan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">4. Conclusion (Artikel Jurnal)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Kesimpulan</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-jkesimpulan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jkesimpulan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-jkesimpulan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">4. CONCLUSION (KESIMPULAN JURNAL)
+
+Judul Artikel: [JUDUL]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "4. Conclusion".
+- Buat 1 paragraf utuh (maksimal 200 kata) yang menjawab tujuan utama riset secara lugas.
+- Dilarang menggunakan bullet points atau angka (1, 2, 3).
+- Tambahkan 1-2 kalimat saran untuk riset masa depan di akhir paragraf.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-jkesimpulan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-jkesimpulan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Conclusion jurnal..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('jkesimpulan')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('jkesimpulan')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-jabstrak" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">5. Abstract (Artikel Jurnal)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Abstrak</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-jabstrak')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jabstrak"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-jabstrak" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">ABSTRAK JURNAL
+
+Berdasarkan seluruh data yang telah dibahas untuk riset dengan judul: [JUDUL]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "Abstrak".
+- Buat 1 paragraf padat (150 - 250 kata).
+- Harus memuat: (1) Masalah Utama, (2) Tujuan, (3) Metode, dan (4) Hasil Utama/Kesimpulan.
+- Tambahkan "Keywords:" di bagian bawah dengan 3-5 kata kunci yang relevan dipisah koma.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-jabstrak')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-jabstrak" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Abstract jurnal..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('jabstrak')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('jabstrak')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-jdaftar" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">6. References (Artikel Jurnal)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt References</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-jdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-jdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">REFERENCES (DAFTAR PUSTAKA JURNAL)
+
+Referensi Utama: [DATA JURNAL YANG DIKAJI]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "References" atau "Daftar Pustaka".
+- Format mutlak menggunakan style: [APA 7th Edition], terurut A-Z.
+- Minimal 15-20 referensi gabungan dari referensi di atas dan referensi 5 tahun terakhir lainnya.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-jdaftar')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-jdaftar" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil References jurnal..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('jdaftar')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('jdaftar')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan & Finalisasi</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-slrpendahuluan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">1. Pendahuluan (Review SLR)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pendahuluan SLR</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-slrpendahuluan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-slrpendahuluan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-slrpendahuluan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">PENDAHULUAN SYSTEMATIC LITERATURE REVIEW (SLR)
+
+Topik/Judul Review: [JUDUL]
+Bahan Kajian: [DATA JURNAL]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "Pendahuluan".
+- Tulis 4-5 paragraf naratif standar publikasi internasional.
+- Paragraf 1-2: Jelaskan fenomena, pentingnya topik ini, dan teori dasar.
+- Paragraf 3: Jelaskan mengapa riset SLR di bidang ini sangat mendesak dilakukan (Research Gap dari studi review sebelumnya).
+- Paragraf 4: Tuliskan "Research Questions (RQ)" atau Pertanyaan Penelitian yang ingin dijawab dalam review ini (minimal 2 RQ).
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-slrpendahuluan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-slrpendahuluan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Pendahuluan SLR..."></textarea>
+                            </div>
+                            <button onclick="saveProposalSection('slrpendahuluan')" class="mt-auto w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all flex-shrink-0"><i class="fas fa-save mr-2"></i>Simpan & Lanjut</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-slrmetode" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">2. Metode PRISMA (Review SLR)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Metode PRISMA</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-slrmetode')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-slrmetode"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-slrmetode" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">METODOLOGI SYSTEMATIC LITERATURE REVIEW
+
+Topik/Judul Review: [JUDUL]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "Metodologi".
+- Tulis metode berdasarkan panduan PRISMA (Preferred Reporting Items for Systematic Reviews and Meta-Analyses).
+- Wajib memiliki Sub-bab ini:
+  **A. Strategi Pencarian (Search Strategy)**: Sebutkan database (Google Scholar, SINTA, Scopus) dan keyword boolean yang digunakan.
+  **B. Kriteria Inklusi dan Eksklusi**: Buat dalam bentuk list (misal: hanya jurnal 5 tahun terakhir, bahasa inggris/indonesia, tipe artikel primary).
+  **C. Ekstraksi Data**: Jelaskan bagaimana data dari literatur diekstrak.
+- DILARANG MENGGUNAKAN TABEL.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-slrmetode')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-slrmetode" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Metode PRISMA..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('slrmetode')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('slrmetode')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-slrhasil" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">3. Hasil Ekstraksi (Review SLR)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Ekstraksi (Matriks)</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-slrhasil')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-slrhasil"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-slrhasil" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">HASIL EKSTRAKSI DATA SYSTEMATIC REVIEW
+
+Bahan Kajian: [DATA JURNAL]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "Hasil Ekstraksi".
+- Buat 1 TABEL MATRIKS SINTESIS RAKSASA yang membedah seluruh jurnal di atas.
+- Format Kolom Tabel WAJIB:
+  | Author & Tahun | Tujuan Studi | Metode / Sampel | Temuan Utama (Results) | Limitasi Jurnal |
+- Pastikan semua jurnal yang diberikan masuk ke dalam tabel tersebut secara rapi.
+- Berikan sedikit 1 paragraf narasi pengantar sebelum tabel.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-slrhasil')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-slrhasil" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm font-mono" placeholder="Paste tabel matriks hasil ekstraksi..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('slrhasil')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('slrhasil')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-slrpembahasan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">4. Pembahasan SLR (Review SLR)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pembahasan SLR</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-slrpembahasan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-slrpembahasan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-slrpembahasan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">PEMBAHASAN SYSTEMATIC LITERATURE REVIEW (DISCUSSION)
+
+Bahan Kajian: [DATA JURNAL]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "Pembahasan".
+- DILARANG menggunakan tabel.
+- Berdasarkan kumpulan jurnal tersebut, buat analisis pembahasan mendalam (minimal 800 kata).
+- Kelompokkan pembahasan berdasarkan 2-3 tema besar yang mendominasi temuan jurnal-jurnal tersebut (Gunakan Sub-bab tebal untuk setiap tema).
+- Bandingkan perbedaan pandangan atau metode antar author.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-slrpembahasan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-slrpembahasan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste narasi pembahasan SLR..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('slrpembahasan')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('slrpembahasan')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-slrkesimpulan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">5. Kesimpulan (Review SLR)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Kesimpulan SLR</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-slrkesimpulan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-slrkesimpulan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-slrkesimpulan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">KESIMPULAN SYSTEMATIC LITERATURE REVIEW
+
+Bahan Kajian Utama: [GAP]
+
+ATURAN OUTPUT MUTLAK:
+- DILARANG menulis ulang kata "Kesimpulan".
+- Buat 2 paragraf padat.
+- Paragraf 1: Jawaban inti dari review literatur ini (apa benang merahnya).
+- Paragraf 2: Rekomendasi gap penelitian untuk riset di masa depan (Future Work) yang sangat spesifik berdasarkan kekurangan literatur saat ini.
+- TANPA BASA-BASI AI.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-slrkesimpulan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-slrkesimpulan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Kesimpulan SLR..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('slrkesimpulan')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('slrkesimpulan')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="section-slrdaftar" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">6. Daftar Pustaka SLR</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pustaka SLR</h4>
+                            <div class="flex-grow flex flex-col mb-4">
+                                <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
+                                    <button onclick="copyPromptText('prompt-slrdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-slrdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
+                                    <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
+<pre id="prompt-slrdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - SYSTEMATIC REVIEW
+
+Referensi Utama: [DATA JURNAL YANG DIKAJI]
+
+ATURAN OUTPUT MUTLAK:
+- TANPA BASA-BASI. DILARANG menggunakan tabel.
+- HANYA output teks paragraf dengan style [APA 7th Edition], terurut A-Z. 
+- Tuliskan minimal 25 referensi gabungan terkait topik ini, memprioritaskan seluruh [DATA JURNAL YANG DIKAJI].</pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="openGeminiWithPrompt('prompt-slrdaftar')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                                <textarea id="output-slrdaftar" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil daftar pustaka..."></textarea>
+                            </div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('slrdaftar')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('slrdaftar')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan & Finalisasi</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="section-final" class="proposal-section hidden bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
                     <div class="text-center mb-8 mt-4">
                         <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-check-circle text-4xl text-green-600"></i>
                         </div>
-                        <h3 class="text-2xl font-bold text-gray-800">Proposal Selesai!</h3>
-                        <p class="text-gray-600 mt-2">Semua data naratif dan tabel Anda telah tersusun di memori aplikasi.</p>
+                        <h3 class="text-2xl font-bold text-gray-800">Dokumen Siap Diekspor!</h3>
+                        <p class="text-gray-600 mt-2">Atur tata letak (layout) dokumen sesuai persyaratan kampus atau jurnal Anda sebelum mengunduh.</p>
                     </div>
 
-                    <div class="max-w-md mx-auto mb-4 bg-gray-50 p-6 rounded-xl border border-gray-200">
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Pilih Format Output Dokumen:</label>
-                        <select id="proposalFormat" class="w-full p-3 border-2 border-indigo-200 rounded-xl focus:border-indigo-500 focus:outline-none mb-6 cursor-pointer text-gray-700 font-medium">
-                            <option value="bab">Lengkap (BAB I, II, III) - Standar Skripsi</option>
-                            <option value="mini">Sederhana (A, B, C...) - Pengajuan Judul</option>
-                        </select>
+                    <div class="max-w-2xl mx-auto mb-6 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center">
+                            <i class="fas fa-sliders-h text-indigo-600 mr-2"></i>
+                            <h4 class="font-bold text-gray-700">Pengaturan Tata Letak (Page Setup)</h4>
+                        </div>
+                        <div class="p-4 grid md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <label class="block font-semibold text-gray-600 mb-1">Ukuran Kertas</label>
+                                <select id="settingPaper" class="w-full p-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                    <option value="21cm 29.7cm">A4 (Standar Skripsi/Jurnal)</option>
+                                    <option value="21.59cm 27.94cm">Letter (Standar Internasional)</option>
+                                    <option value="21.5cm 33cm">F4 / Folio</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-600 mb-1">Margin (Tepi Kertas)</label>
+                                <select id="settingMargin" class="w-full p-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                    <option value="4cm 3cm 3cm 4cm">Standar Skripsi (Kiri 4, Atas 4, Kanan 3, Bawah 3)</option>
+                                    <option value="3cm 2.5cm 2.5cm 2.5cm">Normal / Proposal (Kiri 3, Atas 3, Kanan 2.5, Bawah 2.5)</option>
+                                    <option value="2.54cm 2.54cm 2.54cm 2.54cm">Margin IEEE/Jurnal Internasional (2.54cm semua sisi)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-600 mb-1">Jenis Font</label>
+                                <select id="settingFont" class="w-full p-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                    <option value="'Times New Roman', serif">Times New Roman (Standar)</option>
+                                    <option value="'Arial', sans-serif">Arial</option>
+                                    <option value="'Calibri', sans-serif">Calibri</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-600 mb-1">Spasi Baris (Line Spacing)</label>
+                                <select id="settingSpacing" class="w-full p-2 border rounded-lg focus:outline-none focus:border-indigo-500">
+                                    <option value="1.5">1.5 Lines (Standar Makalah/Skripsi)</option>
+                                    <option value="2.0">Double (Persyaratan Draft Jurnal tertentu)</option>
+                                    <option value="1.15">1.15 Lines (Standar Artikel 2 Kolom)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="max-w-md mx-auto mb-4" id="proposalFormatContainer">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 text-center">Struktur Bab:</label>
+                        <select id="proposalFormat" class="w-full p-3 border-2 border-indigo-200 rounded-xl focus:border-indigo-500 focus:outline-none mb-6 cursor-pointer text-gray-700 font-medium text-center">
+                            <option value="bab">Format Lengkap (BAB I, II, III) - Standar Tugas Akhir</option>
+                            <option value="mini">Format Sederhana (A, B, C...) - Laporan Ringkas</option>
+                        </select>
                         <button onclick="downloadDOCX()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center justify-center shadow-lg transform hover:scale-[1.02]">
-                            <i class="fas fa-file-word mr-2 text-xl"></i>Download DOCX
+                            <i class="fas fa-file-word mr-2 text-xl"></i>Download Dokumen (DOCX)
+                        </button>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto mb-4 hidden" id="jurnalDownloadContainer">
+                        <button onclick="downloadDOCX()" class="w-full bg-teal-600 text-white py-4 rounded-xl font-bold hover:bg-teal-700 transition-all flex items-center justify-center shadow-lg transform hover:scale-[1.02]">
+                            <i class="fas fa-file-word mr-2 text-xl"></i>Download Artikel (Format 2 Kolom)
+                        </button>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto mb-4 hidden" id="skripsiDownloadContainer">
+                        <button onclick="downloadDOCX()" class="w-full bg-yellow-600 text-white py-4 rounded-xl font-bold hover:bg-yellow-700 transition-all flex items-center justify-center shadow-lg transform hover:scale-[1.02]">
+                            <i class="fas fa-file-word mr-2 text-xl"></i>Download Skripsi (Bab 4 & 5)
                         </button>
                     </div>
                 </div>
@@ -924,49 +1928,19 @@ Tuliskan minimal 10-15 referensi terkait penelitian ini, prioritas 5 tahun terak
 
     <div class="fixed bottom-6 right-6 flex flex-col space-y-3 z-50">
         <input type="file" id="file-restore-input" accept=".json" class="hidden" onchange="processRestoreFile(event)">
-        
         <button onclick="downloadBackup()" class="bg-blue-600 text-white w-12 h-12 rounded-full shadow-xl hover:bg-blue-700 hover:scale-110 transition-all flex items-center justify-center group relative">
-            <i class="fas fa-download text-xl"></i>
-            <span class="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Download Backup (.json)</span>
+            <i class="fas fa-download text-xl"></i><span class="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Download Backup (.json)</span>
         </button>
         <button onclick="triggerRestore()" class="bg-green-600 text-white w-12 h-12 rounded-full shadow-xl hover:bg-green-700 hover:scale-110 transition-all flex items-center justify-center group relative">
-            <i class="fas fa-upload text-xl"></i>
-            <span class="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Upload Backup (.json)</span>
+            <i class="fas fa-upload text-xl"></i><span class="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Upload Backup (.json)</span>
         </button>
         <button onclick="showConfirmModal()" class="bg-red-600 text-white w-12 h-12 rounded-full shadow-xl hover:bg-red-700 hover:scale-110 transition-all flex items-center justify-center group relative">
-            <i class="fas fa-trash-alt text-xl"></i>
-            <span class="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Reset App</span>
+            <i class="fas fa-trash-alt text-xl"></i><span class="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Reset App</span>
         </button>
     </div>
 
-    <div id="customAlertModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center">
-        <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="closeCustomAlert()"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-sm p-6 relative z-10 transform scale-95 opacity-0 transition-all duration-300" id="customAlertCard">
-            <div id="customAlertIcon" class="w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto">
-                </div>
-            <h3 id="customAlertTitle" class="text-xl font-bold text-center text-gray-800 mb-2">Pesan</h3>
-            <p id="customAlertMessage" class="text-gray-600 text-center text-sm mb-6">Detail pesan di sini.</p>
-            <button onclick="closeCustomAlert()" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30">
-                Mengerti
-            </button>
-        </div>
-    </div>
-
-    <div id="customConfirmModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center">
-        <div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="closeConfirmModal()"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-sm p-6 relative z-10 transform scale-95 opacity-0 transition-all duration-300" id="customConfirmCard">
-            <div class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4 mx-auto">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Reset Aplikasi?</h3>
-            <p class="text-gray-600 text-center text-sm mb-6">Pastikan Anda sudah men-download backup. Semua progress di layar akan terhapus dan tidak bisa dikembalikan.</p>
-            <div class="flex gap-3">
-                <button onclick="closeConfirmModal()" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-all">Batal</button>
-                <button onclick="executeReset()" class="flex-1 bg-red-600 text-white font-semibold py-3 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-500/30">Ya, Reset</button>
-            </div>
-        </div>
-    </div>
-
+    <div id="customAlertModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center"><div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="closeCustomAlert()"></div><div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-sm p-6 relative z-10 transform scale-95 opacity-0 transition-all duration-300" id="customAlertCard"><div id="customAlertIcon" class="w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto"></div><h3 id="customAlertTitle" class="text-xl font-bold text-center text-gray-800 mb-2">Pesan</h3><p id="customAlertMessage" class="text-gray-600 text-center text-sm mb-6">Detail pesan.</p><button onclick="closeCustomAlert()" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30">Mengerti</button></div></div>
+    <div id="customConfirmModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center"><div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="closeConfirmModal()"></div><div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-sm p-6 relative z-10 transform scale-95 opacity-0 transition-all duration-300" id="customConfirmCard"><div class="w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl mb-4 mx-auto"><i class="fas fa-exclamation-triangle"></i></div><h3 class="text-xl font-bold text-center text-gray-800 mb-2">Reset Aplikasi?</h3><p class="text-gray-600 text-center text-sm mb-6">Pastikan Anda sudah men-download backup. Semua progress di layar akan terhapus.</p><div class="flex gap-3"><button onclick="closeConfirmModal()" class="flex-1 bg-gray-100 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-200 transition-all">Batal</button><button onclick="executeReset()" class="flex-1 bg-red-600 text-white font-semibold py-3 rounded-xl hover:bg-red-700 transition-all shadow-lg shadow-red-500/30">Ya, Reset</button></div></div></div>
     <script src="script.js"></script>
 </body>
 </html>
