@@ -721,13 +721,17 @@ function downloadDOCX() {
             table { border-collapse: collapse; width: 100%; margin-top: 12pt; margin-bottom: 12pt; }
             th, td { border: 1pt solid black; padding: 6pt 8pt; text-align: left; vertical-align: top; line-height: 1.15; }
             th { background-color: #e6e6e6; font-weight: bold; text-align: center; }
-            td p { text-indent: 0; margin-bottom: 4pt; } /* Teks dalam tabel dinetralkan indensinya */
+            td p { text-indent: 0; margin-bottom: 4pt; } 
             
             /* Format Halaman Sampul (Cover) */
             .cover-page { text-align: center; margin-top: 100pt; page-break-after: always; }
             .cover-page h2 { text-indent: 0; text-align: center; margin-bottom: 20pt; font-size: 16pt; }
             .cover-title { font-size: 16pt; font-weight: bold; text-transform: uppercase; margin-bottom: 50pt; line-height: 1.5; text-indent: 0; }
-            .cover-logo { margin-bottom: 50pt; font-weight: normal; color: #333; text-indent: 0; font-size: 12pt;}
+            
+            /* Format gambar logo di Word */
+            .cover-logo { margin-bottom: 50pt; text-align: center; text-indent: 0; }
+            .cover-logo img { width: 180px; height: auto; } /* Ukuran logo diset proporsional */
+            
             .cover-author { margin-bottom: 80pt; font-size: 12pt; text-indent: 0; line-height: 1.5; }
             .cover-inst { font-size: 14pt; font-weight: bold; text-transform: uppercase; text-indent: 0; line-height: 1.5; }
             
@@ -736,6 +740,9 @@ function downloadDOCX() {
             
             /* Kelas utilitas untuk List Item (Angka/Bullet) */
             .list-item { text-indent: 0; padding-left: 1.25cm; margin-bottom: 4pt; }
+
+            /* FITUR BARU: Hanging Indent Otomatis untuk Daftar Pustaka */
+            .biblio-item { text-indent: -1.25cm; margin-left: 1.25cm; margin-bottom: 8pt; }
         </style>
     `;
 
@@ -743,17 +750,10 @@ function downloadDOCX() {
     function formatTextForWord(text) {
         if (!text) return '';
 
-        // Hapus basabasi awalan AI yang sering bocor (berjaga-jaga)
         let html = text.replace(/^(Tentu, berikut|Berikut adalah|Tentu saja|Ini dia).*?:/mi, '');
-        
-        // Bersihkan tag heading markdown (###) agar tidak dobel dengan header otomatis dari sistem
         html = html.replace(/^#+\s*(.*)$/gm, '<strong>$1</strong>');
-
-        // Parsing Bold (**) dan Italic (*)
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        
-        // Membersihkan tag <br> bawaan AI agar tidak merusak paragraf Word
         html = html.replace(/<br>\s*<br>/g, '</p><p>');
 
         const lines = html.split('\n');
@@ -762,21 +762,13 @@ function downloadDOCX() {
 
         lines.forEach(line => {
             const trimmed = line.trim();
-            
-            // Abaikan garis separator tabel
-            if (/^\|?[\-\:\s\|]+\|?$/.test(trimmed) && trimmed.includes('-')) {
-                return; 
-            }
+            if (/^\|?[\-\:\s\|]+\|?$/.test(trimmed) && trimmed.includes('-')) return; 
 
             if (trimmed.startsWith('|') || trimmed.endsWith('|')) {
-                if (!inTable) {
-                    result += '<table>';
-                    inTable = true;
-                }
+                if (!inTable) { result += '<table>'; inTable = true; }
                 
                 let rowHtml = '<tr>';
                 let cells = trimmed.split('|').map(c => c.trim());
-                
                 if (cells[0] === '') cells.shift();
                 if (cells[cells.length - 1] === '') cells.pop();
 
@@ -792,11 +784,7 @@ function downloadDOCX() {
                 result += rowHtml;
                 
             } else {
-                if (inTable) {
-                    result += '</table>';
-                    inTable = false;
-                }
-                
+                if (inTable) { result += '</table>'; inTable = false; }
                 if (trimmed) {
                     if (/^(\d+\.|-|\*)\s/.test(trimmed)) {
                          result += `<p class="list-item">${trimmed}</p>`;
@@ -808,7 +796,6 @@ function downloadDOCX() {
         });
         
         if (inTable) result += '</table>'; 
-        
         return result;
     }
 
@@ -823,15 +810,14 @@ function downloadDOCX() {
         <body>
     `;
 
-    // HALAMAN SAMPUL (COVER)
+    // HALAMAN SAMPUL (COVER) DENGAN LOGO OTOMATIS
     docContent += `
         <div class="cover-page">
             <h2>PROPOSAL PENELITIAN</h2>
             <div class="cover-title">${selectedTitle || 'Judul Penelitian Belum Dipilih'}</div>
             
             <div class="cover-logo">
-                [ TEMPAT KOSONG UNTUK LOGO ]<br>
-                (Hapus teks ini dan Sisipkan Gambar Logo)
+                <img src="logo1.png" alt="Logo Pontren">
             </div>
             
             <div class="cover-author">
@@ -862,17 +848,23 @@ function downloadDOCX() {
 
     Object.keys(proposalData).forEach(function(key) {
         if (proposalData[key]) {
-            // Beri page break khusus untuk Daftar Pustaka agar pindah ke halaman baru
             let extraClass = (key === 'daftar') ? ' class="page-break"' : '';
             docContent += `<h2${extraClass}>${sectionNames[key]}</h2>`;
-            docContent += formatTextForWord(proposalData[key]);
+            
+            let sectionHtml = formatTextForWord(proposalData[key]);
+            
+            // JIKA BAGIAN DAFTAR PUSTAKA, OTOMATIS UBAH CSS PARAGRAFNYA MENJADI HANGING INDENT
+            if (key === 'daftar') {
+                sectionHtml = sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
+            }
+            
+            docContent += sectionHtml;
         }
     });
 
     docContent += '</body></html>';
 
     // 4. Proses Download File Word (.doc)
-    // Penambahan \ufeff untuk mengatasi masalah karakter khusus
     const blob = new Blob(['\ufeff', docContent], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
