@@ -60,40 +60,6 @@
 
     <main class="container mx-auto px-6 py-8 max-w-7xl">
 
-        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-indigo-100 text-center relative overflow-hidden">
-            <div class="absolute top-0 right-0 bg-yellow-500 text-white text-xs font-bold px-4 py-1 rounded-bl-xl shadow-sm">
-                <i class="fas fa-star mr-1"></i> SUPER-APP V5 (FINAL)
-            </div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Pilih Target Dokumen Anda Hari Ini:</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
-                <button onclick="setDocumentType('proposal')" id="btn-mode-proposal" class="mode-btn border-2 border-indigo-500 bg-indigo-50 text-indigo-700 font-bold py-4 px-3 rounded-xl flex items-center justify-center transition-all shadow-md transform scale-105">
-                    <i class="fas fa-file-alt md:mr-3 text-xl md:text-2xl mb-1 md:mb-0"></i> 
-                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Proposal</span><span class="text-xs font-normal opacity-80">Riset Awal</span></div>
-                    <span class="block md:hidden text-xs mt-1">Proposal</span>
-                </button>
-                <button onclick="setDocumentType('skripsi')" id="btn-mode-skripsi" class="mode-btn border-2 border-gray-200 bg-white text-gray-600 font-bold py-4 px-3 rounded-xl flex items-center justify-center hover:border-indigo-300 transition-all">
-                    <i class="fas fa-user-graduate md:mr-3 text-xl md:text-2xl mb-1 md:mb-0 text-yellow-600"></i> 
-                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Skripsi</span><span class="text-xs font-normal opacity-80">Bab 4-5</span></div>
-                    <span class="block md:hidden text-xs mt-1">Skripsi</span>
-                </button>
-                <button onclick="setDocumentType('makalah')" id="btn-mode-makalah" class="mode-btn border-2 border-gray-200 bg-white text-gray-600 font-bold py-4 px-3 rounded-xl flex items-center justify-center hover:border-indigo-300 transition-all">
-                    <i class="fas fa-file-word md:mr-3 text-xl md:text-2xl mb-1 md:mb-0"></i> 
-                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Makalah</span><span class="text-xs font-normal opacity-80">Tugas Kuliah</span></div>
-                    <span class="block md:hidden text-xs mt-1">Makalah</span>
-                </button>
-                <button onclick="setDocumentType('jurnal')" id="btn-mode-jurnal" class="mode-btn border-2 border-gray-200 bg-white text-gray-600 font-bold py-4 px-3 rounded-xl flex items-center justify-center hover:border-indigo-300 transition-all">
-                    <i class="fas fa-book-open md:mr-3 text-xl md:text-2xl mb-1 md:mb-0"></i> 
-                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Artikel</span><span class="text-xs font-normal opacity-80">Riset Lapangan</span></div>
-                    <span class="block md:hidden text-xs mt-1">Artikel</span>
-                </button>
-                <button onclick="setDocumentType('slr')" id="btn-mode-slr" class="mode-btn border-2 border-gray-200 bg-white text-gray-600 font-bold py-4 px-3 rounded-xl flex items-center justify-center hover:border-indigo-300 transition-all col-span-2 md:col-span-1 lg:col-span-1">
-                    <i class="fas fa-layer-group md:mr-3 text-xl md:text-2xl mb-1 md:mb-0 text-purple-600"></i> 
-                    <div class="text-left hidden md:block"><span class="block text-sm lg:text-base">Review (SLR)</span><span class="text-xs font-normal opacity-80">Studi Pustaka</span></div>
-                    <span class="block md:hidden text-xs mt-1">Review (SLR)</span>
-                </button>
-            </div>
-        </div>
-
         <div class="bg-white shadow-sm border rounded-2xl p-4 mb-8">
             <div class="flex justify-between items-center max-w-4xl mx-auto">
                 <div class="flex flex-col items-center">
@@ -1938,17 +1904,55 @@ ATURAN OUTPUT MUTLAK:
 
     </main>
 
-    <div class="fixed bottom-6 right-6 flex flex-col space-y-3 z-50">
+    <div class="fixed left-3 md:left-6 top-1/2 transform -translate-y-1/2 flex flex-col space-y-3 z-50 bg-white/80 backdrop-blur-md p-2 rounded-2xl shadow-xl border border-gray-200">
+        
+        <button onclick="setDocumentType('proposal')" id="btn-mode-proposal" class="w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-indigo-300 ring-offset-1 bg-indigo-600 text-white border-transparent">
+            <i class="fas fa-file-alt text-xl"></i>
+            <span class="absolute left-16 bg-gray-800 text-white text-sm px-4 h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">📝 Proposal (Bab 1-3)</span>
+        </button>
+
+        <button onclick="setDocumentType('skripsi')" id="btn-mode-skripsi" class="w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-yellow-50 text-yellow-600 hover:bg-yellow-600 hover:text-white border-yellow-100">
+            <i class="fas fa-user-graduate text-xl"></i>
+            <span class="absolute left-16 bg-gray-800 text-white text-sm px-4 h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">🎓 Skripsi (Bab 4-5)</span>
+        </button>
+
+        <button onclick="setDocumentType('makalah')" id="btn-mode-makalah" class="w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border-emerald-100">
+            <i class="fas fa-file-word text-xl"></i>
+            <span class="absolute left-16 bg-gray-800 text-white text-sm px-4 h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">📄 Makalah Akademik</span>
+        </button>
+
+        <button onclick="setDocumentType('jurnal')" id="btn-mode-jurnal" class="w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-teal-50 text-teal-600 hover:bg-teal-600 hover:text-white border-teal-100">
+            <i class="fas fa-book-open text-xl"></i>
+            <span class="absolute left-16 bg-gray-800 text-white text-sm px-4 h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">📰 Artikel Jurnal</span>
+        </button>
+
+        <button onclick="setDocumentType('slr')" id="btn-mode-slr" class="w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white border-purple-100">
+            <i class="fas fa-layer-group text-xl"></i>
+            <span class="absolute left-16 bg-gray-800 text-white text-sm px-4 h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">📚 Review (SLR)</span>
+        </button>
+    </div>
+
+    <div class="fixed right-3 md:right-6 top-1/2 transform -translate-y-1/2 flex flex-col space-y-3 z-50 bg-white/80 backdrop-blur-md p-2 rounded-2xl shadow-xl border border-gray-200">
+        
         <input type="file" id="file-restore-input" accept=".json" class="hidden" onchange="processRestoreFile(event)">
-        <button onclick="downloadBackup()" class="bg-blue-600 text-white w-12 h-12 rounded-full shadow-xl hover:bg-blue-700 hover:scale-110 transition-all flex items-center justify-center group relative">
-            <i class="fas fa-download text-xl"></i><span class="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Download Backup (.json)</span>
+        
+        <button onclick="downloadBackup()" class="w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm border border-blue-100">
+            <i class="fas fa-download text-xl transform group-hover:scale-110 transition-transform"></i>
+            <span class="absolute right-16 bg-gray-800 text-white text-sm px-4 h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">💾 Download Backup</span>
         </button>
-        <button onclick="triggerRestore()" class="bg-green-600 text-white w-12 h-12 rounded-full shadow-xl hover:bg-green-700 hover:scale-110 transition-all flex items-center justify-center group relative">
-            <i class="fas fa-upload text-xl"></i><span class="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Upload Backup (.json)</span>
+
+        <button onclick="triggerRestore()" class="w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative bg-green-50 text-green-600 hover:bg-green-600 hover:text-white shadow-sm border border-green-100">
+            <i class="fas fa-upload text-xl transform group-hover:scale-110 transition-transform"></i>
+            <span class="absolute right-16 bg-gray-800 text-white text-sm px-4 h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">📂 Upload Backup</span>
         </button>
-        <button onclick="showConfirmModal()" class="bg-red-600 text-white w-12 h-12 rounded-full shadow-xl hover:bg-red-700 hover:scale-110 transition-all flex items-center justify-center group relative">
-            <i class="fas fa-trash-alt text-xl"></i><span class="absolute right-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Reset App</span>
+
+        <div class="w-8 h-px bg-gray-300 mx-auto my-1 rounded-full"></div>
+
+        <button onclick="showConfirmModal()" class="w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative bg-red-50 text-red-600 hover:bg-red-600 hover:text-white shadow-sm border border-red-100">
+            <i class="fas fa-trash-alt text-xl transform group-hover:scale-110 transition-transform"></i>
+            <span class="absolute right-16 bg-red-600 text-white text-sm px-4 h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">⚠️ Reset Aplikasi</span>
         </button>
+        
     </div>
 
     <div id="customAlertModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center"><div class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity" onclick="closeCustomAlert()"></div><div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-sm p-6 relative z-10 transform scale-95 opacity-0 transition-all duration-300" id="customAlertCard"><div id="customAlertIcon" class="w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto"></div><h3 id="customAlertTitle" class="text-xl font-bold text-center text-gray-800 mb-2">Pesan</h3><p id="customAlertMessage" class="text-gray-600 text-center text-sm mb-6">Detail pesan.</p><button onclick="closeCustomAlert()" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/30">Mengerti</button></div></div>

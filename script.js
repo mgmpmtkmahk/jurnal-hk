@@ -24,63 +24,71 @@ let proposalData = {
 function setDocumentType(type) {
     documentType = type;
     
-    const btnProp = document.getElementById('btn-mode-proposal');
-    const btnMak = document.getElementById('btn-mode-makalah');
-    const btnJur = document.getElementById('btn-mode-jurnal');
-    const btnSkrip = document.getElementById('btn-mode-skripsi');
-    const btnSlr = document.getElementById('btn-mode-slr');
     const titleStep5 = document.getElementById('step5-title');
     
-    const inactiveClass = "mode-btn border-2 border-gray-200 bg-white text-gray-600 font-bold py-4 px-3 rounded-xl flex items-center justify-center hover:border-indigo-300 transition-all";
-    const activeClass = "mode-btn border-2 border-indigo-500 bg-indigo-50 text-indigo-700 font-bold py-4 px-3 rounded-xl flex items-center justify-center transition-all shadow-md transform scale-105";
-    
-    // Reset Kelas
-    btnProp.className = inactiveClass;
-    btnMak.className = inactiveClass;
-    btnJur.className = inactiveClass;
-    btnSkrip.className = inactiveClass;
-    btnSlr.className = inactiveClass + " col-span-2 md:col-span-1 lg:col-span-1";
+    // Kamus/Dictionary Warna untuk masing-masing mode
+    const btnStyles = {
+        proposal: {
+            id: 'btn-mode-proposal',
+            inactive: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white border-indigo-100",
+            active: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-indigo-300 ring-offset-1 bg-indigo-600 text-white border-transparent"
+        },
+        skripsi: {
+            id: 'btn-mode-skripsi',
+            inactive: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-yellow-50 text-yellow-600 hover:bg-yellow-600 hover:text-white border-yellow-100",
+            active: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-yellow-300 ring-offset-1 bg-yellow-600 text-white border-transparent"
+        },
+        makalah: {
+            id: 'btn-mode-makalah',
+            inactive: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border-emerald-100",
+            active: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-emerald-300 ring-offset-1 bg-emerald-600 text-white border-transparent"
+        },
+        jurnal: {
+            id: 'btn-mode-jurnal',
+            inactive: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-teal-50 text-teal-600 hover:bg-teal-600 hover:text-white border-teal-100",
+            active: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-teal-300 ring-offset-1 bg-teal-600 text-white border-transparent"
+        },
+        slr: {
+            id: 'btn-mode-slr',
+            inactive: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white border-purple-100",
+            active: "w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-purple-300 ring-offset-1 bg-purple-600 text-white border-transparent"
+        }
+    };
 
-    // Sembunyikan Semua Menu Navigasi
-    document.getElementById('proposal-nav-buttons').classList.add('hidden'); 
-    document.getElementById('proposal-nav-buttons').classList.remove('grid');
-    document.getElementById('makalah-nav-buttons').classList.add('hidden'); 
-    document.getElementById('makalah-nav-buttons').classList.remove('grid');
-    document.getElementById('jurnal-nav-buttons').classList.add('hidden'); 
-    document.getElementById('jurnal-nav-buttons').classList.remove('grid');
-    document.getElementById('skripsi-nav-buttons').classList.add('hidden'); 
-    document.getElementById('skripsi-nav-buttons').classList.remove('grid');
-    document.getElementById('slr-nav-buttons').classList.add('hidden'); 
-    document.getElementById('slr-nav-buttons').classList.remove('grid');
+    // 1. Reset semua tombol di kiri menjadi warna pastel (Inactive)
+    Object.keys(btnStyles).forEach(key => {
+        document.getElementById(btnStyles[key].id).className = btnStyles[key].inactive;
+    });
+
+    // 2. Sembunyikan Semua Menu Navigasi di Step 5
+    document.getElementById('proposal-nav-buttons').classList.add('hidden'); document.getElementById('proposal-nav-buttons').classList.remove('grid');
+    document.getElementById('makalah-nav-buttons').classList.add('hidden'); document.getElementById('makalah-nav-buttons').classList.remove('grid');
+    document.getElementById('jurnal-nav-buttons').classList.add('hidden'); document.getElementById('jurnal-nav-buttons').classList.remove('grid');
+    document.getElementById('skripsi-nav-buttons').classList.add('hidden'); document.getElementById('skripsi-nav-buttons').classList.remove('grid');
+    document.getElementById('slr-nav-buttons').classList.add('hidden'); document.getElementById('slr-nav-buttons').classList.remove('grid');
     
+    // 3. Aktifkan tombol yang saat ini dipilih (Menyala solid)
+    document.getElementById(btnStyles[type].id).className = btnStyles[type].active;
+
+    // 4. Ubah logika tampilan konten Step 5
     if (type === 'proposal') {
-        btnProp.className = activeClass;
-        document.getElementById('proposal-nav-buttons').classList.remove('hidden'); 
-        document.getElementById('proposal-nav-buttons').classList.add('grid');
+        document.getElementById('proposal-nav-buttons').classList.remove('hidden'); document.getElementById('proposal-nav-buttons').classList.add('grid');
         titleStep5.innerText = "Langkah 5: Penyusunan Proposal (Bab 1-3)";
         showProposalSection('latar');
     } else if (type === 'makalah') {
-        btnMak.className = activeClass;
-        document.getElementById('makalah-nav-buttons').classList.remove('hidden'); 
-        document.getElementById('makalah-nav-buttons').classList.add('grid');
+        document.getElementById('makalah-nav-buttons').classList.remove('hidden'); document.getElementById('makalah-nav-buttons').classList.add('grid');
         titleStep5.innerText = "Langkah 5: Penyusunan Makalah (Standar Akademik)";
         showProposalSection('mpendahuluan');
     } else if (type === 'jurnal') {
-        btnJur.className = activeClass;
-        document.getElementById('jurnal-nav-buttons').classList.remove('hidden'); 
-        document.getElementById('jurnal-nav-buttons').classList.add('grid');
+        document.getElementById('jurnal-nav-buttons').classList.remove('hidden'); document.getElementById('jurnal-nav-buttons').classList.add('grid');
         titleStep5.innerText = "Langkah 5: Penyusunan Artikel Jurnal (Standar SINTA/Scopus)";
         showProposalSection('jpendahuluan');
     } else if (type === 'skripsi') {
-        btnSkrip.className = activeClass;
-        document.getElementById('skripsi-nav-buttons').classList.remove('hidden'); 
-        document.getElementById('skripsi-nav-buttons').classList.add('grid');
+        document.getElementById('skripsi-nav-buttons').classList.remove('hidden'); document.getElementById('skripsi-nav-buttons').classList.add('grid');
         titleStep5.innerText = "Langkah 5: Penyusunan Skripsi Akhir (Bab 4 & 5)";
         showProposalSection('sdeskripsi');
     } else if (type === 'slr') {
-        btnSlr.className = activeClass + " col-span-2 md:col-span-1 lg:col-span-1";
-        document.getElementById('slr-nav-buttons').classList.remove('hidden'); 
-        document.getElementById('slr-nav-buttons').classList.add('grid');
+        document.getElementById('slr-nav-buttons').classList.remove('hidden'); document.getElementById('slr-nav-buttons').classList.add('grid');
         titleStep5.innerText = "Langkah 5: Penyusunan Systematic Literature Review (SLR)";
         showProposalSection('slrpendahuluan');
     }
