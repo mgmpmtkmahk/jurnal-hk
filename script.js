@@ -803,7 +803,7 @@ function downloadDOCX() {
         <div class="cover-page">
             <h2>PROPOSAL PENELITIAN</h2>
             <div class="cover-title">${selectedTitle || 'Judul Penelitian Belum Dipilih'}</div>
-            <div class="cover-logo"><img src="logo1.jpg" alt="Logo Pontren"></div>
+            <div class="cover-logo"><img src="logo1.png" alt="Logo Pontren"></div>
             <div class="cover-author">Disusun Oleh:<br><strong>[ NAMA LENGKAP PENELITI ]</strong><br>[ NIP / NIDN / NIM ]</div>
             <div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div>
         </div>
