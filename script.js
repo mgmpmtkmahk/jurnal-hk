@@ -705,48 +705,44 @@ function showFinalReview() {
 }
 
 function downloadDOCX() {
-    // 1. Definisikan Style CSS standar Akademik Ekstra Rapi untuk MS Word
+    // 1. Ambil pilihan format dari Dropdown
+    const formatChoice = document.getElementById('proposalFormat').value;
+
+    // 2. Definisikan Style CSS standar Akademik Ekstra Rapi
     const styles = `
         <style>
-            /* Margin Standar Skripsi (Kiri 3cm, Atas 3cm, Kanan 2.5cm, Bawah 2.5cm) */
             @page { margin: 3cm 2.5cm 2.5cm 2.5cm; } 
             body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.5; color: #000; }
             h1 { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 24pt; text-transform: uppercase; }
+            
+            /* Style untuk Format Mini (A, B, C) */
             h2 { font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 12pt; text-transform: uppercase; page-break-after: avoid; }
             
-            /* Indensi (Menjorok) untuk paragraf standar */
+            /* Style untuk Format BAB (BAB I, BAB II) */
+            .chapter-title { text-align: center; font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 24pt; text-transform: uppercase; page-break-after: avoid; }
+            h3 { font-size: 12pt; font-weight: bold; margin-top: 18pt; margin-bottom: 6pt; page-break-after: avoid; }
+            
             p { margin-top: 0; margin-bottom: 10pt; text-align: justify; text-indent: 1.25cm; } 
             
-            /* Pengaturan Tabel agar rapi dan teksnya tidak ikut menjorok */
             table { border-collapse: collapse; width: 100%; margin-top: 12pt; margin-bottom: 12pt; }
             th, td { border: 1pt solid black; padding: 6pt 8pt; text-align: left; vertical-align: top; line-height: 1.15; }
             th { background-color: #e6e6e6; font-weight: bold; text-align: center; }
             td p { text-indent: 0; margin-bottom: 4pt; } 
             
-            /* Format Halaman Sampul (Cover) */
             .cover-page { text-align: center; margin-top: 100pt; page-break-after: always; }
             .cover-page h2 { text-indent: 0; text-align: center; margin-bottom: 20pt; font-size: 16pt; }
             .cover-title { font-size: 16pt; font-weight: bold; text-transform: uppercase; margin-bottom: 50pt; line-height: 1.5; text-indent: 0; }
-            
-            /* Format gambar logo di Word */
             .cover-logo { margin-bottom: 50pt; text-align: center; text-indent: 0; }
-            .cover-logo img { width: 180px; height: auto; } /* Ukuran logo diset proporsional */
-            
+            .cover-logo img { width: 180px; height: auto; } 
             .cover-author { margin-bottom: 80pt; font-size: 12pt; text-indent: 0; line-height: 1.5; }
             .cover-inst { font-size: 14pt; font-weight: bold; text-transform: uppercase; text-indent: 0; line-height: 1.5; }
             
-            /* Kelas utilitas untuk Page Break */
             .page-break { page-break-before: always; }
-            
-            /* Kelas utilitas untuk List Item (Angka/Bullet) */
             .list-item { text-indent: 0; padding-left: 1.25cm; margin-bottom: 4pt; }
-
-            /* FITUR BARU: Hanging Indent Otomatis untuk Daftar Pustaka */
             .biblio-item { text-indent: -1.25cm; margin-left: 1.25cm; margin-bottom: 8pt; }
         </style>
     `;
 
-    // 2. Fungsi untuk mengubah Teks Markdown AI menjadi HTML Word
     function formatTextForWord(text) {
         if (!text) return '';
 
@@ -766,7 +762,6 @@ function downloadDOCX() {
 
             if (trimmed.startsWith('|') || trimmed.endsWith('|')) {
                 if (!inTable) { result += '<table>'; inTable = true; }
-                
                 let rowHtml = '<tr>';
                 let cells = trimmed.split('|').map(c => c.trim());
                 if (cells[0] === '') cells.shift();
@@ -782,7 +777,6 @@ function downloadDOCX() {
                 });
                 rowHtml += '</tr>';
                 result += rowHtml;
-                
             } else {
                 if (inTable) { result += '</table>'; inTable = false; }
                 if (trimmed) {
@@ -794,84 +788,92 @@ function downloadDOCX() {
                 }
             }
         });
-        
         if (inTable) result += '</table>'; 
         return result;
     }
 
-    // 3. Bangun Struktur HTML Dokumen Word
     let docContent = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head>
-            <meta charset='utf-8'>
-            <title>Proposal Penelitian</title>
-            ${styles}
-        </head>
+        <head><meta charset='utf-8'><title>Proposal Penelitian</title>${styles}</head>
         <body>
     `;
 
-    // HALAMAN SAMPUL (COVER) DENGAN LOGO OTOMATIS
+    // HALAMAN SAMPUL (Sama untuk kedua format)
     docContent += `
         <div class="cover-page">
             <h2>PROPOSAL PENELITIAN</h2>
             <div class="cover-title">${selectedTitle || 'Judul Penelitian Belum Dipilih'}</div>
-            
-            <div class="cover-logo">
-                <img src="logo1.png" alt="Logo Pontren">
-            </div>
-            
-            <div class="cover-author">
-                Disusun Oleh:<br>
-                <strong>[ NAMA LENGKAP PENELITI ]</strong><br>
-                [ NIP / NIDN / NIM ]
-            </div>
-            
-            <div class="cover-inst">
-                PONTREN HUSNUL KHOTIMAH<br>
-                ${new Date().getFullYear()}
-            </div>
+            <div class="cover-logo"><img src="logo1.jpg" alt="Logo Pontren"></div>
+            <div class="cover-author">Disusun Oleh:<br><strong>[ NAMA LENGKAP PENELITI ]</strong><br>[ NIP / NIDN / NIM ]</div>
+            <div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div>
         </div>
     `;
 
-    // ISI PROPOSAL
-    const sectionNames = {
-        latar: 'A. Latar Belakang Masalah',
-        rumusan: 'B. Rumusan Masalah',
-        tujuan: 'C. Tujuan Penelitian',
-        manfaat: 'D. Manfaat Penelitian',
-        metode: 'E. Metode Penelitian',
-        landasan: 'F. Landasan Teori',
-        hipotesis: 'G. Hipotesis / Pertanyaan Penelitian',
-        jadwal: 'H. Jadwal & Anggaran',
-        daftar: 'I. Daftar Pustaka'
-    };
+    // LOGIKA PERAKITAN BERDASARKAN FORMAT YANG DIPILIH
+    if (formatChoice === 'mini') {
+        // --- FORMAT A: PROPOSAL SEDERHANA (A, B, C...) ---
+        const sectionNames = {
+            latar: 'A. Latar Belakang Masalah',
+            rumusan: 'B. Rumusan Masalah',
+            tujuan: 'C. Tujuan Penelitian',
+            manfaat: 'D. Manfaat Penelitian',
+            metode: 'E. Metode Penelitian',
+            landasan: 'F. Landasan Teori',
+            hipotesis: 'G. Hipotesis / Pertanyaan Penelitian',
+            jadwal: 'H. Jadwal & Anggaran',
+            daftar: 'I. Daftar Pustaka'
+        };
 
-    Object.keys(proposalData).forEach(function(key) {
-        if (proposalData[key]) {
-            let extraClass = (key === 'daftar') ? ' class="page-break"' : '';
-            docContent += `<h2${extraClass}>${sectionNames[key]}</h2>`;
-            
-            let sectionHtml = formatTextForWord(proposalData[key]);
-            
-            // JIKA BAGIAN DAFTAR PUSTAKA, OTOMATIS UBAH CSS PARAGRAFNYA MENJADI HANGING INDENT
-            if (key === 'daftar') {
-                sectionHtml = sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
+        Object.keys(proposalData).forEach(function(key) {
+            if (proposalData[key]) {
+                let extraClass = (key === 'daftar') ? ' class="page-break"' : '';
+                docContent += `<h2${extraClass}>${sectionNames[key]}</h2>`;
+                let sectionHtml = formatTextForWord(proposalData[key]);
+                if (key === 'daftar') sectionHtml = sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
+                docContent += sectionHtml;
             }
-            
+        });
+
+    } else {
+        // --- FORMAT B: PROPOSAL LENGKAP (BAB I, II, III...) ---
+        
+        // BAB I: PENDAHULUAN
+        docContent += `<div class="chapter-title">BAB I<br>PENDAHULUAN</div>`;
+        if(proposalData.latar) { docContent += `<h3>1.1 Latar Belakang Masalah</h3>` + formatTextForWord(proposalData.latar); }
+        if(proposalData.rumusan) { docContent += `<h3>1.2 Rumusan Masalah</h3>` + formatTextForWord(proposalData.rumusan); }
+        if(proposalData.tujuan) { docContent += `<h3>1.3 Tujuan Penelitian</h3>` + formatTextForWord(proposalData.tujuan); }
+        if(proposalData.manfaat) { docContent += `<h3>1.4 Manfaat Penelitian</h3>` + formatTextForWord(proposalData.manfaat); }
+
+        // BAB II: TINJAUAN PUSTAKA
+        docContent += `<div class="chapter-title page-break">BAB II<br>TINJAUAN PUSTAKA</div>`;
+        if(proposalData.landasan) { docContent += `<h3>2.1 Landasan Teori dan Penelitian Terdahulu</h3>` + formatTextForWord(proposalData.landasan); }
+        if(proposalData.hipotesis) { docContent += `<h3>2.2 Hipotesis Penelitian</h3>` + formatTextForWord(proposalData.hipotesis); }
+
+        // BAB III: METODE PENELITIAN
+        docContent += `<div class="chapter-title page-break">BAB III<br>METODE PENELITIAN</div>`;
+        if(proposalData.metode) { docContent += `<h3>3.1 Desain dan Pendekatan Penelitian</h3>` + formatTextForWord(proposalData.metode); }
+        if(proposalData.jadwal) { docContent += `<h3>3.2 Jadwal dan Anggaran</h3>` + formatTextForWord(proposalData.jadwal); }
+
+        // DAFTAR PUSTAKA
+        if(proposalData.daftar) {
+            docContent += `<div class="chapter-title page-break">DAFTAR PUSTAKA</div>`;
+            let sectionHtml = formatTextForWord(proposalData.daftar);
+            sectionHtml = sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
             docContent += sectionHtml;
         }
-    });
+    }
 
     docContent += '</body></html>';
 
-    // 4. Proses Download File Word (.doc)
+    // 4. Proses Download
     const blob = new Blob(['\ufeff', docContent], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     
-    let safeFilename = selectedTitle ? selectedTitle.substring(0, 40).replace(/[^a-zA-Z0-9]/g, '_') : 'Proposal_Penelitian';
-    a.download = `Proposal_${safeFilename}.doc`;
+    let formatLabel = formatChoice === 'bab' ? 'Bab' : 'Mini';
+    let safeFilename = selectedTitle ? selectedTitle.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_') : 'Proposal';
+    a.download = `Proposal_${formatLabel}_${safeFilename}.doc`;
     
     document.body.appendChild(a);
     a.click();
