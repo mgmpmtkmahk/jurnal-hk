@@ -1,0 +1,172 @@
+/* Base Styles */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Glass Effect */
+.glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+/* Gradient Backgrounds */
+.gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Card Hover Effects */
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Step Indicators */
+.step-active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.step-inactive {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+/* Journal Cards */
+.journal-card {
+    border-left: 4px solid #667eea;
+}
+
+.analysis-card {
+    border-left: 4px solid #10b981;
+}
+
+/* Prompt Box */
+.prompt-box {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+/* Section Visibility */
+.hidden-section {
+    display: none;
+}
+
+.visible-section {
+    display: block;
+    animation: fadeIn 0.5s ease-in;
+}
+
+/* TikTok Button */
+.tiktok-btn {
+    background: linear-gradient(135deg, #ff0050 0%, #00f2ea 100%);
+}
+
+/* Copy Success State */
+.copy-success {
+    background-color: #10b981 !important;
+}
+
+/* Table Output Styling */
+.table-output {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* Efficiency Badge */
+.efficiency-badge {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Pre Tag Styling */
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Button Transitions */
+button {
+    transition: all 0.3s ease;
+}
+
+/* Focus States */
+input:focus,
+textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .proposal-nav-btn {
+        padding: 0.75rem;
+    }
+    
+    .proposal-nav-btn i {
+        font-size: 1.25rem;
+    }
+    
+    .proposal-nav-btn p {
+        font-size: 0.75rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    header,
+    footer,
+    .proposal-nav-btn,
+    button,
+    .fixed {
+        display: none !important;
+    }
+    
+    .proposal-section {
+        display: block !important;
+        page-break-inside: avoid;
+    }
+}
