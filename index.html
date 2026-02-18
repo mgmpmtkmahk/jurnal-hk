@@ -924,16 +924,16 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-daftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-daftar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-daftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - REFERENCE MANAGER READY
+<pre id="prompt-daftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - SELEKSI OTOMATIS
 
-Buatkan daftar pustaka untuk jurnal: [DATA JURNAL YANG DIKAJI]
+Judul Penelitian: [JUDUL]
+Database Jurnal Tersedia: [DATA JURNAL YANG DIKAJI]
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI. DILARANG menggunakan tabel.
-- DILARANG menulis ulang judul bab.
-- HANYA output teks paragraf dengan style [APA 7th Edition], terurut A-Z. 
-
-Tuliskan minimal 10-15 referensi terkait penelitian ini, prioritas 5 tahun terakhir, dikombinasi dengan [DATA JURNAL YANG DIKAJI].</pre>
+1. Lakukan FILTERISASI: Dari database jurnal di atas, HANYA masukkan jurnal yang benar-benar relevan mendukung judul penelitian ini. Abaikan yang kurang relevan.
+2. PERKAYA referensi: Tambahkan 5-10 referensi buku/jurnal lain (2019-2024) yang kredibel untuk melengkapi daftar ini.
+3. Format mutlak: [APA 7th Edition], urut abjad A-Z.
+4. TANPA BASA-BASI. Langsung list pustaka.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1167,14 +1167,16 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-sdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-sdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-sdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - SKRIPSI FINAL
+<pre id="prompt-sdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA SKRIPSI - FINAL SELECTION
 
-Referensi Utama: [DATA JURNAL YANG DIKAJI]
+Judul Skripsi: [JUDUL]
+Sumber Data Awal: [DATA JURNAL YANG DIKAJI]
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI. DILARANG menggunakan tabel.
-- HANYA output teks paragraf dengan style [APA 7th Edition], terurut A-Z. 
-- Tuliskan minimal 15 referensi terkait dikombinasi dengan [DATA JURNAL YANG DIKAJI].</pre>
+1. SELEKSI KETAT: Hanya ambil sumber data awal yang logis digunakan untuk judul skripsi di atas.
+2. WAJIB TAMBAH: Masukkan minimal 15 referensi tambahan (Buku Teks Utama & Jurnal Terbaru) yang biasanya menjadi standar sitasi untuk topik ini.
+3. Format: [APA 7th Edition], A-Z.
+4. Output murni daftar pustaka tanpa teks pembuka/penutup.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1336,16 +1338,16 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-mdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-mdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-mdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - MAKALAH
+<pre id="prompt-mdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA MAKALAH - RELEVANSI
 
-Buatkan daftar pustaka berdasarkan referensi ini: [DATA JURNAL YANG DIKAJI]
+Topik Makalah: [JUDUL]
+Bahan Bacaan: [DATA JURNAL YANG DIKAJI]
 
-ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI. DILARANG menggunakan tabel.
-- DILARANG menulis ulang judul bab.
-- HANYA output teks paragraf dengan style [APA 7th Edition], terurut A-Z. 
-
-Tuliskan minimal 5-10 referensi akademik yang terkait dengan topik makalah ini, dikombinasi dengan [DATA JURNAL YANG DIKAJI].</pre>
+ATURAN OUTPUT:
+1. Pilih hanya bahan bacaan yang cocok dengan topik makalah ini.
+2. Tambahkan buku referensi umum yang relevan dengan teori dasar topik tersebut.
+3. Format: [APA 7th Edition].
+4. Total minimal 8-10 referensi.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1568,15 +1570,16 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-jdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-jdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">REFERENCES (DAFTAR PUSTAKA JURNAL)
+<pre id="prompt-jdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">REFERENCES (JURNAL IMRaD) - CITATION CHECK
 
-Referensi Utama: [DATA JURNAL YANG DIKAJI]
+Article Title: [JUDUL]
+Input Data: [DATA JURNAL YANG DIKAJI]
 
-ATURAN OUTPUT MUTLAK:
-- DILARANG menulis ulang kata "References" atau "Daftar Pustaka".
-- Format mutlak menggunakan style: [APA 7th Edition], terurut A-Z.
-- Minimal 15-20 referensi gabungan dari referensi di atas dan referensi 5 tahun terakhir lainnya.
-- TANPA BASA-BASI AI.</pre>
+INSTRUCTIONS:
+1. RELEVANCE CHECK: Only include input data that is directly cited or strongly related to the article title.
+2. ENRICHMENT: Add 10+ high-impact international journals (Scopus/WoS) published in the last 5 years related to this topic.
+3. Style: [APA 7th Edition], Alphabetical.
+4. NO conversational text. Direct output.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1796,12 +1799,14 @@ ATURAN OUTPUT MUTLAK:
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
 <pre id="prompt-slrdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - SYSTEMATIC REVIEW
 
-Referensi Utama: [DATA JURNAL YANG DIKAJI]
+Topik SLR: [JUDUL]
+Jurnal yang Direview (Primary Studies): [DATA JURNAL YANG DIKAJI]
 
-ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI. DILARANG menggunakan tabel.
-- HANYA output teks paragraf dengan style [APA 7th Edition], terurut A-Z. 
-- Tuliskan minimal 25 referensi gabungan terkait topik ini, memprioritaskan seluruh [DATA JURNAL YANG DIKAJI].</pre>
+ATURAN KHUSUS SLR:
+1. WAJIB MEMASUKKAN SEMUA "Jurnal yang Direview" di atas, karena itu adalah data primer penelitian ini.
+2. Tambahkan referensi metodologi (misal: Buku tentang PRISMA, Kitchenham, atau Snyder) sebagai pendukung teori.
+3. Format: [APA 7th Edition], A-Z.
+4. Pisahkan jika perlu: "A. Primary Studies" dan "B. Methodology References".</pre>
                                     </div>
                                 </div>
                             </div>
