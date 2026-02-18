@@ -597,25 +597,16 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-rumusan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-rumusan"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-rumusan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">RUMUSAN MASALAH - FORMAT AKADEMIK
+<pre id="prompt-rumusan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">RUMUSAN MASALAH - KOHERENSIF
 
-Buatkan rumusan masalah untuk judul: [JUDUL]
-
-ATURAN KETAT:
-1. Harus berupa kalimat tanya (5W+1H) yang tajam.
-2. Tidak boleh ada tabel.
+Judul: [JUDUL]
+Konteks Latar Belakang yang telah ditulis:
+[KONTEKS_LATAR]
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI. DILARANG menulis ulang judul bab.
-- Langsung ikuti format teks di bawah ini:
-
-Berdasarkan latar belakang masalah yang telah diuraikan, maka rumusan masalah dalam penelitian ini adalah:
-1. [Pertanyaan spesifik 1]
-2. [Pertanyaan spesifik 2]
-
-Adapun batasan masalah difokuskan pada:
-- [Batasan 1]
-- [Batasan 2]</pre>
+- TANPA BASA-BASI.
+- Buat rumusan masalah (kalimat tanya) yang MENGALIR LOGIS dari masalah yang sudah diuraikan di Latar Belakang di atas.
+- Jangan membuat masalah baru yang tidak disinggung sebelumnya.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -825,22 +816,15 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-hipotesis')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-hipotesis"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-hipotesis" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">HIPOTESIS / PERTANYAAN PENELITIAN
+<pre id="prompt-hipotesis" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">HIPOTESIS PENELITIAN
 
-Buatkan untuk rumusan: [RUMUSAN] dan variabel: [VARIABEL]
+Rumusan Masalah: [KONTEKS_RUMUSAN]
+Landasan Teori yang telah disusun: [KONTEKS_TEORI]
 
 ATURAN OUTPUT MUTLAK:
-- TANPA BASA-BASI. DILARANG menggunakan tabel.
-- DILARANG menulis ulang judul bab.
-- Langsung ikuti format di bawah ini (Pilih Kuantitatif/Kualitatif):
-
-Berdasarkan kajian teori dan kerangka pemikiran, hipotesis dalam penelitian ini dirumuskan sebagai berikut:
-1. Hipotesis Pertama:
-   - H0: Tidak ada pengaruh/perbedaan antara...
-   - Ha: Terdapat pengaruh/perbedaan yang signifikan antara...
-2. Hipotesis Kedua:
-   - H0: ...
-   - Ha: ...</pre>
+- TANPA BASA-BASI.
+- Rumuskan hipotesis (H0 dan Ha) yang didasarkan PADA TEORI di atas.
+- Pastikan variabel yang dihipotesiskan sama persis dengan yang ada di teori.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -924,16 +908,22 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-daftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-daftar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-daftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - SELEKSI OTOMATIS
+<pre id="prompt-daftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA - SINKRONISASI SITASI
 
-Judul Penelitian: [JUDUL]
-Database Jurnal Tersedia: [DATA JURNAL YANG DIKAJI]
+Tugas: Buat Daftar Pustaka berdasarkan draf tulisan di bawah ini.
 
-ATURAN OUTPUT MUTLAK:
-1. Lakukan FILTERISASI: Dari database jurnal di atas, HANYA masukkan jurnal yang benar-benar relevan mendukung judul penelitian ini. Abaikan yang kurang relevan.
-2. PERKAYA referensi: Tambahkan 5-10 referensi buku/jurnal lain (2019-2024) yang kredibel untuk melengkapi daftar ini.
-3. Format mutlak: [APA 7th Edition], urut abjad A-Z.
-4. TANPA BASA-BASI. Langsung list pustaka.</pre>
+DRAF TULISAN SAYA:
+[DRAF_TULISAN]
+
+SUMBER DATA UTAMA:
+[DATA JURNAL YANG DIKAJI]
+
+INSTRUKSI KHUSUS:
+1. CRAWLING: Baca "DRAF TULISAN SAYA" di atas, temukan setiap sitasi (Nama, Tahun) yang muncul.
+2. MATCHING: Cocokkan sitasi tersebut dengan "SUMBER DATA UTAMA".
+3. GENERATE: Jika ada sitasi di teks yang tidak ada di sumber data utama (misal referensi tambahan yang baru dibuat di Bab 1/2), BUATKAN entri daftar pustakanya secara otomatis yang terlihat valid/kredibel.
+4. Pastikan SEMUA sitasi yang ada di teks masuk ke daftar pustaka. Jangan ada yang tertinggal.
+5. Format: [APA 7th Edition], A-Z.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1044,22 +1034,21 @@ ATURAN OUTPUT MUTLAK (UNTUK AI):
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-spembahasan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-spembahasan"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-spembahasan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 4 - PEMBAHASAN HASIL (DISCUSSION)
+<pre id="prompt-spembahasan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 4 - PEMBAHASAN HASIL (DEEP DISCUSSION)
 
 Judul: [JUDUL]
-Referensi Teori: [DATA JURNAL]
+Landasan Teori (Bab 2): [KONTEKS_TEORI]
 
 ATURAN KHUSUS UNTUK USER:
-(Ceritakan singkat hasil kesimpulan uji di langkah sebelumnya)
-KESIMPULAN UJI SAYA:
+(Ceritakan singkat hasil kesimpulan uji data lapangan Anda di sini)
+HASIL UJI LAPANGAN SAYA:
 ...
 
 ATURAN OUTPUT MUTLAK (UNTUK AI):
 - DILARANG menulis ulang kata "Bab 4".
-- Bahas temuan uji tersebut SECARA MENDALAM (minimal 800 kata).
-- Wajib kaitkan dan bandingkan hasil tersebut dengan teori/referensi di atas.
-- Jelaskan MENGAPA hasilnya demikian (berikan argumentasi rasional).
-- TANPA BASA-BASI AI.</pre>
+- SINTESISKAN: Bandingkan "HASIL UJI LAPANGAN SAYA" dengan "Landasan Teori (Bab 2)" di atas.
+- Jelaskan apakah hasil lapangan MENDUKUNG atau MENOLAK teori tersebut.
+- Berikan argumentasi ilmiah (Why/How) mengapa hasilnya demikian.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1087,21 +1076,16 @@ ATURAN OUTPUT MUTLAK (UNTUK AI):
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-skesimpulan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-skesimpulan"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-skesimpulan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 5 - KESIMPULAN
+<pre id="prompt-skesimpulan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 5 - KESIMPULAN (KOHEREN)
 
-Rumusan Masalah: [RUMUSAN]
-Tujuan: [TUJUAN]
+Rumusan Masalah Awal: [KONTEKS_RUMUSAN]
+Ringkasan Hasil Pembahasan: [KONTEKS_HASIL]
 
-ATURAN KHUSUS UNTUK USER:
-(Ceritakan inti temuan Anda secara singkat)
-INTI TEMUAN SAYA:
-...
-
-ATURAN OUTPUT MUTLAK (UNTUK AI):
-- DILARANG menulis ulang kata "Bab 5".
-- Buat kesimpulan yang menjawab LANGSUNG poin Rumusan Masalah.
-- Tulis dalam bentuk List Bernomor (1, 2, 3...) yang sejajar dengan jumlah tujuan penelitian.
-- TANPA BASA-BASI AI.</pre>
+ATURAN OUTPUT MUTLAK:
+- TANPA BASA-BASI.
+- Buat kesimpulan yang MENJAWAB LANGSUNG poin Rumusan Masalah Awal.
+- Jawaban harus didasarkan pada fakta di Ringkasan Hasil Pembahasan.
+- Jangan memunculkan data baru yang tidak dibahas sebelumnya.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1167,16 +1151,21 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-sdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-sdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-sdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA SKRIPSI - FINAL SELECTION
+<pre id="prompt-sdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA SKRIPSI - SINKRONISASI FINAL
 
-Judul Skripsi: [JUDUL]
-Sumber Data Awal: [DATA JURNAL YANG DIKAJI]
+Tugas: Susun Daftar Pustaka Lengkap berdasarkan seluruh Bab 4 & 5 yang telah ditulis.
 
-ATURAN OUTPUT MUTLAK:
-1. SELEKSI KETAT: Hanya ambil sumber data awal yang logis digunakan untuk judul skripsi di atas.
-2. WAJIB TAMBAH: Masukkan minimal 15 referensi tambahan (Buku Teks Utama & Jurnal Terbaru) yang biasanya menjadi standar sitasi untuk topik ini.
-3. Format: [APA 7th Edition], A-Z.
-4. Output murni daftar pustaka tanpa teks pembuka/penutup.</pre>
+DRAF BAB 4 & 5:
+[DRAF_TULISAN]
+
+REFERENSI UTAMA:
+[DATA JURNAL YANG DIKAJI]
+
+INSTRUKSI:
+1. Ekstrak semua sitasi yang tertulis di dalam Draf di atas.
+2. Gabungkan dengan Referensi Utama.
+3. Susun menjadi daftar pustaka [APA 7th Edition] yang rapi dan lengkap.
+4. Pastikan tidak ada sitasi "yatim" (ada di teks tapi tidak ada di daftar pustaka).</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1338,16 +1327,15 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-mdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-mdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-mdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA MAKALAH - RELEVANSI
+<pre id="prompt-mdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">DAFTAR PUSTAKA MAKALAH - CEK KONSISTENSI
 
-Topik Makalah: [JUDUL]
-Bahan Bacaan: [DATA JURNAL YANG DIKAJI]
+Teks Makalah:
+[DRAF_TULISAN]
 
-ATURAN OUTPUT:
-1. Pilih hanya bahan bacaan yang cocok dengan topik makalah ini.
-2. Tambahkan buku referensi umum yang relevan dengan teori dasar topik tersebut.
-3. Format: [APA 7th Edition].
-4. Total minimal 8-10 referensi.</pre>
+Instruksi:
+1. List semua referensi yang dikutip dalam teks makalah di atas.
+2. Lengkapi detail bibliografinya (Judul, Penerbit, Kota) agar terlihat valid.
+3. Format APA 7th Style.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1496,16 +1484,16 @@ ATURAN OUTPUT MUTLAK (UNTUK AI):
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-jkesimpulan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jkesimpulan"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-jkesimpulan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">4. CONCLUSION (KESIMPULAN JURNAL)
+<pre id="prompt-skesimpulan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">BAB 5 - KESIMPULAN (KOHEREN)
 
-Judul Artikel: [JUDUL]
+Rumusan Masalah Awal: [KONTEKS_RUMUSAN]
+Ringkasan Hasil Pembahasan: [KONTEKS_HASIL]
 
 ATURAN OUTPUT MUTLAK:
-- DILARANG menulis ulang kata "4. Conclusion".
-- Buat 1 paragraf utuh (maksimal 200 kata) yang menjawab tujuan utama riset secara lugas.
-- Dilarang menggunakan bullet points atau angka (1, 2, 3).
-- Tambahkan 1-2 kalimat saran untuk riset masa depan di akhir paragraf.
-- TANPA BASA-BASI AI.</pre>
+- TANPA BASA-BASI.
+- Buat kesimpulan yang MENJAWAB LANGSUNG poin Rumusan Masalah Awal.
+- Jawaban harus didasarkan pada fakta di Ringkasan Hasil Pembahasan.
+- Jangan memunculkan data baru yang tidak dibahas sebelumnya.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1533,16 +1521,19 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-jabstrak')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jabstrak"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-jabstrak" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">ABSTRAK JURNAL
+<pre id="prompt-jabstrak" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">ABSTRAK JURNAL (REAL SUMMARY)
 
-Berdasarkan seluruh data yang telah dibahas untuk riset dengan judul: [JUDUL]
+Tugas: Buat Abstrak berdasarkan naskah penuh di bawah ini.
 
-ATURAN OUTPUT MUTLAK:
+NASKAH LENGKAP:
+[DRAF_TULISAN]
+
+ATURAN OUTPUT:
 - DILARANG menulis ulang kata "Abstrak".
-- Buat 1 paragraf padat (150 - 250 kata).
-- Harus memuat: (1) Masalah Utama, (2) Tujuan, (3) Metode, dan (4) Hasil Utama/Kesimpulan.
-- Tambahkan "Keywords:" di bagian bawah dengan 3-5 kata kunci yang relevan dipisah koma.
-- TANPA BASA-BASI AI.</pre>
+- Rangkum naskah di atas menjadi 1 paragraf padat (200 kata).
+- Struktur Wajib: Tujuan -> Metode (ambil dari naskah) -> Hasil Utama (ambil dari naskah) -> Kesimpulan.
+- Jangan mengarang data yang tidak ada di naskah.
+- Tambahkan Keywords.</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1570,16 +1561,16 @@ ATURAN OUTPUT MUTLAK:
                                 <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
                                     <button onclick="copyPromptText('prompt-jdaftar')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-jdaftar"><i class="fas fa-copy mr-1"></i>Copy</button>
                                     <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-<pre id="prompt-jdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">REFERENCES (JURNAL IMRaD) - CITATION CHECK
+<pre id="prompt-jdaftar" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">REFERENCES (JURNAL) - SYNC CHECK
 
-Article Title: [JUDUL]
-Input Data: [DATA JURNAL YANG DIKAJI]
+Full Article Draft:
+[DRAF_TULISAN]
 
 INSTRUCTIONS:
-1. RELEVANCE CHECK: Only include input data that is directly cited or strongly related to the article title.
-2. ENRICHMENT: Add 10+ high-impact international journals (Scopus/WoS) published in the last 5 years related to this topic.
-3. Style: [APA 7th Edition], Alphabetical.
-4. NO conversational text. Direct output.</pre>
+1. CITATION EXTRACTION: Scan the draft above and extract all in-text citations.
+2. VALIDATION: Cross-check with [DATA JURNAL YANG DIKAJI].
+3. COMPILATION: Create a complete Reference list containing ONLY sources actually cited in the draft.
+4. Style: [APA 7th Edition].</pre>
                                     </div>
                                 </div>
                             </div>
@@ -1802,11 +1793,10 @@ ATURAN OUTPUT MUTLAK:
 Topik SLR: [JUDUL]
 Jurnal yang Direview (Primary Studies): [DATA JURNAL YANG DIKAJI]
 
-ATURAN KHUSUS SLR:
-1. WAJIB MEMASUKKAN SEMUA "Jurnal yang Direview" di atas, karena itu adalah data primer penelitian ini.
-2. Tambahkan referensi metodologi (misal: Buku tentang PRISMA, Kitchenham, atau Snyder) sebagai pendukung teori.
-3. Format: [APA 7th Edition], A-Z.
-4. Pisahkan jika perlu: "A. Primary Studies" dan "B. Methodology References".</pre>
+ATURAN KHUSUS:
+1. WAJIB: Masukkan semua "Jurnal yang Direview" di atas ke dalam daftar pustaka.
+2. TAMBAHAN: Cek teks berikut [DRAF_TULISAN], jika ada sitasi buku metodologi (seperti Kitchenham/PRISMA), masukkan juga ke daftar ini.
+3. Format: [APA 7th Edition], A-Z.</pre>
                                     </div>
                                 </div>
                             </div>

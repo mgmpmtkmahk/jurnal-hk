@@ -303,7 +303,7 @@ function extractTableData(text) {
 function getDynamicPromptText(elementId) {
     let text = document.getElementById(elementId).innerText;
     
-    // Inject data Step 3 & 4
+    // --- 1. LOGIKA DATA JURNAL & GAP (Langkah 2 & 3) ---
     if (elementId === 'step3-prompt') {
         const allJournalsData = journals.map(j => j.raw).join('\n\n---\n\n');
         text = text.replace('[INSERT SEMUA DATA JURNAL DARI STEP 2]', allJournalsData || '[PERINGATAN: DATA JURNAL KOSONG]');
@@ -312,17 +312,52 @@ function getDynamicPromptText(elementId) {
         text = text.replace('[INSERT RESEARCH GAP DARI STEP 3]', analysisData.raw || '[PERINGATAN: DATA ANALISIS KOSONG]');
     }
 
-    // Inject data Step 5
+    // --- 2. LOGIKA KOHERENSI (SUNTIK MEMORI ANTAR BAB) ---
+    // Variabel ini memungkinkan Prompt Bab selanjutnya "membaca" Bab sebelumnya
+    
+    // Ambil Latar Belakang (Proposal/Makalah/Jurnal/SLR)
+    const textLatar = proposalData.latar || proposalData.mpendahuluan || proposalData.jpendahuluan || proposalData.slrpendahuluan || '';
+    text = text.replace(/\[KONTEKS_LATAR\]/g, textLatar.substring(0, 5000)); // Limit 5000 karakter
+
+    // Ambil Rumusan Masalah
+    const textRumusan = proposalData.rumusan || ''; 
+    text = text.replace(/\[KONTEKS_RUMUSAN\]/g, textRumusan);
+
+    // Ambil Landasan Teori (Untuk Hipotesis/Pembahasan)
+    const textTeori = proposalData.landasan || proposalData.mpembahasan || '';
+    text = text.replace(/\[KONTEKS_TEORI\]/g, textTeori.substring(0, 5000));
+
+    // Ambil Metode (Untuk Hasil/Pembahasan)
+    const textMetode = proposalData.metode || proposalData.jmetode || proposalData.slrmetode || '';
+    text = text.replace(/\[KONTEKS_METODE\]/g, textMetode);
+
+    // Ambil Hasil (Untuk Kesimpulan/Abstrak)
+    const textHasil = (proposalData.sdeskripsi + '\n' + proposalData.sanalisis + '\n' + proposalData.spembahasan) || proposalData.jhasil || proposalData.slrhasil || '';
+    text = text.replace(/\[KONTEKS_HASIL\]/g, textHasil.substring(0, 8000));
+
+    // --- 3. LOGIKA DRAF FULL (UNTUK DAFTAR PUSTAKA & ABSTRAK) ---
+    if (elementId.includes('daftar') || elementId.includes('abstrak')) {
+        let fullDraft = "";
+        Object.keys(proposalData).forEach(key => {
+            if (!key.includes('daftar') && proposalData[key]) {
+                fullDraft += `\n\n--- BAGIAN ${key.toUpperCase()} ---\n${proposalData[key]}`;
+            }
+        });
+        text = text.replace(/\[DRAF_TULISAN\]/g, fullDraft.substring(0, 25000) || "[BELUM ADA TULISAN]");
+    }
+
+    // --- 4. INJEKSI VARIABEL DASAR ---
     text = text.replace(/\[JUDUL\]/g, selectedTitle || '[PERINGATAN: JUDUL BELUM DIPILIH]');
     text = text.replace(/\[DATA JURNAL\]/g, journals.map(j => j.raw).join('\n') || '[DATA JURNAL KOSONG]');
     text = text.replace(/\[DATA JURNAL YANG DIKAJI\]/g, journals.map(j => `${j.parsed.title} (${j.parsed.authors}, ${j.parsed.year})`).join('; ') || '[DATA JURNAL KOSONG]');
     text = text.replace(/\[GAP\]/g, analysisData.raw || '[DATA GAP KOSONG]');
     text = text.replace(/\[VARIABEL\]/g, extractVariablesFromRumusan(proposalData.rumusan));
     
+    // Support Backward Compatibility (untuk prompt lama)
     if(proposalData.rumusan) text = text.replace(/\[RUMUSAN\]/g, proposalData.rumusan);
     if(proposalData.tujuan) text = text.replace(/\[TUJUAN\]/g, proposalData.tujuan);
 
-    // Injeksi Mode Humanizer (Lolos Turnitin)
+    // --- 5. HUMANIZER ---
     const humanizerToggle = document.getElementById('humanizerToggle');
     if (humanizerToggle && humanizerToggle.checked && elementId.startsWith('prompt-')) {
         const humanizerRules = `\n\nATURAN ANTI-PLAGIASI & HUMANIZER (SANGAT PENTING):\n1. Tulis dengan gaya bahasa natural manusia (Human-like text).\n2. Tingkatkan variasi struktur dan panjang kalimat (Burstiness) serta gunakan kosa kata yang dinamis (Perplexity).\n3. HARAM menggunakan frasa AI klise: "Kesimpulannya", "Dalam era digital", "Penting untuk dicatat", "Secara keseluruhan".\n4. Lakukan parafrase tingkat tinggi pada setiap teori/jurnal yang disitasi agar lolos uji Turnitin < 5%.`;
