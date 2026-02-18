@@ -325,7 +325,7 @@ function searchJournals() {
         
         // URL YANG SUDAH DIUPDATE OLEH USER
         const indoSources = [
-            { name: 'Google Scholar Indonesia', url: 'https://scholar.google.co.id/scholar?q=' + encodeURIComponent(keyword) + '&lr=lang_id', icon: 'fa-graduation-cap', color: 'red', desc: 'Filter Bahasa Indonesia' },
+            { name: 'Google Scholar Indonesia', url: 'https://scholar.google.co.id/scholar?q=' + encodeURIComponent(keyword) + '&lr=lang_id', icon: 'fa-graduation-cap', color: 'red', desc: 'Pencarian Jurnal di Google Cendikia' },
             { name: 'SINTA (Kemdiktisaintek)', url: 'https://sinta.kemdiktisaintek.go.id/', icon: 'fa-university', color: 'green', desc: 'Pencarian Manual di Web SINTA' },
             { name: 'Garuda (Kemdiktisaintek)', url: 'https://garuda.kemdiktisaintek.go.id/documents?q=' + encodeURIComponent(keyword), icon: 'fa-book', color: 'yellow', desc: 'Pencarian Jurnal di Web Garuda' },
             { name: 'Neliti Indonesia', url: 'https://www.neliti.com/id/search?q=' + encodeURIComponent(keyword), icon: 'fa-search', color: 'teal', desc: 'Repository Jurnal Indonesia' },
