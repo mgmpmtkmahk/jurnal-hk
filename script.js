@@ -761,7 +761,7 @@ function showFinalReview() {
 }
 
 // ==========================================
-// EXPORT KE MS WORD LOGIC (DENGAN CUSTOM FORMATTING)
+// EXPORT KE MS WORD LOGIC
 // ==========================================
 function downloadDOCX() {
     // 1. Ambil Nilai dari Panel Control Formatting
@@ -771,96 +771,110 @@ function downloadDOCX() {
     const fontName = document.getElementById('settingFont').value;
     const lineSpacing = document.getElementById('settingSpacing').value;
 
-    // 2. Terapkan nilai dinamis tersebut ke dalam CSS
+    // 2. Terapkan nilai dinamis ke CSS
     const styles = `
         <style>
-            @page { 
-                size: ${paperSize}; 
-                margin: ${pageMargin}; 
-            } 
-            body { 
-                font-family: ${fontName}; 
-                font-size: 12pt; 
-                line-height: ${lineSpacing}; 
-                color: #000; 
-            }
+            @page { size: ${paperSize}; margin: ${pageMargin}; } 
+            body { font-family: ${fontName}; font-size: 12pt; line-height: ${lineSpacing}; color: #000; }
             h1 { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 24pt; text-transform: uppercase; }
             h2 { font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 12pt; text-transform: uppercase; page-break-after: avoid; }
-            
             .chapter-title { text-align: center; font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 24pt; text-transform: uppercase; page-break-after: avoid; }
             h3 { font-size: 12pt; font-weight: bold; margin-top: 18pt; margin-bottom: 6pt; page-break-after: avoid; }
-            
             p { margin-top: 0; margin-bottom: 10pt; text-align: justify; text-indent: 1.25cm; } 
             
+            /* Table Styling yang Lebih Kuat */
             table { border-collapse: collapse; width: 100%; margin-top: 12pt; margin-bottom: 12pt; font-size: 11pt; line-height: 1.15; }
             th, td { border: 1pt solid black; padding: 6pt 8pt; text-align: left; vertical-align: top; }
-            th { background-color: #e6e6e6; font-weight: bold; text-align: center; }
+            th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
             td p { text-indent: 0; margin-bottom: 4pt; } 
             
             .cover-page { text-align: center; margin-top: 100pt; page-break-after: always; }
-            .cover-page h2 { text-indent: 0; text-align: center; margin-bottom: 20pt; font-size: 16pt; }
             .cover-title { font-size: 16pt; font-weight: bold; text-transform: uppercase; margin-bottom: 50pt; line-height: 1.5; text-indent: 0; }
-            .cover-logo { margin-bottom: 50pt; text-align: center; text-indent: 0; }
-            .cover-logo img { width: 180px; height: auto; } 
-            .cover-author { margin-bottom: 80pt; font-size: 12pt; text-indent: 0; line-height: 1.5; }
+            .cover-logo img { width: 180px; height: auto; margin-bottom: 50pt; } 
+            .cover-author { margin-bottom: 80pt; font-size: 12pt; text-indent: 0; line-height: 1.5; font-weight: bold; }
             .cover-inst { font-size: 14pt; font-weight: bold; text-transform: uppercase; text-indent: 0; line-height: 1.5; }
             
             .page-break { page-break-before: always; }
             .list-item { text-indent: 0; padding-left: 1.25cm; margin-bottom: 4pt; }
             .biblio-item { text-indent: -1.25cm; margin-left: 1.25cm; margin-bottom: 8pt; }
 
-            /* FORMAT KHUSUS JURNAL & SLR (2 KOLOM) */
-            .jurnal-title { font-size: 18pt; font-weight: bold; text-align: center; margin-bottom: 12pt; text-transform: capitalize; line-height: 1.2;}
-            .jurnal-author { font-size: 11pt; text-align: center; margin-bottom: 24pt; font-style: italic;}
-            .jurnal-abstract { font-size: 10pt; text-align: justify; margin-left: 1.5cm; margin-right: 1.5cm; margin-bottom: 24pt; padding: 10pt; border-top: 1pt solid #000; border-bottom: 1pt solid #000;}
+            /* FORMAT JURNAL & SLR */
+            .jurnal-title { font-size: 18pt; font-weight: bold; text-align: center; margin-bottom: 12pt; text-transform: capitalize; line-height: 1.2; }
+            .jurnal-author { font-size: 11pt; text-align: center; margin-bottom: 24pt; font-style: italic; }
+            .jurnal-abstract { font-size: 10pt; text-align: justify; margin-left: 1.5cm; margin-right: 1.5cm; margin-bottom: 24pt; padding: 10pt; border-top: 1pt solid #000; border-bottom: 1pt solid #000; }
             .jurnal-abstract p { text-indent: 0; font-size: 10pt; margin-bottom: 6pt; line-height: 1.15; }
             .jurnal-body { column-count: 2; column-gap: 0.8cm; text-align: justify; }
             .jurnal-body h2 { margin-top: 12pt; margin-bottom: 6pt; font-size: 11pt; }
             .jurnal-body p { font-size: 11pt; margin-bottom: 8pt; text-indent: 0.75cm; }
             .jurnal-body .list-item { font-size: 11pt; padding-left: 0.75cm; }
             .jurnal-body .biblio-item { text-indent: -0.75cm; margin-left: 0.75cm; font-size: 10pt; }
-            .jurnal-body table { font-size: 10pt; }
+            .jurnal-body table { font-size: 9pt; } 
         </style>
     `;
 
+    // --- FUNGSI PEMBERSIH & PARSING SUPER ---
     function formatTextForWord(text) {
         if (!text) return '';
-        let html = text.replace(/^(Tentu, berikut|Berikut adalah|Tentu saja|Ini dia).*?:/mi, '');
-        html = html.replace(/^#+\s*(.*)$/gm, '<strong>$1</strong>');
-        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        html = html.replace(/<br>\s*<br>/g, '</p><p>');
+        
+        // 1. Bersihkan Basa-basi AI (Intro text)
+        let html = text.replace(/^(Tentu, berikut|Berikut adalah|Tentu saja|Ini dia|Baik, ini).*?:/mi, '');
+        
+        // 2. Parse Markdown Bold & Italic (SECARA GLOBAL)
+        // Mengubah **Teks** menjadi <b>Teks</b> agar dibaca Word
+        html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); 
+        html = html.replace(/\*(.*?)\*/g, '<i>$1</i>');
+        
+        // 3. Ubah Heading Markdown (# Judul) menjadi Bold
+        html = html.replace(/^#+\s*(.*)$/gm, '<b>$1</b>');
+        
+        // 4. Ubah Line Break ganda menjadi Paragraf baru
+        html = html.replace(/\n\s*\n/g, '</p><p>');
 
         const lines = html.split('\n');
         let result = '';
         let inTable = false;
 
         lines.forEach(line => {
-            const trimmed = line.trim();
-            if (/^\|?[\-\:\s\|]+\|?$/.test(trimmed) && trimmed.includes('-')) return; 
+            let trimmed = line.trim();
+            if (!trimmed) return;
 
+            // --- LOGIKA PARSING TABEL ---
             if (trimmed.startsWith('|') || trimmed.endsWith('|')) {
+                // Abaikan baris separator markdown (---|---|---)
+                if (trimmed.includes('---')) return;
+
                 if (!inTable) { result += '<table>'; inTable = true; }
+                
                 let rowHtml = '<tr>';
                 let cells = trimmed.split('|').map(c => c.trim());
                 if (cells[0] === '') cells.shift();
                 if (cells[cells.length - 1] === '') cells.pop();
 
                 cells.forEach(cell => {
-                    if (result.endsWith('<table>')) {
-                         rowHtml += `<th>${cell}</th>`;
+                    // PEMBERSIHAN EXTRA DI DALAM SEL TABEL
+                    // Pastikan tidak ada ** sisa di dalam tabel
+                    let cleanCell = cell.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                    cleanCell = cleanCell.replace(/<br>/g, '<br/>'); // Fix line break table
+                    
+                    if (result.endsWith('<table>')) { // Baris pertama dianggap Header
+                         rowHtml += `<th>${cleanCell}</th>`;
                     } else {
-                         let cellContent = cell.replace(/<br>/g, '<br style="mso-data-placement:same-cell;" />');
-                         rowHtml += `<td>${cellContent}</td>`;
+                         rowHtml += `<td>${cleanCell}</td>`;
                     }
                 });
                 rowHtml += '</tr>';
                 result += rowHtml;
             } else {
+                // --- LOGIKA TEXT BIASA ---
                 if (inTable) { result += '</table>'; inTable = false; }
-                if (trimmed) {
-                    if (/^(\d+\.|-|\*)\s/.test(trimmed)) result += `<p class="list-item">${trimmed}</p>`;
-                    else result += `<p>${trimmed}</p>`;
+                
+                // Deteksi List Item (Bullet Points)
+                if (/^(\d+\.|-|\*)\s/.test(trimmed)) {
+                    // Hapus simbol list markdown, ganti dengan class CSS list-item
+                    let content = trimmed.replace(/^(\d+\.|-|\*)\s/, '');
+                    result += `<p class="list-item">• ${content}</p>`;
+                } else {
+                    result += `<p>${trimmed}</p>`;
                 }
             }
         });
@@ -877,8 +891,9 @@ function downloadDOCX() {
     // --- LOGIKA PERAKITAN ---
     if (documentType === 'jurnal') {
         docContent += `<div class="jurnal-title">${selectedTitle || 'Judul Artikel Belum Dipilih'}</div>`;
-        docContent += `<div class="jurnal-author">[Nama Penulis Pertama]<sup>1</sup>, [Nama Penulis Kedua]<sup>2</sup><br><sup>1,2</sup>Pontren Husnul Khotimah, Indonesia<br>Email: author@husnulkhotimah.ac.id</div>`;
+        docContent += `<div class="jurnal-author">[Nama Penulis]<sup>1</sup>, [Nama Penulis 2]<sup>2</sup><br><sup>1,2</sup>Pontren Husnul Khotimah, Indonesia<br>Email: author@husnulkhotimah.ac.id</div>`;
         if (proposalData.jabstrak) docContent += `<div class="jurnal-abstract"><strong>Abstract — </strong>${formatTextForWord(proposalData.jabstrak)}</div>`;
+        
         docContent += `<div class="jurnal-body">`;
         if(proposalData.jpendahuluan) docContent += `<h2>1. INTRODUCTION</h2>` + formatTextForWord(proposalData.jpendahuluan);
         if(proposalData.jmetode) docContent += `<h2>2. METHODS</h2>` + formatTextForWord(proposalData.jmetode);
@@ -893,13 +908,16 @@ function downloadDOCX() {
 
     } else if (documentType === 'slr') {
         docContent += `<div class="jurnal-title">${selectedTitle || 'Review Article Title'}</div>`;
-        docContent += `<div class="jurnal-author">[Nama Reviewer]<sup>1</sup><br><sup>1</sup>Pontren Husnul Khotimah, Indonesia<br>Email: author@husnulkhotimah.ac.id</div>`;
+        docContent += `<div class="jurnal-author">[Nama Reviewer]<sup>1</sup><br><sup>1</sup>Pontren Husnul Khotimah, Indonesia</div>`;
+        
         docContent += `<div class="jurnal-body">`;
         if(proposalData.slrpendahuluan) docContent += `<h2>1. INTRODUCTION</h2>` + formatTextForWord(proposalData.slrpendahuluan);
         if(proposalData.slrmetode) docContent += `<h2>2. REVIEW METHODOLOGY</h2>` + formatTextForWord(proposalData.slrmetode);
-        docContent += `</div>`; // Putus kolom untuk tabel panjang
+        docContent += `</div>`; // Break column for big table
+        
         if(proposalData.slrhasil) docContent += `<h2>3. DATA EXTRACTION RESULTS</h2>` + formatTextForWord(proposalData.slrhasil);
-        docContent += `<div class="jurnal-body">`; // Sambung kolom lagi
+        
+        docContent += `<div class="jurnal-body">`;
         if(proposalData.slrpembahasan) docContent += `<h2>4. DISCUSSION</h2>` + formatTextForWord(proposalData.slrpembahasan);
         if(proposalData.slrkesimpulan) docContent += `<h2>5. CONCLUSION</h2>` + formatTextForWord(proposalData.slrkesimpulan);
         if(proposalData.slrdaftar) {
@@ -914,8 +932,8 @@ function downloadDOCX() {
             <div class="cover-page">
                 <h2>BAB IV DAN V SKRIPSI</h2>
                 <div class="cover-title">${selectedTitle || 'Judul Belum Dipilih'}</div>
-                <div class="cover-logo"><img src="logo1.png" alt="Logo Pontren"></div>
-                <div class="cover-author">Disusun Oleh:<br><strong>[ NAMA LENGKAP MAHASISWA ]</strong><br>[ NIM ]</div>
+                <div class="cover-logo"><img src="logo1.png" alt="Logo"></div>
+                <div class="cover-author">Disusun Oleh:<br><strong>[ NAMA MAHASISWA ]</strong></div>
                 <div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div>
             </div>
         `;
@@ -939,8 +957,8 @@ function downloadDOCX() {
             <div class="cover-page">
                 <h2>MAKALAH AKADEMIK</h2>
                 <div class="cover-title">${selectedTitle || 'Judul Belum Dipilih'}</div>
-                <div class="cover-logo"><img src="logo1.png" alt="Logo Pontren"></div>
-                <div class="cover-author">Disusun Oleh:<br><strong>[ NAMA LENGKAP PENULIS ]</strong><br>[ NIP / NIDN / NIM ]</div>
+                <div class="cover-logo"><img src="logo1.png" alt="Logo"></div>
+                <div class="cover-author">Disusun Oleh:<br><strong>[ NAMA PENULIS ]</strong></div>
                 <div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div>
             </div>
         `;
@@ -957,12 +975,13 @@ function downloadDOCX() {
         }
 
     } else {
+        // PROPOSAL
         docContent += `
             <div class="cover-page">
                 <h2>PROPOSAL PENELITIAN</h2>
                 <div class="cover-title">${selectedTitle || 'Judul Belum Dipilih'}</div>
-                <div class="cover-logo"><img src="logo1.png" alt="Logo Pontren"></div>
-                <div class="cover-author">Disusun Oleh:<br><strong>[ NAMA LENGKAP PENELITI ]</strong><br>[ NIP / NIDN / NIM ]</div>
+                <div class="cover-logo"><img src="logo1.png" alt="Logo"></div>
+                <div class="cover-author">Disusun Oleh:<br><strong>[ NAMA PENELITI ]</strong></div>
                 <div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div>
             </div>
         `;
@@ -1007,14 +1026,8 @@ function downloadDOCX() {
     const a = document.createElement('a');
     a.href = url;
     
-    let formatLabel = 'Dokumen';
-    if (documentType === 'jurnal') formatLabel = 'JURNAL_LAPANGAN';
-    else if (documentType === 'slr') formatLabel = 'JURNAL_SLR';
-    else if (documentType === 'makalah') formatLabel = 'MAKALAH';
-    else if (documentType === 'skripsi') formatLabel = 'SKRIPSI_BAB4_5';
-    else formatLabel = formatChoice === 'bab' ? 'PROPOSAL_LENGKAP' : 'PROPOSAL_MINI';
-    
-    let safeFilename = selectedTitle ? selectedTitle.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_') : 'Akademik';
+    let formatLabel = documentType.toUpperCase();
+    let safeFilename = selectedTitle ? selectedTitle.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_') : 'Dokumen';
     a.download = `${formatLabel}_${safeFilename}.doc`;
     
     document.body.appendChild(a);
