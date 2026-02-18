@@ -163,6 +163,37 @@ function executeReset() {
     location.reload(); 
 }
 
+// CUSTOM MODAL CONTROLLERS (Tambahan)
+function showWarningModal(onConfirm) {
+    const modal = document.getElementById('customWarningModal');
+    const card = document.getElementById('customWarningCard');
+    const btnConfirm = document.getElementById('btnConfirmSwitchTitle');
+    
+    // Hapus event listener lama agar tidak menumpuk
+    const newBtn = btnConfirm.cloneNode(true);
+    btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
+    
+    // Pasang action baru
+    newBtn.addEventListener('click', function() {
+        closeWarningModal();
+        onConfirm(); // Jalankan fungsi reset
+    });
+
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeWarningModal() {
+    const modal = document.getElementById('customWarningModal');
+    const card = document.getElementById('customWarningCard');
+    card.classList.remove('scale-100', 'opacity-100');
+    card.classList.add('scale-95', 'opacity-0');
+    setTimeout(() => modal.classList.add('hidden'), 300);
+}
+
 // ==========================================
 // HELPER FUNCTIONS
 // ==========================================
@@ -551,13 +582,9 @@ function selectTitleForProposal(title, element) {
     // 1. Cek apakah user sudah pernah mengisi data di Langkah 5 sebelumnya?
     const hasData = Object.values(proposalData).some(val => val.length > 10);
     
-    // 2. Jika ada data dan judulnya beda dengan yang sekarang, minta konfirmasi
-    if (hasData && selectedTitle && selectedTitle !== title) {
-        const confirmSwitch = confirm("PERINGATAN: Anda memiliki data yang belum disimpan di Langkah 5.\n\nMemilih judul baru akan MENGHAPUS isian Langkah 5 (Latar Belakang, dll) untuk memulai lembaran baru.\n\nApakah Anda yakin ingin lanjut? (Disarankan 'Cancel' lalu Download Backup dulu)");
-        
-        if (!confirmSwitch) return; // Batalkan jika user pilih Cancel
-        
-        // Jika OK, kita bersihkan data lama (Reset Kanvas)
+    // Definisi fungsi aksi Reset & Ganti Judul
+    const executeSwitch = () => {
+        // Reset Kanvas
         proposalData = {
             latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '',
             mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '',
@@ -569,29 +596,38 @@ function selectTitleForProposal(title, element) {
         // Kosongkan semua textarea di UI
         document.querySelectorAll('textarea[id^="output-"]').forEach(el => el.value = '');
         
+        // Update Visual Kartu
+        document.querySelectorAll('.title-card').forEach(div => { 
+            div.classList.remove('border-yellow-500', 'bg-yellow-50'); 
+            div.classList.add('border-gray-200'); 
+        });
+        element.classList.remove('border-gray-200'); 
+        element.classList.add('border-yellow-500', 'bg-yellow-50');
+        
+        // Set Judul Baru
+        selectedTitle = title;
+        
+        // Munculkan tombol Lanjut jika belum ada
+        const stickyNavStep4 = document.querySelector('#step4 .sticky');
+        if (stickyNavStep4 && !document.getElementById('btn-continue-to-proposal')) {
+            const btn = document.createElement('button');
+            btn.id = 'btn-continue-to-proposal';
+            btn.className = 'bg-gradient-to-r from-green-600 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg shadow-green-400/50 transition-all';
+            btn.innerHTML = `Lanjut Menyusun Dokumen <i class="fas fa-arrow-right ml-2"></i>`;
+            btn.onclick = function() { goToStep(5); };
+            stickyNavStep4.appendChild(btn);
+        }
+        
         showCustomAlert('success', 'Lembar Kerja Direset', 'Siap menyusun dokumen untuk judul baru.');
-    }
+    };
 
-    // 3. Update Visual Kartu
-    document.querySelectorAll('.title-card').forEach(div => { 
-        div.classList.remove('border-yellow-500', 'bg-yellow-50'); 
-        div.classList.add('border-gray-200'); 
-    });
-    element.classList.remove('border-gray-200'); 
-    element.classList.add('border-yellow-500', 'bg-yellow-50');
-    
-    // 4. Set Judul Baru
-    selectedTitle = title;
-    
-    // 5. Munculkan tombol Lanjut jika belum ada
-    const stickyNavStep4 = document.querySelector('#step4 .sticky');
-    if (stickyNavStep4 && !document.getElementById('btn-continue-to-proposal')) {
-        const btn = document.createElement('button');
-        btn.id = 'btn-continue-to-proposal';
-        btn.className = 'bg-gradient-to-r from-green-600 to-teal-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg shadow-green-400/50 transition-all';
-        btn.innerHTML = `Lanjut Menyusun Dokumen <i class="fas fa-arrow-right ml-2"></i>`;
-        btn.onclick = function() { goToStep(5); };
-        stickyNavStep4.appendChild(btn);
+    // 2. Logika Pengecekan
+    if (hasData && selectedTitle && selectedTitle !== title) {
+        // Jika ada data, TAMPILKAN MODAL CANTIK
+        showWarningModal(executeSwitch);
+    } else {
+        // Jika aman, langsung eksekusi
+        executeSwitch();
     }
 }
 
