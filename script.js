@@ -546,15 +546,44 @@ function displayTitleSelection() {
     });
 }
 
+// Fungsi Memilih Judul dengan Pengaman Data
 function selectTitleForProposal(title, element) {
+    // 1. Cek apakah user sudah pernah mengisi data di Langkah 5 sebelumnya?
+    const hasData = Object.values(proposalData).some(val => val.length > 10);
+    
+    // 2. Jika ada data dan judulnya beda dengan yang sekarang, minta konfirmasi
+    if (hasData && selectedTitle && selectedTitle !== title) {
+        const confirmSwitch = confirm("PERINGATAN: Anda memiliki data yang belum disimpan di Langkah 5.\n\nMemilih judul baru akan MENGHAPUS isian Langkah 5 (Latar Belakang, dll) untuk memulai lembaran baru.\n\nApakah Anda yakin ingin lanjut? (Disarankan 'Cancel' lalu Download Backup dulu)");
+        
+        if (!confirmSwitch) return; // Batalkan jika user pilih Cancel
+        
+        // Jika OK, kita bersihkan data lama (Reset Kanvas)
+        proposalData = {
+            latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '',
+            mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '',
+            jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '',
+            sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '',
+            slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrdaftar: ''
+        };
+        
+        // Kosongkan semua textarea di UI
+        document.querySelectorAll('textarea[id^="output-"]').forEach(el => el.value = '');
+        
+        showCustomAlert('success', 'Lembar Kerja Direset', 'Siap menyusun dokumen untuk judul baru.');
+    }
+
+    // 3. Update Visual Kartu
     document.querySelectorAll('.title-card').forEach(div => { 
         div.classList.remove('border-yellow-500', 'bg-yellow-50'); 
         div.classList.add('border-gray-200'); 
     });
     element.classList.remove('border-gray-200'); 
     element.classList.add('border-yellow-500', 'bg-yellow-50');
+    
+    // 4. Set Judul Baru
     selectedTitle = title;
     
+    // 5. Munculkan tombol Lanjut jika belum ada
     const stickyNavStep4 = document.querySelector('#step4 .sticky');
     if (stickyNavStep4 && !document.getElementById('btn-continue-to-proposal')) {
         const btn = document.createElement('button');
