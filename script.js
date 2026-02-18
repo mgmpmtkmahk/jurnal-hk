@@ -174,12 +174,21 @@ function cleanMarkdown(str) {
 
 function renderMarkdownTable(mdText) {
     if (!mdText) return '<p class="text-gray-500 text-sm italic">Tidak ada data tabel.</p>';
+    
     const lines = mdText.replace(/\r\n/g, '\n').split('\n');
     let html = '<div class="mt-3 overflow-hidden rounded-lg border border-gray-200 shadow-sm"><div class="overflow-x-auto"><table class="min-w-full text-sm text-left border-collapse bg-white">';
     let isHeader = true, hasTable = false;
     
     lines.forEach(line => {
         let trimmed = line.trim();
+        
+        // Skip baris separator markdown (---|---|---)
+        if (/^\|?[\-\:\s\|]+\|?$/.test(trimmed) && trimmed.includes('-')) { 
+            if (hasTable && isHeader) isHeader = false; 
+            return; 
+        }
+        
+        // Deteksi baris pemisah antar tabel (--- atau ***)
         if (trimmed === '---' || trimmed === '***') {
             if (hasTable) { 
                 html += '</table></div></div><div class="mt-4 overflow-hidden rounded-lg border border-gray-200 shadow-sm"><div class="overflow-x-auto"><table class="min-w-full text-sm text-left border-collapse bg-white">'; 
@@ -187,29 +196,43 @@ function renderMarkdownTable(mdText) {
             }
             return;
         }
-        if (/^\|?[\-\:\s\|]+\|?$/.test(trimmed) && trimmed.includes('-')) { 
-            if (hasTable && isHeader) isHeader = false; 
-            return; 
-        }
+
+        // Proses baris tabel
         if (trimmed.startsWith('|') || trimmed.endsWith('|')) {
             hasTable = true;
             if (trimmed.startsWith('|')) trimmed = trimmed.substring(1);
             if (trimmed.endsWith('|')) trimmed = trimmed.substring(0, trimmed.length - 1);
+            
             const cells = trimmed.split('|').map(cell => cell.trim());
-            html += '<tr class="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">';
+            
+            // Tentukan style baris (Header vs Body)
+            const rowClass = isHeader 
+                ? "bg-gray-50 border-b border-gray-200" 
+                : "border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors";
+                
+            html += `<tr class="${rowClass}">`;
+            
             cells.forEach((cellText) => {
-                const safeText = cellText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                // 1. Amankan karakter HTML agar tidak error
+                let content = cellText.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                
+                // 2. BERSIHKAN MARKDOWN (**teks** menjadi Bold) -> INI PERBAIKANNYA
+                content = cleanMarkdown(content); 
+                
                 if (isHeader) {
-                    html += `<th class="bg-gray-50/80 px-4 py-3 font-semibold text-gray-700 border-r border-gray-100 last:border-0 align-top">${safeText}</th>`;
+                    html += `<th class="px-4 py-3 font-semibold text-gray-700 border-r border-gray-200 last:border-0 align-top whitespace-nowrap">${content}</th>`;
                 } else {
-                    html += `<td class="px-4 py-3 text-gray-600 border-r border-gray-100 last:border-0 align-top whitespace-pre-line break-words">${safeText}</td>`;
+                    html += `<td class="px-4 py-3 text-gray-600 border-r border-gray-100 last:border-0 align-top whitespace-pre-line break-words leading-relaxed">${content}</td>`;
                 }
             });
             html += '</tr>';
         }
     });
+    
     html += '</table></div></div>';
-    return hasTable ? html : `<div class="p-4 mt-2 bg-gray-50 rounded-lg text-sm text-gray-700 whitespace-pre-wrap border border-gray-200 shadow-inner">${mdText}</div>`;
+    
+    // Jika ternyata bukan tabel (fallback ke teks biasa)
+    return hasTable ? html : `<div class="p-4 mt-2 bg-gray-50 rounded-lg text-sm text-gray-700 whitespace-pre-wrap border border-gray-200 shadow-inner">${cleanMarkdown(mdText)}</div>`;
 }
 
 function extractVariablesFromRumusan(rumusanText) {
