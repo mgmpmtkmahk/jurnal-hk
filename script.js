@@ -281,6 +281,7 @@ function getDynamicPromptText(elementId) {
 // NAVIGATION & CORE ACTIONS
 // ==========================================
 function goToStep(step) {
+    // 1. Logika Pindah Halaman (Sama seperti sebelumnya)
     for (let i = 1; i <= 5; i++) {
         document.getElementById('step' + i).classList.remove('visible-section');
         document.getElementById('step' + i).classList.add('hidden-section');
@@ -296,12 +297,41 @@ function goToStep(step) {
     document.getElementById('step' + step).classList.remove('hidden-section');
     document.getElementById('step' + step).classList.add('visible-section');
     document.getElementById('progress-line').style.width = ((step - 1) / 4) * 100 + '%';
+    
+    // 2. Scroll ke atas
     currentStep = step;
     window.scrollTo(0, 0);
     
+    // 3. Update Judul di Step 5 jika ada
     if (step === 5) {
         const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
         if (titleDisplay) titleDisplay.textContent = selectedTitle || '-';
+    }
+
+    // 4. SMART LOCK SIDEBAR (FITUR BARU)
+    updateSidebarLock(step);
+}
+
+// Fungsi Pembantu untuk Mengunci/Membuka Sidebar
+function updateSidebarLock(step) {
+    // Ambil elemen sidebar kiri (pembungkus tombol mode)
+    // Kita asumsikan sidebar kiri adalah div parent dari tombol 'btn-mode-proposal'
+    const sidebar = document.getElementById('btn-mode-proposal').parentElement;
+    
+    if (step >= 4) {
+        // KUNCI: Jika masuk Step 4 atau 5
+        sidebar.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
+        // Opsional: Tampilkan pesan kecil (toast) jika belum ada
+        if(!document.getElementById('lock-toast')) {
+            const toast = document.createElement('div');
+            toast.id = 'lock-toast';
+            toast.className = 'absolute -right-40 top-0 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow hidden group-hover:block';
+            toast.innerText = 'Mode Terkunci';
+            // sidebar.appendChild(toast); // (Opsional, cukup visual gray saja biar rapi)
+        }
+    } else {
+        // BUKA: Jika kembali ke Step 1, 2, atau 3
+        sidebar.classList.remove('opacity-50', 'pointer-events-none', 'grayscale');
     }
 }
 
