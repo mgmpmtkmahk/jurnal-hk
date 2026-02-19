@@ -740,19 +740,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
 
-                    <div class="max-w-md mx-auto mb-4" id="proposalFormatContainer">
-                        <label class="block text-sm font-bold text-gray-700 mb-2 text-center">Struktur Bab:</label>
-                        <select id="proposalFormat" class="w-full p-3 border-2 border-indigo-200 rounded-xl focus:border-indigo-500 focus:outline-none mb-6 cursor-pointer text-gray-700 font-medium text-center">
-                            <option value="bab">Format Lengkap (BAB I, II, III) - Standar Tugas Akhir</option>
-                            <option value="mini">Format Sederhana (A, B, C...) - Laporan Ringkas</option>
-                        </select>
+                    <div class="max-w-md mx-auto mb-4">
+                        <div id="proposalFormatContainer" class="mb-6">
+                            <label class="block text-sm font-bold text-gray-700 mb-2 text-center">Struktur Bab:</label>
+                            <select id="proposalFormat" class="w-full p-3 border-2 border-indigo-200 rounded-xl focus:border-indigo-500 focus:outline-none cursor-pointer text-gray-700 font-medium text-center">
+                                <option value="bab">Format Lengkap (BAB I, II, III) - Standar Tugas Akhir</option>
+                                <option value="mini">Format Sederhana (A, B, C...) - Laporan Ringkas</option>
+                            </select>
+                        </div>
+                        
                         <button id="btnDownloadStandard" onclick="downloadDOCX()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center justify-center shadow-lg transform hover:scale-[1.02]">
                             <i class="fas fa-file-word mr-2 text-xl"></i>Download Dokumen (DOCX)
                         </button>
-                    </div>
-                    
-                    <div class="max-w-md mx-auto mb-4 hidden" id="jurnalDownloadContainer">
-                        <button id="btnDownloadJurnal" onclick="downloadDOCX()" class="w-full bg-teal-600 text-white py-4 rounded-xl font-bold hover:bg-teal-700 transition-all flex items-center justify-center shadow-lg transform hover:scale-[1.02]">
+                        
+                        <button id="btnDownloadJurnal" onclick="downloadDOCX()" class="hidden w-full bg-teal-600 text-white py-4 rounded-xl font-bold hover:bg-teal-700 transition-all flex items-center justify-center shadow-lg transform hover:scale-[1.02] mt-4">
                             <i class="fas fa-file-word mr-2 text-xl"></i>Download Artikel (Format 2 Kolom)
                         </button>
                     </div>
