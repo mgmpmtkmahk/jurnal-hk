@@ -29,7 +29,7 @@ function goToStep(step) {
     }
 
     updateSidebarLock(step);
-    saveStateToLocal(); // Trigger Auto-save
+    saveStateToLocal(); 
 }
 
 function updateSidebarLock(step) {
@@ -55,40 +55,40 @@ function setDocumentType(type) {
 
     Object.keys(btnStyles).forEach(key => {
         const btn = document.getElementById(btnStyles[key].id);
-        btn.className = `w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border ${btnStyles[key].inactive}`;
+        if(btn) btn.className = `w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border ${btnStyles[key].inactive}`;
     });
 
     ['proposal', 'makalah', 'jurnal', 'skripsi', 'slr'].forEach(nav => {
         const el = document.getElementById(`${nav}-nav-buttons`);
-        el.classList.add('hidden'); el.classList.remove('grid');
+        if(el) { el.classList.add('hidden'); el.classList.remove('grid'); }
     });
     
     const activeBtn = document.getElementById(btnStyles[type].id);
-    activeBtn.className = `w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-offset-1 border-transparent ${btnStyles[type].active}`;
+    if(activeBtn) activeBtn.className = `w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-offset-1 border-transparent ${btnStyles[type].active}`;
 
     if (type === 'proposal') {
-        document.getElementById('proposal-nav-buttons').classList.remove('hidden'); document.getElementById('proposal-nav-buttons').classList.add('grid');
-        titleStep5.innerText = "Langkah 5: Penyusunan Proposal (Bab 1-3)";
+        const nav = document.getElementById('proposal-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
+        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Proposal (Bab 1-3)";
         if(typeof showProposalSection === 'function') showProposalSection('latar');
     } else if (type === 'makalah') {
-        document.getElementById('makalah-nav-buttons').classList.remove('hidden'); document.getElementById('makalah-nav-buttons').classList.add('grid');
-        titleStep5.innerText = "Langkah 5: Penyusunan Makalah (Standar Akademik)";
+        const nav = document.getElementById('makalah-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
+        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Makalah (Standar Akademik)";
         if(typeof showProposalSection === 'function') showProposalSection('mpendahuluan');
     } else if (type === 'jurnal') {
-        document.getElementById('jurnal-nav-buttons').classList.remove('hidden'); document.getElementById('jurnal-nav-buttons').classList.add('grid');
-        titleStep5.innerText = "Langkah 5: Penyusunan Artikel Jurnal";
+        const nav = document.getElementById('jurnal-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
+        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Artikel Jurnal";
         if(typeof showProposalSection === 'function') showProposalSection('jpendahuluan');
     } else if (type === 'skripsi') {
-        document.getElementById('skripsi-nav-buttons').classList.remove('hidden'); document.getElementById('skripsi-nav-buttons').classList.add('grid');
-        titleStep5.innerText = "Langkah 5: Penyusunan Skripsi Akhir (Bab 4 & 5)";
+        const nav = document.getElementById('skripsi-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
+        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Skripsi Akhir (Bab 4 & 5)";
         if(typeof showProposalSection === 'function') showProposalSection('sdeskripsi');
     } else if (type === 'slr') {
-        document.getElementById('slr-nav-buttons').classList.remove('hidden'); document.getElementById('slr-nav-buttons').classList.add('grid');
-        titleStep5.innerText = "Langkah 5: Penyusunan SLR";
+        const nav = document.getElementById('slr-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
+        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan SLR";
         if(typeof showProposalSection === 'function') showProposalSection('slrpendahuluan');
     }
     
-    saveStateToLocal(); // Trigger Auto-save
+    saveStateToLocal(); 
     showCustomAlert('success', 'Mode Diperbarui', `Sistem dialihkan ke Mode ${type.toUpperCase()}.`);
 }
 
@@ -97,6 +97,7 @@ function getActiveSections() {
     if (documentType === 'makalah') return ['mpendahuluan', 'mpembahasan', 'mpenutup', 'mdaftar', 'final'];
     if (documentType === 'jurnal') return ['jpendahuluan', 'jmetode', 'jhasil', 'jkesimpulan', 'jabstrak', 'jdaftar', 'final'];
     if (documentType === 'skripsi') return ['sdeskripsi', 'sanalisis', 'spembahasan', 'skesimpulan', 'ssaran', 'sdaftar', 'final'];
+    // Array SLR sudah diperbarui dengan 'slrabstrak'
     if (documentType === 'slr') return ['slrpendahuluan', 'slrmetode', 'slrhasil', 'slrpembahasan', 'slrkesimpulan', 'slrabstrak', 'slrdaftar', 'final'];
 }
 
@@ -104,6 +105,7 @@ function showCustomAlert(type, title, message) {
     const modal = document.getElementById('customAlertModal');
     const card = document.getElementById('customAlertCard');
     const iconDiv = document.getElementById('customAlertIcon');
+    if(!modal || !card || !iconDiv) return;
     
     iconDiv.className = 'w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto';
     if (type === 'success') { 
@@ -123,39 +125,41 @@ function showCustomAlert(type, title, message) {
 
 function closeCustomAlert() {
     const modal = document.getElementById('customAlertModal'); const card = document.getElementById('customAlertCard');
-    card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => modal.classList.add('hidden'), 300);
+    if(card) { card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0'); }
+    if(modal) setTimeout(() => modal.classList.add('hidden'), 300);
 }
 
 function showConfirmModal() {
     const modal = document.getElementById('customConfirmModal'); const card = document.getElementById('customConfirmCard');
+    if(!modal) return;
     modal.classList.remove('hidden'); void modal.offsetWidth;
-    card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100');
+    if(card) { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }
 }
 
 function closeConfirmModal() {
     const modal = document.getElementById('customConfirmModal'); const card = document.getElementById('customConfirmCard');
-    card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => modal.classList.add('hidden'), 300);
+    if(card) { card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0'); }
+    if(modal) setTimeout(() => modal.classList.add('hidden'), 300);
 }
 
 function showWarningModal(onConfirm) {
     const modal = document.getElementById('customWarningModal');
     const card = document.getElementById('customWarningCard');
     const btnConfirm = document.getElementById('btnConfirmSwitchTitle');
+    if(!modal) return;
     
     const newBtn = btnConfirm.cloneNode(true);
     btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
     newBtn.addEventListener('click', function() { closeWarningModal(); onConfirm(); });
 
     modal.classList.remove('hidden');
-    setTimeout(() => { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 10);
+    setTimeout(() => { if(card) { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); } }, 10);
 }
 
 function closeWarningModal() {
     const modal = document.getElementById('customWarningModal'); const card = document.getElementById('customWarningCard');
-    card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0');
-    setTimeout(() => modal.classList.add('hidden'), 300);
+    if(card) { card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0'); }
+    if(modal) setTimeout(() => modal.classList.add('hidden'), 300);
 }
 
 function cleanMarkdown(str) {
@@ -203,12 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadStateFromLocal(); 
     if(typeof updateSavedJournalsList === 'function') updateSavedJournalsList();
     
-    document.querySelectorAll('.proposal-nav-btn').forEach(btn => {
-        btn.addEventListener('click', function() { 
-            if(typeof showProposalSection === 'function') showProposalSection(this.getAttribute('data-section')); 
-        });
-    });
-
     const searchInput = document.getElementById('searchKeyword');
     if(searchInput) {
         searchInput.addEventListener('keypress', function(e) {

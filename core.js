@@ -18,14 +18,14 @@ function searchJournals() {
         ];
         
         const indoSources = [
-            { name: 'Google Scholar Indonesia', url: 'https://scholar.google.co.id/scholar?q=' + encodeURIComponent(keyword) + '&lr=lang_id', icon: 'fa-graduation-cap', color: 'red', desc: 'Pencarian Jurnal di Google Cendikia' },
-            { name: 'SINTA (Kemdiktisaintek)', url: 'https://sinta.kemdiktisaintek.go.id/', icon: 'fa-university', color: 'green', desc: 'Pencarian Jurnal di Web SINTA' },
-            { name: 'Garuda (Kemdiktisaintek)', url: 'https://garuda.kemdiktisaintek.go.id/documents?q=' + encodeURIComponent(keyword), icon: 'fa-book', color: 'yellow', desc: 'Pencarian Jurnal di Web Garuda' },
-            { name: 'Neliti Indonesia', url: 'https://www.neliti.com/id/search?q=' + encodeURIComponent(keyword), icon: 'fa-search', color: 'teal', desc: 'Pencarian di Repository Jurnal Indonesia' },
-            { name: 'UI Scholars Hub', url: 'https://scholarhub.ui.ac.id/do/search/?q=' + encodeURIComponent(keyword), icon: 'fa-university', color: 'blue', desc: 'Pencarian Jurnal di Scholarhub UI' },
-            { name: 'E-Jurnal System Portal UNDIP', url: 'https://ejournal.undip.ac.id/index.php/index/search?query=' + encodeURIComponent(keyword), icon: 'fa-book-open', color: 'purple', desc: 'Pencarian Jurnal di Portal UNDIP' },
-            { name: 'Jurnal Online UGM', url: 'https://journal.ugm.ac.id/index/search/search?query=' + encodeURIComponent(keyword), icon: 'fa-graduation-cap', color: 'green', desc: 'Pencarian Jurnal di Laman UGM' },
-            { name: 'Perpustakaan Digital ITB', url: 'https://digilib.itb.ac.id/gdl/go/' + encodeURIComponent(keyword), icon: 'fa-flask', color: 'orange', desc: 'Pencarian Jurnal di Repositori ITB' }
+            { name: 'Google Scholar ID', url: 'https://scholar.google.co.id/scholar?q=' + encodeURIComponent(keyword) + '&lr=lang_id', icon: 'fa-graduation-cap', color: 'red', desc: 'Google Cendikia' },
+            { name: 'SINTA', url: 'https://sinta.kemdiktisaintek.go.id/', icon: 'fa-university', color: 'green', desc: 'Web SINTA' },
+            { name: 'Garuda', url: 'https://garuda.kemdiktisaintek.go.id/documents?q=' + encodeURIComponent(keyword), icon: 'fa-book', color: 'yellow', desc: 'Jurnal Garuda' },
+            { name: 'Neliti Indonesia', url: 'https://www.neliti.com/id/search?q=' + encodeURIComponent(keyword), icon: 'fa-search', color: 'teal', desc: 'Repository Jurnal' },
+            { name: 'UI Scholars Hub', url: 'https://scholarhub.ui.ac.id/do/search/?q=' + encodeURIComponent(keyword), icon: 'fa-university', color: 'blue', desc: 'Scholarhub UI' },
+            { name: 'E-Jurnal UNDIP', url: 'https://ejournal.undip.ac.id/index.php/index/search?query=' + encodeURIComponent(keyword), icon: 'fa-book-open', color: 'purple', desc: 'SINTA 2 UNDIP' },
+            { name: 'Jurnal UGM', url: 'https://journal.ugm.ac.id/index/search/search?query=' + encodeURIComponent(keyword), icon: 'fa-graduation-cap', color: 'green', desc: 'Laman UGM' },
+            { name: 'Digilib ITB', url: 'https://digilib.itb.ac.id/gdl/go/' + encodeURIComponent(keyword), icon: 'fa-flask', color: 'orange', desc: 'Repositori ITB' }
         ];
 
         const buildHTML = (sources) => sources.map(s => `
@@ -83,13 +83,13 @@ function getDynamicPromptText(elementId) {
 
     if (elementId.includes('daftar') || elementId.includes('abstrak')) {
         let fullDraft = "";
-        Object.keys(proposalData).forEach(key => { if (!key.includes('daftar') && proposalData[key]) fullDraft += `\n\n--- BAGIAN ${key.toUpperCase()} ---\n${proposalData[key]}`; });
+        Object.keys(proposalData).forEach(key => { if (!key.includes('daftar') && !key.includes('abstrak') && proposalData[key]) fullDraft += `\n\n--- BAGIAN ${key.toUpperCase()} ---\n${proposalData[key]}`; });
         text = text.replace(/\[DRAF_TULISAN\]/g, fullDraft.substring(0, 25000) || "[BELUM ADA TULISAN]");
     }
 
     text = text.replace(/\[JUDUL\]/g, selectedTitle || '[BELUM DIPILIH]');
     text = text.replace(/\[DATA JURNAL\]/g, journals.map(j => j.raw).join('\n') || '[DATA KOSONG]');
-    text = text.replace(/\[DATA JURNAL YANG DIKAJI\]/g, journals.map(j => `${j.parsed.title} (${j.parsed.authors}, ${j.parsed.year})`).join('; ') || '[DATA KOSONG]');
+    text = text.replace(/\[DATA JURNAL YANG DIKAJI\]/g, journals.map(j => `${j.parsed?.title || 'Judul'} (${j.parsed?.authors || 'Penulis'}, ${j.parsed?.year || 'Tahun'})`).join('; ') || '[DATA KOSONG]');
     text = text.replace(/\[GAP\]/g, analysisData.raw || '[DATA GAP KOSONG]');
     text = text.replace(/\[VARIABEL\]/g, extractVariablesFromRumusan(proposalData.rumusan));
     
@@ -98,7 +98,7 @@ function getDynamicPromptText(elementId) {
 
     const humanizerToggle = document.getElementById('humanizerToggle');
     if (humanizerToggle && humanizerToggle.checked && elementId.startsWith('prompt-')) {
-        text += `\n\nATURAN ANTI-PLAGIASI & HUMANIZER:\n1. Tulis dengan gaya bahasa natural manusia (Human-like text).\n2. Tingkatkan variasi struktur (Burstiness) & kosa kata (Perplexity).\n3. HARAM menggunakan frasa AI klise: "Kesimpulannya", "Dalam era digital".\n4. Lakukan parafrase tingkat tinggi pada setiap teori/jurnal agar lolos Turnitin < 5%.`;
+        text += `\n\nATURAN ANTI-PLAGIASI & HUMANIZER:\n1. Tulis dengan gaya bahasa natural manusia (Human-like text).\n2. Tingkatkan variasi struktur (Burstiness) & kosa kata (Perplexity).\n3. HARAM menggunakan frasa AI klise: "Kesimpulannya", "Dalam era digital", "Secara keseluruhan".\n4. Lakukan parafrase tingkat tinggi pada setiap teori/jurnal agar lolos Turnitin < 5%.`;
     }
     return text;
 }
@@ -124,9 +124,9 @@ function parseStep2Output() {
     if (!output.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil dari Gemini!'); return; }
     try {
         const parsedData = extractTableData(output);
-        if (!parsedData.title) { showCustomAlert('error', 'Format Salah', 'Gagal membaca tabel.'); return; }
+        if (!parsedData.title) { showCustomAlert('error', 'Format Salah', 'Gagal membaca tabel. Pastikan copy utuh.'); return; }
         journals.push({ id: Date.now(), raw: output, parsed: parsedData });
-        saveStateToLocal(); // Auto Save
+        saveStateToLocal();
         updateSavedJournalsList();
         document.getElementById('geminiOutputStep2').value = '';
         showCustomAlert('success', 'Berhasil', 'Data jurnal direkam!');
@@ -135,6 +135,7 @@ function parseStep2Output() {
 
 function updateSavedJournalsList() {
     const container = document.getElementById('savedJournalsList');
+    if(!container) return;
     if (journals.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada jurnal</p>'; return; }
     container.innerHTML = journals.map((j, index) => `<div class="bg-white border border-green-200 shadow-sm rounded-xl p-4 mb-4"><div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-100"><h4 class="font-bold text-gray-800 text-lg">${index + 1}. ${j.parsed.title || 'Jurnal'}</h4><button onclick="removeJournal(${index})" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded"><i class="fas fa-trash"></i></button></div><div class="text-sm max-h-60 overflow-y-auto custom-scrollbar">${renderMarkdownTable(j.raw)}</div></div>`).join('');
 }
@@ -145,14 +146,15 @@ function parseStep3Output() {
     const output = document.getElementById('geminiOutputStep3').value;
     if (!output.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil Gemini!'); return; }
     analysisData = { raw: output, timestamp: new Date() };
-    saveStateToLocal(); // Auto Save
+    saveStateToLocal();
     renderAnalysisSummaryPreview(); 
     document.getElementById('geminiOutputStep3').value = '';
 }
 
 function renderAnalysisSummaryPreview() {
     if(!analysisData.raw) return;
-    document.getElementById('analysisSummary').innerHTML = `<div class="bg-white border-2 border-purple-200 shadow-sm rounded-xl p-4"><div class="flex items-center mb-3"><i class="fas fa-check-circle text-purple-600 mr-2 text-xl"></i><h4 class="font-bold text-purple-800 text-lg">Analisis Direkam</h4></div><div class="max-h-96 overflow-y-auto custom-scrollbar">${renderMarkdownTable(analysisData.raw)}</div></div>`;
+    const container = document.getElementById('analysisSummary');
+    if(container) container.innerHTML = `<div class="bg-white border-2 border-purple-200 shadow-sm rounded-xl p-4"><div class="flex items-center mb-3"><i class="fas fa-check-circle text-purple-600 mr-2 text-xl"></i><h4 class="font-bold text-purple-800 text-lg">Analisis Direkam</h4></div><div class="max-h-96 overflow-y-auto custom-scrollbar">${renderMarkdownTable(analysisData.raw)}</div></div>`;
 }
 
 function parseStep4Output() {
@@ -168,7 +170,7 @@ function parseStep4Output() {
         });
         if (titles.length === 0) { showCustomAlert('error', 'Format Salah', 'Tabel judul tidak ditemukan.'); return; }
         generatedTitles = titles; 
-        saveStateToLocal(); // Auto Save
+        saveStateToLocal();
         displayTitleSelection();
         document.getElementById('geminiOutputStep4').value = '';
         showCustomAlert('success', 'Berhasil', 'Judul diekstrak.');
@@ -177,6 +179,7 @@ function parseStep4Output() {
 
 function displayTitleSelection() {
     const container = document.getElementById('titleSelectionList');
+    if(!container) return;
     if (generatedTitles.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada judul</p>'; return; }
     container.innerHTML = generatedTitles.map((item, index) => {
         const cleanT = cleanMarkdown(item.title); const escT = cleanT.replace(/'/g, "\\'").replace(/"/g, "&quot;");
@@ -189,15 +192,15 @@ function displayTitleSelection() {
 }
 
 function selectTitleForProposal(title, element) {
-    const hasData = Object.values(proposalData).some(val => val.length > 10);
+    const hasData = Object.values(proposalData).some(val => val && val.length > 10);
     const executeSwitch = () => {
-        proposalData = { latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '', mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '', jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '', sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '', slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrdaftar: '' };
+        proposalData = { latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '', mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '', jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '', sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '', slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrabstrak: '', slrdaftar: '' };
         document.querySelectorAll('textarea[id^="output-"]').forEach(el => el.value = '');
         document.querySelectorAll('.title-card').forEach(div => { div.classList.remove('border-yellow-500', 'bg-yellow-50'); div.classList.add('border-gray-200'); });
         element.classList.remove('border-gray-200'); element.classList.add('border-yellow-500', 'bg-yellow-50');
         
         selectedTitle = title;
-        saveStateToLocal(); // Auto Save
+        saveStateToLocal(); 
         
         const stickyNav = document.querySelector('#step4 .sticky');
         if (stickyNav && !document.getElementById('btn-continue')) {
@@ -215,7 +218,9 @@ function selectTitleForProposal(title, element) {
 function showProposalSection(section) {
     document.querySelectorAll('.proposal-section').forEach(el => el.classList.add('hidden'));
     const target = document.getElementById('section-' + section);
-    target.classList.remove('hidden', 'animate-fade-in-up'); void target.offsetWidth; target.classList.add('animate-fade-in-up');
+    if(target) {
+        target.classList.remove('hidden', 'animate-fade-in-up'); void target.offsetWidth; target.classList.add('animate-fade-in-up');
+    }
     
     document.querySelectorAll('.proposal-nav-btn').forEach(btn => {
         btn.classList.remove('border-indigo-500', 'bg-indigo-50', 'text-indigo-700');
@@ -225,7 +230,8 @@ function showProposalSection(section) {
     const sections = getActiveSections();
     let containerId = documentType === 'makalah' ? 'makalah-nav-buttons' : documentType === 'jurnal' ? 'jurnal-nav-buttons' : documentType === 'skripsi' ? 'skripsi-nav-buttons' : documentType === 'slr' ? 'slr-nav-buttons' : 'proposal-nav-buttons';
     
-    const navBtn = document.querySelectorAll(`#${containerId} .proposal-nav-btn`)[sections.indexOf(section)];
+    const navBtns = document.querySelectorAll(`#${containerId} .proposal-nav-btn`);
+    const navBtn = navBtns[sections.indexOf(section)];
     if (navBtn && !navBtn.classList.contains('bg-gradient-to-tr')) {
         navBtn.classList.remove('border-gray-200', 'bg-white', 'text-gray-600'); navBtn.classList.add('border-indigo-500', 'bg-indigo-50', 'text-indigo-700');
     }
@@ -241,7 +247,7 @@ function saveProposalSection(section) {
     if (!content.trim() && section !== 'hipotesis') { showCustomAlert('warning', 'Kosong', 'Isi konten terlebih dahulu!'); return; }
     
     proposalData[section] = content;
-    saveStateToLocal(); // Auto Save
+    saveStateToLocal(); 
     
     const s = getActiveSections(); const i = s.indexOf(section);
     let cid = documentType === 'makalah' ? 'makalah-nav-buttons' : documentType === 'jurnal' ? 'jurnal-nav-buttons' : documentType === 'skripsi' ? 'skripsi-nav-buttons' : documentType === 'slr' ? 'slr-nav-buttons' : 'proposal-nav-buttons';
@@ -252,6 +258,7 @@ function saveProposalSection(section) {
 
 function toggleHipotesis() {
     const cb = document.getElementById('skip-hipotesis'); const ta = document.getElementById('output-hipotesis');
+    if(!cb || !ta) return;
     if (cb.checked) { ta.disabled = true; ta.placeholder = 'Dilewati'; proposalData.hipotesis = '(Penelitian kualitatif)'; } 
     else { ta.disabled = false; ta.placeholder = 'Paste teks...'; proposalData.hipotesis = ''; }
 }
@@ -259,6 +266,7 @@ function toggleHipotesis() {
 function showFinalReview() {
     document.querySelectorAll('.proposal-section').forEach(el => el.classList.add('hidden'));
     document.getElementById('section-final').classList.remove('hidden');
+    
     const formatContainer = document.getElementById('proposalFormatContainer');
     const btnStandard = document.getElementById('btnDownloadStandard');
     const btnJurnal = document.getElementById('btnDownloadJurnal');
@@ -274,9 +282,6 @@ function showFinalReview() {
     }
 }
 
-// ==========================================
-// EXPORT KE MS WORD LOGIC
-// ==========================================
 function downloadDOCX() {
     const formatChoice = document.getElementById('proposalFormat') ? document.getElementById('proposalFormat').value : 'bab';
     const paperSize = document.getElementById('settingPaper').value;
@@ -299,14 +304,13 @@ function downloadDOCX() {
             td p { text-indent: 0; margin-bottom: 4pt; } 
             .cover-page { text-align: center; margin-top: 100pt; page-break-after: always; }
             .cover-title { font-size: 16pt; font-weight: bold; text-transform: uppercase; margin-bottom: 50pt; line-height: 1.5; text-indent: 0; }
-            .cover-logo img { width: 180px; height: auto; margin-bottom: 50pt; } 
             .cover-author { margin-bottom: 80pt; font-size: 12pt; text-indent: 0; line-height: 1.5; font-weight: bold; }
             .cover-inst { font-size: 14pt; font-weight: bold; text-transform: uppercase; text-indent: 0; line-height: 1.5; }
             .page-break { page-break-before: always; }
             .list-item { text-indent: 0; padding-left: 1.25cm; margin-bottom: 4pt; }
             .biblio-item { text-indent: -1.25cm; margin-left: 1.25cm; margin-bottom: 8pt; }
 
-            /* FORMAT JURNAL KHUSUS */
+            /* FORMAT JURNAL & SLR KHUSUS */
             .jurnal-title { font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 12pt; text-transform: capitalize; line-height: 1.2; }
             .jurnal-author { font-size: 11pt; text-align: center; margin-bottom: 24pt; font-style: italic; }
             .jurnal-abstract { font-size: 10pt; text-align: justify; margin-left: 1.5cm; margin-right: 1.5cm; margin-bottom: 24pt; padding: 10pt; border-top: 1pt solid #000; border-bottom: 1pt solid #000; }
@@ -359,16 +363,13 @@ function downloadDOCX() {
 
     let docContent = `<!DOCTYPE html><html><head><meta charset='utf-8'><title>Doc</title>${styles}</head><body>`;
 
-    // LOGIKA KHUSUS JURNAL (MENGHILANGKAN BUG "JPENDAHULUAN")
+    // Logika Artikel Jurnal
     if (documentType === 'jurnal') {
         docContent += `<div class="jurnal-title">${selectedTitle || 'Judul Artikel Belum Dipilih'}</div>`;
         docContent += `<div class="jurnal-author">[Nama Penulis]<sup>1</sup>, [Nama Penulis 2]<sup>2</sup><br><sup>1,2</sup>Pontren Husnul Khotimah, Indonesia<br>Email: author@husnulkhotimah.ac.id</div>`;
-        
-        // Abstrak Ditarik ke Paling Atas
         if (proposalData.jabstrak) docContent += `<div class="jurnal-abstract"><strong>Abstract — </strong>${formatTextForWord(proposalData.jabstrak)}</div>`;
         
         docContent += `<div class="jurnal-body">`;
-        // Hardcode Judul Bab dengan Standar Internasional
         if(proposalData.jpendahuluan) docContent += `<h2>1. INTRODUCTION</h2>` + formatTextForWord(proposalData.jpendahuluan);
         if(proposalData.jmetode) docContent += `<h2>2. METHODS</h2>` + formatTextForWord(proposalData.jmetode);
         if(proposalData.jhasil) docContent += `<h2>3. RESULTS AND DISCUSSION</h2>` + formatTextForWord(proposalData.jhasil);
@@ -380,20 +381,20 @@ function downloadDOCX() {
         }
         docContent += `</div>`;
     } 
-    // Logika SLR
+    // Logika SLR (dengan penambahan Abstrak)
     else if (documentType === 'slr') {
         docContent += `<div class="jurnal-title">${selectedTitle || 'Review Article Title'}</div>`;
         docContent += `<div class="jurnal-author">[Nama Reviewer]<sup>1</sup><br><sup>1</sup>Pontren Husnul Khotimah, Indonesia</div>`;
         
-        // --- TAMBAHKAN KODE ABSTRAK INI ---
         if (proposalData.slrabstrak) docContent += `<div class="jurnal-abstract"><strong>Abstract — </strong>${formatTextForWord(proposalData.slrabstrak)}</div>`;
-        // ----------------------------------
-
+        
         docContent += `<div class="jurnal-body">`;
         if(proposalData.slrpendahuluan) docContent += `<h2>1. INTRODUCTION</h2>` + formatTextForWord(proposalData.slrpendahuluan);
         if(proposalData.slrmetode) docContent += `<h2>2. REVIEW METHODOLOGY</h2>` + formatTextForWord(proposalData.slrmetode);
-        docContent += `</div>`; // Break column for big table
+        docContent += `</div>`; // Break column 2 ke kolom 1 untuk mencegah tabel terpotong terlalu panjang
+        
         if(proposalData.slrhasil) docContent += `<h2>3. DATA EXTRACTION RESULTS</h2>` + formatTextForWord(proposalData.slrhasil);
+        
         docContent += `<div class="jurnal-body">`;
         if(proposalData.slrpembahasan) docContent += `<h2>4. DISCUSSION</h2>` + formatTextForWord(proposalData.slrpembahasan);
         if(proposalData.slrkesimpulan) docContent += `<h2>5. CONCLUSION</h2>` + formatTextForWord(proposalData.slrkesimpulan);
@@ -471,7 +472,7 @@ function downloadDOCX() {
 
     docContent += '</body></html>';
 
-    // Eksekusi Download (.docx native jika library tersedia, fallback .doc jika tidak)
+    // Eksekusi Download
     if (typeof htmlDocx !== 'undefined') {
         const converted = htmlDocx.asBlob(docContent);
         const url = URL.createObjectURL(converted);

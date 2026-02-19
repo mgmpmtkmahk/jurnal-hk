@@ -14,6 +14,7 @@ let proposalData = {
     mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '',
     jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '',
     sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '',
+    // Penambahan slrabstrak ada di bawah ini:
     slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrabstrak: '', slrdaftar: ''
 };
 
@@ -37,7 +38,7 @@ function loadStateFromLocal() {
             if (parsed.selectedTitle) selectedTitle = parsed.selectedTitle;
             if (parsed.proposalData) proposalData = Object.assign(proposalData, parsed.proposalData);
             
-            setDocumentType(documentType); 
+            if (typeof setDocumentType === "function") setDocumentType(documentType); 
             if (typeof updateSavedJournalsList === "function") updateSavedJournalsList();
             if (typeof renderAnalysisSummaryPreview === "function") renderAnalysisSummaryPreview();
             if (generatedTitles.length > 0 && typeof displayTitleSelection === "function") displayTitleSelection();
@@ -50,7 +51,7 @@ function loadStateFromLocal() {
             const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
             if (titleDisplay) titleDisplay.textContent = selectedTitle || '-';
             
-            goToStep(currentStep);
+            if (typeof goToStep === "function") goToStep(currentStep);
         } catch (e) {
             console.error("Gagal memuat data dari Local Storage:", e);
         }
@@ -74,7 +75,7 @@ function downloadBackup() {
     a.click(); 
     document.body.removeChild(a); 
     URL.revokeObjectURL(url);
-    showCustomAlert('success', 'Backup Berhasil', 'Data pekerjaan Anda berhasil di-download!');
+    if (typeof showCustomAlert === "function") showCustomAlert('success', 'Backup Berhasil', 'Data pekerjaan Anda berhasil di-download!');
 }
 
 function triggerRestore() { 
@@ -88,7 +89,7 @@ function processRestoreFile(event) {
     reader.onload = function(e) {
         try {
             const parsed = JSON.parse(e.target.result);
-            if (parsed.documentType) setDocumentType(parsed.documentType);
+            if (parsed.documentType && typeof setDocumentType === "function") setDocumentType(parsed.documentType);
             journals = parsed.journals || [];
             analysisData = parsed.analysisData || {};
             generatedTitles = parsed.generatedTitles || [];
@@ -96,11 +97,11 @@ function processRestoreFile(event) {
             proposalData = Object.assign(proposalData, parsed.proposalData || {});
             currentStep = parsed.currentStep || 1;
             
-            saveStateToLocal(); // Auto-save setelah restore
+            saveStateToLocal();
             
-            updateSavedJournalsList();
-            renderAnalysisSummaryPreview();
-            if (generatedTitles.length > 0) displayTitleSelection();
+            if (typeof updateSavedJournalsList === "function") updateSavedJournalsList();
+            if (typeof renderAnalysisSummaryPreview === "function") renderAnalysisSummaryPreview();
+            if (generatedTitles.length > 0 && typeof displayTitleSelection === "function") displayTitleSelection();
             
             Object.keys(proposalData).forEach(key => {
                 const el = document.getElementById('output-' + key);
@@ -108,10 +109,10 @@ function processRestoreFile(event) {
             });
             const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
             if (titleDisplay) titleDisplay.textContent = selectedTitle || '-';
-            goToStep(currentStep);
-            showCustomAlert('success', 'Berhasil Restore', 'Data Anda berhasil dipulihkan!');
+            if (typeof goToStep === "function") goToStep(currentStep);
+            if (typeof showCustomAlert === "function") showCustomAlert('success', 'Berhasil Restore', 'Data Anda berhasil dipulihkan!');
         } catch (err) {
-            showCustomAlert('error', 'Gagal Restore', 'Pastikan file yang diupload berformat JSON.');
+            if (typeof showCustomAlert === "function") showCustomAlert('error', 'Gagal Restore', 'Pastikan file yang diupload berformat JSON.');
         }
     };
     reader.readAsText(file);

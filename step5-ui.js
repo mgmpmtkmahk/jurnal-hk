@@ -651,25 +651,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
 
+                <div id="section-slrkesimpulan" class="proposal-section hidden mb-6">
+                    <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">5. Kesimpulan (Review SLR)</h3>
+                    <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Kesimpulan SLR</h4>
+                            <div class="flex-grow flex flex-col mb-4"><div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]"><button onclick="copyPromptText('prompt-slrkesimpulan')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-slrkesimpulan"><i class="fas fa-copy mr-1"></i>Copy</button>
+                            <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar"><pre id="prompt-slrkesimpulan" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">KESIMPULAN SYSTEMATIC LITERATURE REVIEW\n\nBahan Kajian Utama: [GAP]\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Kesimpulan".\n- Buat 2 paragraf padat.\n- Paragraf 1: Jawaban inti dari review literatur ini (apa benang merahnya).\n- Paragraf 2: Rekomendasi gap penelitian untuk riset di masa depan (Future Work) yang sangat spesifik berdasarkan kekurangan literatur saat ini.\n- TANPA BASA-BASI AI.</pre></div></div></div>
+                            <button onclick="openGeminiWithPrompt('prompt-slrkesimpulan')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                            <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
+                            <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]"><textarea id="output-slrkesimpulan" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil Kesimpulan SLR..."></textarea></div>
+                            <div class="mt-auto flex gap-3 flex-shrink-0">
+                                <button onclick="prevProposalSection('slrkesimpulan')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+                                <button onclick="saveProposalSection('slrkesimpulan')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="section-slrabstrak" class="proposal-section hidden mb-6">
                     <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">6. Abstrak (Review SLR)</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Abstrak SLR</h4>
                             <div class="flex-grow flex flex-col mb-4"><div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]"><button onclick="copyPromptText('prompt-slrabstrak')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-slrabstrak"><i class="fas fa-copy mr-1"></i>Copy</button>
-                            <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar"><pre id="prompt-slrabstrak" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">ABSTRAK SYSTEMATIC LITERATURE REVIEW
-
-Tugas: Buat Abstrak berdasarkan naskah SLR penuh di bawah ini.
-
-NASKAH LENGKAP SLR:
-[DRAF_TULISAN]
-
-ATURAN OUTPUT MUTLAK:
-- DILARANG menulis ulang kata "Abstrak".
-- Rangkum naskah di atas menjadi 1 paragraf padat (150-250 kata).
-- Struktur Wajib: Latar Belakang & Urgensi SLR -> Tujuan -> Metode (PRISMA) -> Temuan Utama Ekstraksi -> Kesimpulan & Rekomendasi Masa Depan.
-- Jangan mengarang data yang tidak ada di naskah.
-- Tambahkan "Keywords: [kata kunci 1], [kata kunci 2], [kata kunci 3]" di akhir paragraf.</pre></div></div></div>
+                            <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar"><pre id="prompt-slrabstrak" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">ABSTRAK SYSTEMATIC LITERATURE REVIEW\n\nTugas: Buat Abstrak berdasarkan naskah SLR penuh di bawah ini.\n\nNASKAH LENGKAP SLR:\n[DRAF_TULISAN]\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Abstrak".\n- Rangkum naskah di atas menjadi 1 paragraf padat (150-250 kata).\n- Struktur Wajib: Latar Belakang & Urgensi SLR -> Tujuan -> Metode (PRISMA) -> Temuan Utama Ekstraksi -> Kesimpulan & Rekomendasi Masa Depan.\n- Jangan mengarang data yang tidak ada di naskah.\n- Tambahkan "Keywords: [kata kunci 1], [kata kunci 2], [kata kunci 3]" di akhir paragraf.</pre></div></div></div>
                             <button onclick="openGeminiWithPrompt('prompt-slrabstrak')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 shadow-lg flex-shrink-0"><i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste</button>
                         </div>
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
@@ -684,7 +692,7 @@ ATURAN OUTPUT MUTLAK:
                 </div>
 
                 <div id="section-slrdaftar" class="proposal-section hidden mb-6">
-                    <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">6. Daftar Pustaka SLR</h3>
+                    <h3 class="text-2xl font-bold mb-6 text-purple-700 border-b pb-2">7. Daftar Pustaka SLR</h3>
                     <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                         <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                             <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt Pustaka SLR</h4>
@@ -770,6 +778,7 @@ ATURAN OUTPUT MUTLAK:
                             <i class="fas fa-file-word mr-2 text-xl"></i>Download Artikel (Format 2 Kolom)
                         </button>
                     </div>
+
                 </div>
             </div>
 
