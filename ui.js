@@ -97,7 +97,7 @@ function getActiveSections() {
     if (documentType === 'makalah') return ['mpendahuluan', 'mpembahasan', 'mpenutup', 'mdaftar', 'final'];
     if (documentType === 'jurnal') return ['jpendahuluan', 'jmetode', 'jhasil', 'jkesimpulan', 'jabstrak', 'jdaftar', 'final'];
     if (documentType === 'skripsi') return ['sdeskripsi', 'sanalisis', 'spembahasan', 'skesimpulan', 'ssaran', 'sdaftar', 'final'];
-    if (documentType === 'slr') return ['slrpendahuluan', 'slrmetode', 'slrhasil', 'slrpembahasan', 'slrkesimpulan', 'slrdaftar', 'final'];
+    if (documentType === 'slr') return ['slrpendahuluan', 'slrmetode', 'slrhasil', 'slrpembahasan', 'slrkesimpulan', 'slrabstrak', 'slrdaftar', 'final'];
 }
 
 function showCustomAlert(type, title, message) {

@@ -384,6 +384,11 @@ function downloadDOCX() {
     else if (documentType === 'slr') {
         docContent += `<div class="jurnal-title">${selectedTitle || 'Review Article Title'}</div>`;
         docContent += `<div class="jurnal-author">[Nama Reviewer]<sup>1</sup><br><sup>1</sup>Pontren Husnul Khotimah, Indonesia</div>`;
+        
+        // --- TAMBAHKAN KODE ABSTRAK INI ---
+        if (proposalData.slrabstrak) docContent += `<div class="jurnal-abstract"><strong>Abstract — </strong>${formatTextForWord(proposalData.slrabstrak)}</div>`;
+        // ----------------------------------
+
         docContent += `<div class="jurnal-body">`;
         if(proposalData.slrpendahuluan) docContent += `<h2>1. INTRODUCTION</h2>` + formatTextForWord(proposalData.slrpendahuluan);
         if(proposalData.slrmetode) docContent += `<h2>2. REVIEW METHODOLOGY</h2>` + formatTextForWord(proposalData.slrmetode);

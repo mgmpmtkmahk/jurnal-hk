@@ -14,7 +14,7 @@ let proposalData = {
     mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '',
     jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '',
     sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '',
-    slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrdaftar: ''
+    slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrabstrak: '', slrdaftar: ''
 };
 
 function saveStateToLocal() {
