@@ -338,12 +338,20 @@ function downloadDOCX() {
         lines.forEach(line => {
             let trimmed = line.trim();
             if (!trimmed) return;
+            
             if (trimmed.startsWith('|') || trimmed.endsWith('|')) {
                 if (trimmed.includes('---')) return;
+                
+                let cells = trimmed.split('|').map(c => c.trim());
+                if (cells[0] === '') cells.shift(); 
+                if (cells[cells.length - 1] === '') cells.pop();
+                
+                // 🚀 ANTI-BUG BARU: Deteksi & Buang "Baris Judul" AI yang cuma 1 sel
+                if (!inTable && cells.length <= 1) return;
+                
                 if (!inTable) { result += '<table>'; inTable = true; }
                 let rowHtml = '<tr>';
-                let cells = trimmed.split('|').map(c => c.trim());
-                if (cells[0] === '') cells.shift(); if (cells[cells.length - 1] === '') cells.pop();
+                
                 cells.forEach(cell => {
                     let cleanCell = cell.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/<br>/g, '<br/>'); 
                     if (result.endsWith('<table>')) rowHtml += `<th>${cleanCell}</th>`;
@@ -358,7 +366,8 @@ function downloadDOCX() {
                 } else { result += `<p>${trimmed}</p>`; }
             }
         });
-        if (inTable) result += '</table>'; return result;
+        if (inTable) result += '</table>'; 
+        return result;
     }
 
     let docContent = `<!DOCTYPE html><html><head><meta charset='utf-8'><title>Doc</title>${styles}</head><body>`;
