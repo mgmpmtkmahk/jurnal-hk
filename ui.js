@@ -1,5 +1,5 @@
 // ==========================================
-// FILE 2: ui.js
+// FILE 2: ui.js (REFACTORED)
 // Fungsi: Navigasi Halaman, Modals, Event Listeners, UI Helpers
 // ==========================================
 
@@ -8,43 +8,35 @@ function goToStep(step) {
         document.getElementById('step' + i).classList.remove('visible-section');
         document.getElementById('step' + i).classList.add('hidden-section');
         const indicator = document.getElementById('step' + i + '-indicator');
-        if (i <= step) { 
-            indicator.classList.remove('step-inactive'); 
-            indicator.classList.add('step-active'); 
-        } else { 
-            indicator.classList.remove('step-active'); 
-            indicator.classList.add('step-inactive'); 
-        }
+        if (i <= step) { indicator.classList.remove('step-inactive'); indicator.classList.add('step-active'); } 
+        else { indicator.classList.remove('step-active'); indicator.classList.add('step-inactive'); }
     }
     document.getElementById('step' + step).classList.remove('hidden-section');
     document.getElementById('step' + step).classList.add('visible-section');
     document.getElementById('progress-line').style.width = ((step - 1) / 4) * 100 + '%';
     
-    currentStep = step;
-    window.scrollTo(0, 0);
+    AppState.currentStep = step; 
     
-    if (step === 5) {
-        const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
-        if (titleDisplay) titleDisplay.textContent = selectedTitle || '-';
+    // Smooth Scroll ke atas
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    if (step === 5) { 
+        const titleDisplay = document.getElementById('selectedTitleDisplayStep5'); 
+        if (titleDisplay) titleDisplay.textContent = AppState.selectedTitle || '-'; 
     }
-
-    updateSidebarLock(step);
+    updateSidebarLock(step); 
     saveStateToLocal(); 
 }
 
 function updateSidebarLock(step) {
     const sidebar = document.getElementById('btn-mode-proposal').parentElement;
-    if (step >= 4) {
-        sidebar.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
-    } else {
-        sidebar.classList.remove('opacity-50', 'pointer-events-none', 'grayscale');
-    }
+    if (step >= 4) sidebar.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
+    else sidebar.classList.remove('opacity-50', 'pointer-events-none', 'grayscale');
 }
 
 function setDocumentType(type) {
-    documentType = type;
+    AppState.documentType = type;
     const titleStep5 = document.getElementById('step5-title');
-    
     const btnStyles = {
         proposal: { id: 'btn-mode-proposal', active: "ring-indigo-300 bg-indigo-600 text-white", inactive: "bg-indigo-50 text-indigo-600" },
         skripsi: { id: 'btn-mode-skripsi', active: "ring-yellow-300 bg-yellow-600 text-white", inactive: "bg-yellow-50 text-yellow-600" },
@@ -87,38 +79,26 @@ function setDocumentType(type) {
         if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan SLR";
         if(typeof showProposalSection === 'function') showProposalSection('slrpendahuluan');
     }
-    
     saveStateToLocal(); 
     showCustomAlert('success', 'Mode Diperbarui', `Sistem dialihkan ke Mode ${type.toUpperCase()}.`);
 }
 
 function getActiveSections() {
-    if (documentType === 'proposal') return ['latar', 'rumusan', 'tujuan', 'manfaat', 'metode', 'landasan', 'hipotesis', 'jadwal', 'daftar', 'final'];
-    if (documentType === 'makalah') return ['mpendahuluan', 'mpembahasan', 'mpenutup', 'mdaftar', 'final'];
-    if (documentType === 'jurnal') return ['jpendahuluan', 'jmetode', 'jhasil', 'jkesimpulan', 'jabstrak', 'jdaftar', 'final'];
-    if (documentType === 'skripsi') return ['sdeskripsi', 'sanalisis', 'spembahasan', 'skesimpulan', 'ssaran', 'sdaftar', 'final'];
-    // Array SLR sudah diperbarui dengan 'slrabstrak'
-    if (documentType === 'slr') return ['slrpendahuluan', 'slrmetode', 'slrhasil', 'slrpembahasan', 'slrkesimpulan', 'slrabstrak', 'slrdaftar', 'final'];
+    if (AppState.documentType === 'proposal') return ['latar', 'rumusan', 'tujuan', 'manfaat', 'metode', 'landasan', 'hipotesis', 'jadwal', 'daftar', 'final'];
+    if (AppState.documentType === 'makalah') return ['mpendahuluan', 'mpembahasan', 'mpenutup', 'mdaftar', 'final'];
+    if (AppState.documentType === 'jurnal') return ['jpendahuluan', 'jmetode', 'jhasil', 'jkesimpulan', 'jabstrak', 'jdaftar', 'final'];
+    if (AppState.documentType === 'skripsi') return ['sdeskripsi', 'sanalisis', 'spembahasan', 'skesimpulan', 'ssaran', 'sdaftar', 'final'];
+    if (AppState.documentType === 'slr') return ['slrpendahuluan', 'slrmetode', 'slrhasil', 'slrpembahasan', 'slrkesimpulan', 'slrabstrak', 'slrdaftar', 'final'];
 }
 
 function showCustomAlert(type, title, message) {
-    const modal = document.getElementById('customAlertModal');
-    const card = document.getElementById('customAlertCard');
-    const iconDiv = document.getElementById('customAlertIcon');
+    const modal = document.getElementById('customAlertModal'); const card = document.getElementById('customAlertCard'); const iconDiv = document.getElementById('customAlertIcon');
     if(!modal || !card || !iconDiv) return;
-    
     iconDiv.className = 'w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto';
-    if (type === 'success') { 
-        iconDiv.classList.add('bg-green-100', 'text-green-600'); iconDiv.innerHTML = '<i class="fas fa-check"></i>'; 
-    } else if (type === 'error') { 
-        iconDiv.classList.add('bg-red-100', 'text-red-600'); iconDiv.innerHTML = '<i class="fas fa-times"></i>'; 
-    } else { 
-        iconDiv.classList.add('bg-yellow-100', 'text-yellow-600'); iconDiv.innerHTML = '<i class="fas fa-exclamation"></i>'; 
-    }
-    
-    document.getElementById('customAlertTitle').innerText = title; 
-    document.getElementById('customAlertMessage').innerText = message;
-    
+    if (type === 'success') { iconDiv.classList.add('bg-green-100', 'text-green-600'); iconDiv.innerHTML = '<i class="fas fa-check"></i>'; } 
+    else if (type === 'error') { iconDiv.classList.add('bg-red-100', 'text-red-600'); iconDiv.innerHTML = '<i class="fas fa-times"></i>'; } 
+    else { iconDiv.classList.add('bg-yellow-100', 'text-yellow-600'); iconDiv.innerHTML = '<i class="fas fa-exclamation"></i>'; }
+    document.getElementById('customAlertTitle').innerText = title; document.getElementById('customAlertMessage').innerText = message;
     modal.classList.remove('hidden'); void modal.offsetWidth; 
     card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100');
 }
@@ -131,8 +111,7 @@ function closeCustomAlert() {
 
 function showConfirmModal() {
     const modal = document.getElementById('customConfirmModal'); const card = document.getElementById('customConfirmCard');
-    if(!modal) return;
-    modal.classList.remove('hidden'); void modal.offsetWidth;
+    if(!modal) return; modal.classList.remove('hidden'); void modal.offsetWidth;
     if(card) { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }
 }
 
@@ -143,15 +122,10 @@ function closeConfirmModal() {
 }
 
 function showWarningModal(onConfirm) {
-    const modal = document.getElementById('customWarningModal');
-    const card = document.getElementById('customWarningCard');
-    const btnConfirm = document.getElementById('btnConfirmSwitchTitle');
+    const modal = document.getElementById('customWarningModal'); const card = document.getElementById('customWarningCard'); const btnConfirm = document.getElementById('btnConfirmSwitchTitle');
     if(!modal) return;
-    
-    const newBtn = btnConfirm.cloneNode(true);
-    btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
+    const newBtn = btnConfirm.cloneNode(true); btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
     newBtn.addEventListener('click', function() { closeWarningModal(); onConfirm(); });
-
     modal.classList.remove('hidden');
     setTimeout(() => { if(card) { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); } }, 10);
 }
@@ -164,8 +138,7 @@ function closeWarningModal() {
 
 function cleanMarkdown(str) {
     if (!str) return '';
-    return str.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
-              .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>'); 
+    return str.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>').replace(/\*(.*?)\*/g, '<em class="italic">$1</em>'); 
 }
 
 function renderMarkdownTable(mdText) {
@@ -185,11 +158,9 @@ function renderMarkdownTable(mdText) {
             hasTable = true;
             if (trimmed.startsWith('|')) trimmed = trimmed.substring(1);
             if (trimmed.endsWith('|')) trimmed = trimmed.substring(0, trimmed.length - 1);
-            
             const cells = trimmed.split('|').map(cell => cell.trim());
             const rowClass = isHeader ? "bg-gray-50 border-b border-gray-200" : "border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors";
             html += `<tr class="${rowClass}">`;
-            
             cells.forEach((cellText) => {
                 let content = cleanMarkdown(cellText.replace(/</g, "&lt;").replace(/>/g, "&gt;")); 
                 if (isHeader) html += `<th class="px-4 py-3 font-semibold text-gray-700 border-r border-gray-200 last:border-0 align-top whitespace-nowrap">${content}</th>`;
@@ -202,11 +173,36 @@ function renderMarkdownTable(mdText) {
     return hasTable ? html : `<div class="p-4 mt-2 bg-gray-50 rounded-lg text-sm text-gray-700 whitespace-pre-wrap border border-gray-200 shadow-inner">${cleanMarkdown(mdText)}</div>`;
 }
 
-// Event Listeners Initialization
+// ==========================================
+// FITUR DARK MODE
+// ==========================================
+function toggleDarkMode() {
+    const body = document.body;
+    body.classList.toggle('dark-mode');
+    const isDark = body.classList.contains('dark-mode');
+    localStorage.setItem('scientificDocDarkMode', isDark); // Simpan preferensi
+
+    const icon = document.querySelector('#darkModeBtn i');
+    if (isDark) {
+        icon.className = 'fas fa-sun text-xl text-yellow-300 group-hover:scale-110 transition-transform';
+    } else {
+        icon.className = 'fas fa-moon text-xl text-yellow-300 group-hover:scale-110 transition-transform';
+    }
+}
+
+function initDarkMode() {
+    const isDark = localStorage.getItem('scientificDocDarkMode') === 'true';
+    if (isDark) {
+        document.body.classList.add('dark-mode');
+        const icon = document.querySelector('#darkModeBtn i');
+        if (icon) icon.className = 'fas fa-sun text-xl text-yellow-300 group-hover:scale-110 transition-transform';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    initDarkMode();
     loadStateFromLocal(); 
     if(typeof updateSavedJournalsList === 'function') updateSavedJournalsList();
-    
     const searchInput = document.getElementById('searchKeyword');
     if(searchInput) {
         searchInput.addEventListener('keypress', function(e) {

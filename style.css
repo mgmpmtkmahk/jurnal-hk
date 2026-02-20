@@ -170,3 +170,132 @@ textarea:focus {
         page-break-inside: avoid;
     }
 }
+
+/* ========================================= */
+/* DARK MODE OVERRIDES (REVISI KONTRAS TOTAL)*/
+/* ========================================= */
+
+body.dark-mode {
+    background-color: #111827 !important; /* gray-900 (Hitam pekat) */
+    color: #e5e7eb !important; /* gray-200 (Putih terang) */
+}
+
+/* 1. MENGATASI BACKGROUND KARTU & KOTAK */
+body.dark-mode .bg-white,
+body.dark-mode .bg-gray-50,
+body.dark-mode .bg-gray-100 {
+    background-color: #1f2937 !important; /* gray-800 */
+    border-color: #374151 !important; /* gray-700 */
+    color: #e5e7eb !important;
+}
+
+/* 2. MENGATASI FOOTER KAKU (GAMBAR 1) */
+/* Menyamakan warna footer dengan body agar sudut kotaknya membaur hilang */
+body.dark-mode .sticky.bottom-0,
+body.dark-mode .bg-gray-50\/95 {
+    background-color: #111827 !important; /* Sama persis dengan body */
+    border-top-color: #374151 !important; /* Garis batas tipis nan elegan */
+}
+
+/* 3. MENGATASI TEKS TABEL TAK TERBACA (GAMBAR 2) */
+/* Memaksa semua teks pekat (termasuk hasil parser Markdown) menjadi putih terang */
+body.dark-mode .text-gray-900,
+body.dark-mode .text-gray-800,
+body.dark-mode .text-gray-700,
+body.dark-mode .text-gray-600,
+body.dark-mode .text-gray-500 {
+    color: #f3f4f6 !important; /* gray-100 */
+}
+
+/* 4. MENGATASI TOMBOL KEMBALI */
+body.dark-mode .bg-gray-200,
+body.dark-mode .bg-gray-300 {
+    background-color: #374151 !important; /* gray-700 */
+    color: #f9fafb !important; /* Teks putih */
+    border-color: #4b5563 !important;
+}
+body.dark-mode .hover\:bg-gray-300:hover,
+body.dark-mode .hover\:bg-gray-200:hover,
+body.dark-mode .hover\:bg-gray-100:hover {
+    background-color: #4b5563 !important; 
+}
+
+/* 5. MENERANGKAN WARNA TEKS JUDUL & INFO BOX (Kuning, Hijau, Ungu, dll) */
+body.dark-mode .text-indigo-600, body.dark-mode .text-indigo-700 { color: #818cf8 !important; } /* Indigo terang */
+body.dark-mode .text-green-600, body.dark-mode .text-green-700 { color: #34d399 !important; } /* Hijau terang */
+body.dark-mode .text-purple-600, body.dark-mode .text-purple-700 { color: #a78bfa !important; } /* Ungu terang */
+body.dark-mode .text-yellow-600, body.dark-mode .text-yellow-700, body.dark-mode .text-yellow-800 { color: #fde047 !important; } /* Kuning menyala */
+body.dark-mode .text-red-600, body.dark-mode .text-red-700, body.dark-mode .text-red-800 { color: #f87171 !important; }
+body.dark-mode .text-blue-600, body.dark-mode .text-blue-700, body.dark-mode .text-blue-800 { color: #60a5fa !important; }
+body.dark-mode .text-teal-600, body.dark-mode .text-teal-700 { color: #2dd4bf !important; }
+body.dark-mode .text-emerald-600, body.dark-mode .text-emerald-700 { color: #34d399 !important; }
+
+/* 6. MENGATASI BACKGROUND BOX PERINGATAN & LINGKARAN IKON/NOMOR */
+body.dark-mode .bg-red-50, body.dark-mode .bg-red-50\/50, body.dark-mode .bg-red-100 { 
+    background-color: rgba(153, 27, 27, 0.2) !important; 
+    border-color: rgba(153, 27, 27, 0.4) !important; 
+}
+body.dark-mode .bg-blue-50, body.dark-mode .bg-blue-50\/50, body.dark-mode .bg-blue-100 { 
+    background-color: rgba(30, 58, 138, 0.2) !important; 
+    border-color: rgba(30, 58, 138, 0.4) !important; 
+}
+body.dark-mode .bg-yellow-50, body.dark-mode .bg-yellow-50\/50, body.dark-mode .bg-yellow-100 { 
+    background-color: rgba(133, 77, 14, 0.3) !important; /* Dibuat gelap transparan */
+    border-color: rgba(133, 77, 14, 0.4) !important; 
+}
+body.dark-mode .bg-green-50, body.dark-mode .bg-green-100 { 
+    background-color: rgba(6, 78, 59, 0.2) !important; 
+    border-color: rgba(6, 78, 59, 0.4) !important; 
+}
+body.dark-mode .bg-purple-50, body.dark-mode .bg-purple-100 { 
+    background-color: rgba(88, 28, 135, 0.2) !important; 
+    border-color: rgba(88, 28, 135, 0.4) !important; 
+}
+body.dark-mode .bg-teal-50, body.dark-mode .bg-teal-100 { 
+    background-color: rgba(19, 78, 74, 0.2) !important; 
+    border-color: rgba(19, 78, 74, 0.4) !important; 
+}
+body.dark-mode .bg-emerald-50, body.dark-mode .bg-emerald-100 { 
+    background-color: rgba(6, 78, 59, 0.2) !important; 
+    border-color: rgba(6, 78, 59, 0.4) !important; 
+}
+
+/* 7. MENGATASI TABEL MARKDOWN KHUSUS */
+body.dark-mode th {
+    background-color: #374151 !important; /* Header tabel abu-abu gelap */
+    color: #f9fafb !important; /* Teks header putih */
+}
+body.dark-mode td {
+    border-color: #4b5563 !important; /* Garis tabel menyesuaikan */
+}
+body.dark-mode .border,
+body.dark-mode .border-gray-200,
+body.dark-mode .border-gray-100,
+body.dark-mode .border-b {
+    border-color: #374151 !important;
+}
+
+/* 8. FORM INPUT & TEXTAREA */
+body.dark-mode textarea,
+body.dark-mode input,
+body.dark-mode select {
+    background-color: #374151 !important; 
+    color: #f9fafb !important; 
+    border-color: #4b5563 !important; 
+}
+body.dark-mode textarea:focus,
+body.dark-mode input:focus,
+body.dark-mode select:focus {
+    border-color: #818cf8 !important; 
+}
+
+/* 9. ELEMEN HEADER & SIDEBAR */
+body.dark-mode .gradient-bg {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+}
+body.dark-mode .step-active {
+    background: linear-gradient(135deg, #3730a3 0%, #4c1d95 100%) !important;
+}
+body.dark-mode .bg-white\/80 {
+    background-color: rgba(31, 41, 55, 0.85) !important;
+}

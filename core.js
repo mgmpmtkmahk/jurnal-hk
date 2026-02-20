@@ -1,6 +1,6 @@
 // ==========================================
-// FILE 3: core.js
-// Fungsi: Core Logic, Prompt Generator, Export Word
+// FILE 3: core.js (REFACTORED)
+// Fungsi: Core Logic, Prompt Generator, Export Word, Auto-Memory
 // ==========================================
 
 function searchJournals() {
@@ -56,50 +56,104 @@ function extractVariablesFromRumusan(rumusanText) {
     return variables.length > 0 ? variables.join(', ') : '[VARIABEL KOSONG]';
 }
 
+// HELPER: Membersihkan basa-basi AI dan mengambil tabel
+function cleanMarkdownTable(text) {
+    if (!text) return '';
+    return text.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.startsWith('|'))
+        .join('\n');
+}
+
 function extractTableData(text) {
     const data = {};
-    const titleMatch = text.match(/\|\s*Judul Lengkap\s*\|\s*([^|]+)/i);
-    const authorsMatch = text.match(/\|\s*Penulis & Afiliasi\s*\|\s*([^|]+)/i);
-    const yearMatch = text.match(/\|\s*Tahun\s*\|\s*([^|]+)/i);
-    if (titleMatch) data.title = titleMatch[1].trim();
-    if (authorsMatch) data.authors = authorsMatch[1].trim();
-    if (yearMatch) data.year = yearMatch[1].trim();
+    const titleMatch = text.match(/\|\s*(?:\*\*)?Judul Lengkap(?:\*\*)?\s*\|\s*([^|]+)/i);
+    const authorsMatch = text.match(/\|\s*(?:\*\*)?Penulis & Afiliasi(?:\*\*)?\s*\|\s*([^|]+)/i);
+    const yearMatch = text.match(/\|\s*(?:\*\*)?Tahun(?:\*\*)?\s*\|\s*([^|]+)/i);
+    
+    if (titleMatch) data.title = titleMatch[1].replace(/\*\*/g, '').trim();
+    if (authorsMatch) data.authors = authorsMatch[1].replace(/\*\*/g, '').trim();
+    if (yearMatch) data.year = yearMatch[1].replace(/\*\*/g, '').trim();
     return data;
 }
 
+// MESIN PROMPT UTAMA
 function getDynamicPromptText(elementId) {
     let text = document.getElementById(elementId).innerText;
     
-    if (elementId === 'step3-prompt') text = text.replace('[INSERT SEMUA DATA JURNAL DARI STEP 2]', journals.map(j => j.raw).join('\n\n---\n\n') || '[DATA KOSONG]');
-    if (elementId === 'step4-prompt') text = text.replace('[INSERT RESEARCH GAP DARI STEP 3]', analysisData.raw || '[DATA GAP KOSONG]');
+    // AUTO-MEMORY INJECTION
+    const currentKey = elementId.replace('prompt-', '');
+    const sectionsList = typeof getActiveSections === 'function' ? getActiveSections() : [];
+    const currentIndex = sectionsList.indexOf(currentKey);
+    
+    const exceptions = ['latar', 'mpendahuluan', 'jpendahuluan', 'slrpendahuluan', 'sdeskripsi', 'daftar', 'mdaftar', 'jdaftar', 'sdaftar', 'slrdaftar', 'jabstrak', 'slrabstrak'];
 
-    const textLatar = proposalData.latar || proposalData.mpendahuluan || proposalData.jpendahuluan || proposalData.slrpendahuluan || '';
-    text = text.replace(/\[KONTEKS_LATAR\]/g, textLatar.substring(0, 5000));
-    text = text.replace(/\[KONTEKS_RUMUSAN\]/g, proposalData.rumusan || '');
-    text = text.replace(/\[KONTEKS_TEORI\]/g, (proposalData.landasan || proposalData.mpembahasan || '').substring(0, 5000));
-    text = text.replace(/\[KONTEKS_METODE\]/g, proposalData.metode || proposalData.jmetode || proposalData.slrmetode || '');
-    const textHasil = (proposalData.sdeskripsi + '\n' + proposalData.sanalisis + '\n' + proposalData.spembahasan) || proposalData.jhasil || proposalData.slrhasil || '';
-    text = text.replace(/\[KONTEKS_HASIL\]/g, textHasil.substring(0, 8000));
+    let memoryText = "";
+    if (currentIndex > 0 && !exceptions.includes(currentKey) && !elementId.includes('step')) {
+        for (let i = 0; i < currentIndex; i++) {
+            const secKey = sectionsList[i];
+            if (AppState.proposalData[secKey] && AppState.proposalData[secKey].trim() !== '') {
+                memoryText += `\n\n--- BAB/BAGIAN: ${secKey.toUpperCase()} ---\n${AppState.proposalData[secKey]}`;
+            }
+        }
+    }
+
+    if (memoryText !== "") {
+        text = `=========================================\n🚨 INGATAN KONTEKS DRAF SAYA (WAJIB DIBACA DULU) 🚨\nAgar dokumen ini koheren dan logis, Anda WAJIB membaca draf bab-bab sebelumnya yang sudah saya tulis di bawah ini. Jawaban Anda saat ini HARUS menyambung secara logis dengan teks ini dan tidak boleh bertentangan:\n${memoryText}\n=========================================\n\n` + text;
+    }
+
+    // REPLACEMENT MENGGUNAKAN CALLBACK
+    if (elementId === 'step3-prompt') {
+        const allJournalsData = AppState.journals.map(j => j.raw).join('\n\n---\n\n');
+        text = text.replace(/\[INSERT SEMUA DATA JURNAL DARI STEP 2\]/g, () => allJournalsData || '[PERINGATAN: DATA JURNAL KOSONG]');
+    }
+    if (elementId === 'step4-prompt') { 
+        text = text.replace(/\[INSERT RESEARCH GAP DARI STEP 3\]/g, () => AppState.analysisData.raw || '[PERINGATAN: DATA ANALISIS KOSONG]'); 
+    }
+
+    const textLatar = AppState.proposalData.latar || AppState.proposalData.mpendahuluan || AppState.proposalData.jpendahuluan || AppState.proposalData.slrpendahuluan || '';
+    text = text.replace(/\[KONTEKS_LATAR\]/g, () => textLatar);
+    const textRumusan = AppState.proposalData.rumusan || ''; 
+    text = text.replace(/\[KONTEKS_RUMUSAN\]/g, () => textRumusan);
+    const textTeori = AppState.proposalData.landasan || AppState.proposalData.mpembahasan || '';
+    text = text.replace(/\[KONTEKS_TEORI\]/g, () => textTeori);
+    const textMetode = AppState.proposalData.metode || AppState.proposalData.jmetode || AppState.proposalData.slrmetode || '';
+    text = text.replace(/\[KONTEKS_METODE\]/g, () => textMetode);
+    const textHasil = (AppState.proposalData.sdeskripsi + '\n' + AppState.proposalData.sanalisis + '\n' + AppState.proposalData.spembahasan) || AppState.proposalData.jhasil || AppState.proposalData.slrhasil || '';
+    text = text.replace(/\[KONTEKS_HASIL\]/g, () => textHasil);
 
     if (elementId.includes('daftar') || elementId.includes('abstrak')) {
         let fullDraft = "";
-        Object.keys(proposalData).forEach(key => { if (!key.includes('daftar') && !key.includes('abstrak') && proposalData[key]) fullDraft += `\n\n--- BAGIAN ${key.toUpperCase()} ---\n${proposalData[key]}`; });
-        text = text.replace(/\[DRAF_TULISAN\]/g, fullDraft.substring(0, 25000) || "[BELUM ADA TULISAN]");
+        Object.keys(AppState.proposalData).forEach(key => { 
+            if (!key.includes('daftar') && !key.includes('abstrak') && AppState.proposalData[key]) {
+                fullDraft += `\n\n--- BAGIAN ${key.toUpperCase()} ---\n${AppState.proposalData[key]}`; 
+            }
+        });
+        text = text.replace(/\[DRAF_TULISAN\]/g, () => fullDraft || "[BELUM ADA TULISAN]");
     }
 
-    text = text.replace(/\[JUDUL\]/g, selectedTitle || '[BELUM DIPILIH]');
-    text = text.replace(/\[DATA JURNAL\]/g, journals.map(j => j.raw).join('\n') || '[DATA KOSONG]');
-    text = text.replace(/\[DATA JURNAL YANG DIKAJI\]/g, journals.map(j => `${j.parsed?.title || 'Judul'} (${j.parsed?.authors || 'Penulis'}, ${j.parsed?.year || 'Tahun'})`).join('; ') || '[DATA KOSONG]');
-    text = text.replace(/\[GAP\]/g, analysisData.raw || '[DATA GAP KOSONG]');
-    text = text.replace(/\[VARIABEL\]/g, extractVariablesFromRumusan(proposalData.rumusan));
+    text = text.replace(/\[JUDUL\]/g, () => AppState.selectedTitle || '[PERINGATAN: JUDUL BELUM DIPILIH]');
+    text = text.replace(/\[DATA JURNAL\]/g, () => AppState.journals.map(j => j.raw).join('\n') || '[DATA JURNAL KOSONG]');
     
-    if(proposalData.rumusan) text = text.replace(/\[RUMUSAN\]/g, proposalData.rumusan);
-    if(proposalData.tujuan) text = text.replace(/\[TUJUAN\]/g, proposalData.tujuan);
+    const safeJurnalList = AppState.journals.map(j => {
+        let t = j.parsed && j.parsed.title ? j.parsed.title : 'Judul';
+        let a = j.parsed && j.parsed.authors ? j.parsed.authors : 'Penulis';
+        let y = j.parsed && j.parsed.year ? j.parsed.year : 'Tahun';
+        return `${t} (${a}, ${y})`;
+    }).join('; ');
+    text = text.replace(/\[DATA JURNAL YANG DIKAJI\]/g, () => safeJurnalList || '[DATA JURNAL KOSONG]');
+    
+    text = text.replace(/\[GAP\]/g, () => AppState.analysisData.raw || '[DATA GAP KOSONG]');
+    text = text.replace(/\[VARIABEL\]/g, () => extractVariablesFromRumusan(AppState.proposalData.rumusan));
+    
+    if(AppState.proposalData.rumusan) text = text.replace(/\[RUMUSAN\]/g, () => AppState.proposalData.rumusan);
+    if(AppState.proposalData.tujuan) text = text.replace(/\[TUJUAN\]/g, () => AppState.proposalData.tujuan);
 
-    const humanizerToggle = document.getElementById('humanizerToggle');
-    if (humanizerToggle && humanizerToggle.checked && elementId.startsWith('prompt-')) {
-        text += `\n\nATURAN ANTI-PLAGIASI & HUMANIZER:\n1. Tulis dengan gaya bahasa natural manusia (Human-like text).\n2. Tingkatkan variasi struktur (Burstiness) & kosa kata (Perplexity).\n3. HARAM menggunakan frasa AI klise: "Kesimpulannya", "Dalam era digital", "Secara keseluruhan".\n4. Lakukan parafrase tingkat tinggi pada setiap teori/jurnal agar lolos Turnitin < 5%.`;
+    // HUMANIZER
+    if (elementId.startsWith('prompt-')) {
+        text += `\n\nATURAN ANTI-PLAGIASI & HUMANIZER (SANGAT PENTING):\n1. Tulis dengan gaya bahasa natural manusia (Human-like text).\n2. Tingkatkan variasi struktur dan panjang kalimat (Burstiness) serta gunakan kosa kata yang dinamis (Perplexity).\n3. HARAM menggunakan frasa AI klise: "Kesimpulannya", "Dalam era digital", "Secara keseluruhan".\n4. Lakukan parafrase tingkat tinggi pada setiap teori/jurnal yang disitasi agar lolos uji Turnitin < 5%.`;
     }
+    
     return text;
 }
 
@@ -120,68 +174,93 @@ function openGeminiWithPrompt(promptId) {
 }
 
 function parseStep2Output() {
-    const output = document.getElementById('geminiOutputStep2').value;
-    if (!output.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil dari Gemini!'); return; }
+    const rawOutput = document.getElementById('geminiOutputStep2').value;
+    if (!rawOutput.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil dari Gemini!'); return; }
+    
     try {
-        const parsedData = extractTableData(output);
-        if (!parsedData.title) { showCustomAlert('error', 'Format Salah', 'Gagal membaca tabel. Pastikan copy utuh.'); return; }
-        journals.push({ id: Date.now(), raw: output, parsed: parsedData });
+        const cleanOutput = cleanMarkdownTable(rawOutput);
+        const outputToProcess = cleanOutput || rawOutput; 
+        const parsedData = extractTableData(outputToProcess);
+        
+        if (!parsedData.title) { 
+            showCustomAlert('error', 'Format Salah', 'Gagal membaca tabel. Pastikan copy utuh dan format benar.'); 
+            return; 
+        }
+        
+        AppState.journals.push({ id: Date.now(), raw: outputToProcess, parsed: parsedData });
         saveStateToLocal();
         updateSavedJournalsList();
+        
         document.getElementById('geminiOutputStep2').value = '';
         showCustomAlert('success', 'Berhasil', 'Data jurnal direkam!');
-    } catch (error) { showCustomAlert('error', 'Error', 'Gagal memproses teks.'); }
+    } catch (error) { 
+        showCustomAlert('error', 'Error', 'Gagal memproses teks.'); 
+    }
 }
 
 function updateSavedJournalsList() {
     const container = document.getElementById('savedJournalsList');
     if(!container) return;
-    if (journals.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada jurnal</p>'; return; }
-    container.innerHTML = journals.map((j, index) => `<div class="bg-white border border-green-200 shadow-sm rounded-xl p-4 mb-4"><div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-100"><h4 class="font-bold text-gray-800 text-lg">${index + 1}. ${j.parsed.title || 'Jurnal'}</h4><button onclick="removeJournal(${index})" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded"><i class="fas fa-trash"></i></button></div><div class="text-sm max-h-60 overflow-y-auto custom-scrollbar">${renderMarkdownTable(j.raw)}</div></div>`).join('');
+    if (AppState.journals.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada jurnal</p>'; return; }
+    container.innerHTML = AppState.journals.map((j, index) => `<div class="bg-white border border-green-200 shadow-sm rounded-xl p-4 mb-4"><div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-100"><h4 class="font-bold text-gray-800 text-lg">${index + 1}. ${j.parsed.title || 'Jurnal'}</h4><button onclick="removeJournal(${index})" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded"><i class="fas fa-trash"></i></button></div><div class="text-sm max-h-60 overflow-y-auto custom-scrollbar">${renderMarkdownTable(j.raw)}</div></div>`).join('');
 }
 
-function removeJournal(index) { journals.splice(index, 1); saveStateToLocal(); updateSavedJournalsList(); }
+function removeJournal(index) { AppState.journals.splice(index, 1); saveStateToLocal(); updateSavedJournalsList(); }
 
 function parseStep3Output() {
     const output = document.getElementById('geminiOutputStep3').value;
     if (!output.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil Gemini!'); return; }
-    analysisData = { raw: output, timestamp: new Date() };
+    AppState.analysisData = { raw: output, timestamp: new Date() };
     saveStateToLocal();
     renderAnalysisSummaryPreview(); 
     document.getElementById('geminiOutputStep3').value = '';
 }
 
 function renderAnalysisSummaryPreview() {
-    if(!analysisData.raw) return;
+    if(!AppState.analysisData.raw) return;
     const container = document.getElementById('analysisSummary');
-    if(container) container.innerHTML = `<div class="bg-white border-2 border-purple-200 shadow-sm rounded-xl p-4"><div class="flex items-center mb-3"><i class="fas fa-check-circle text-purple-600 mr-2 text-xl"></i><h4 class="font-bold text-purple-800 text-lg">Analisis Direkam</h4></div><div class="max-h-96 overflow-y-auto custom-scrollbar">${renderMarkdownTable(analysisData.raw)}</div></div>`;
+    if(container) container.innerHTML = `<div class="bg-white border-2 border-purple-200 shadow-sm rounded-xl p-4"><div class="flex items-center mb-3"><i class="fas fa-check-circle text-purple-600 mr-2 text-xl"></i><h4 class="font-bold text-purple-800 text-lg">Analisis Direkam</h4></div><div class="max-h-96 overflow-y-auto custom-scrollbar">${renderMarkdownTable(AppState.analysisData.raw)}</div></div>`;
 }
 
 function parseStep4Output() {
     const output = document.getElementById('geminiOutputStep4').value;
     if (!output.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil Gemini!'); return; }
+    
     try {
         const titles = []; 
         output.split('\n').forEach(line => {
-            if (line.match(/^\|\s*\d+\s*\|/)) {
-                const parts = line.split('|');
-                if (parts.length >= 3) titles.push({ no: parts[1].trim(), title: parts[2].trim() });
+            const trimmedLine = line.trim();
+            if (trimmedLine.match(/^\|\s*(?:\*\*)?\d+(?:\*\*)?\s*\|/)) {
+                const parts = trimmedLine.split('|');
+                if (parts.length >= 3) {
+                    const no = parts[1].replace(/\*\*/g, '').trim();
+                    const title = parts[2].replace(/\*\*/g, '').trim();
+                    titles.push({ no: no, title: title });
+                }
             }
         });
-        if (titles.length === 0) { showCustomAlert('error', 'Format Salah', 'Tabel judul tidak ditemukan.'); return; }
-        generatedTitles = titles; 
+        
+        if (titles.length === 0) { 
+            showCustomAlert('error', 'Format Salah', 'Tabel judul tidak ditemukan.'); 
+            return; 
+        }
+        
+        AppState.generatedTitles = titles; 
         saveStateToLocal();
         displayTitleSelection();
+        
         document.getElementById('geminiOutputStep4').value = '';
         showCustomAlert('success', 'Berhasil', 'Judul diekstrak.');
-    } catch (error) { showCustomAlert('error', 'Error', 'Gagal memproses teks.'); }
+    } catch (error) { 
+        showCustomAlert('error', 'Error', 'Gagal memproses teks.'); 
+    }
 }
 
 function displayTitleSelection() {
     const container = document.getElementById('titleSelectionList');
     if(!container) return;
-    if (generatedTitles.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada judul</p>'; return; }
-    container.innerHTML = generatedTitles.map((item, index) => {
+    if (AppState.generatedTitles.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada judul</p>'; return; }
+    container.innerHTML = AppState.generatedTitles.map((item, index) => {
         const cleanT = cleanMarkdown(item.title); const escT = cleanT.replace(/'/g, "\\'").replace(/"/g, "&quot;");
         return `<div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-yellow-500 cursor-pointer transition-all card-hover title-card" data-title="${escT}" data-index="${index}"><div class="flex items-start"><div class="bg-yellow-100 text-yellow-700 w-10 h-10 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0 text-lg">${item.no}</div><div class="flex-1"><h4 class="text-gray-800 text-lg mb-2 leading-snug">${cleanT}</h4></div></div></div>`;
     }).join('');
@@ -192,14 +271,14 @@ function displayTitleSelection() {
 }
 
 function selectTitleForProposal(title, element) {
-    const hasData = Object.values(proposalData).some(val => val && val.length > 10);
+    const hasData = Object.values(AppState.proposalData).some(val => val && val.length > 10);
     const executeSwitch = () => {
-        proposalData = { latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '', mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '', jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '', sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '', slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrabstrak: '', slrdaftar: '' };
+        AppState.proposalData = { latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '', mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '', jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '', sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '', slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrabstrak: '', slrdaftar: '' };
         document.querySelectorAll('textarea[id^="output-"]').forEach(el => el.value = '');
         document.querySelectorAll('.title-card').forEach(div => { div.classList.remove('border-yellow-500', 'bg-yellow-50'); div.classList.add('border-gray-200'); });
         element.classList.remove('border-gray-200'); element.classList.add('border-yellow-500', 'bg-yellow-50');
         
-        selectedTitle = title;
+        AppState.selectedTitle = title;
         saveStateToLocal(); 
         
         const stickyNav = document.querySelector('#step4 .sticky');
@@ -212,7 +291,7 @@ function selectTitleForProposal(title, element) {
         }
         showCustomAlert('success', 'Direset', 'Siap menyusun untuk judul baru.');
     };
-    if (hasData && selectedTitle && selectedTitle !== title) showWarningModal(executeSwitch); else executeSwitch();
+    if (hasData && AppState.selectedTitle && AppState.selectedTitle !== title) showWarningModal(executeSwitch); else executeSwitch();
 }
 
 function showProposalSection(section) {
@@ -228,7 +307,7 @@ function showProposalSection(section) {
     });
     
     const sections = getActiveSections();
-    let containerId = documentType === 'makalah' ? 'makalah-nav-buttons' : documentType === 'jurnal' ? 'jurnal-nav-buttons' : documentType === 'skripsi' ? 'skripsi-nav-buttons' : documentType === 'slr' ? 'slr-nav-buttons' : 'proposal-nav-buttons';
+    let containerId = AppState.documentType === 'makalah' ? 'makalah-nav-buttons' : AppState.documentType === 'jurnal' ? 'jurnal-nav-buttons' : AppState.documentType === 'skripsi' ? 'skripsi-nav-buttons' : AppState.documentType === 'slr' ? 'slr-nav-buttons' : 'proposal-nav-buttons';
     
     const navBtns = document.querySelectorAll(`#${containerId} .proposal-nav-btn`);
     const navBtn = navBtns[sections.indexOf(section)];
@@ -246,21 +325,28 @@ function saveProposalSection(section) {
     const content = document.getElementById('output-' + section).value;
     if (!content.trim() && section !== 'hipotesis') { showCustomAlert('warning', 'Kosong', 'Isi konten terlebih dahulu!'); return; }
     
-    proposalData[section] = content;
+    AppState.proposalData[section] = content;
     saveStateToLocal(); 
     
     const s = getActiveSections(); const i = s.indexOf(section);
-    let cid = documentType === 'makalah' ? 'makalah-nav-buttons' : documentType === 'jurnal' ? 'jurnal-nav-buttons' : documentType === 'skripsi' ? 'skripsi-nav-buttons' : documentType === 'slr' ? 'slr-nav-buttons' : 'proposal-nav-buttons';
+    let cid = AppState.documentType === 'makalah' ? 'makalah-nav-buttons' : AppState.documentType === 'jurnal' ? 'jurnal-nav-buttons' : AppState.documentType === 'skripsi' ? 'skripsi-nav-buttons' : AppState.documentType === 'slr' ? 'slr-nav-buttons' : 'proposal-nav-buttons';
     const btn = document.querySelectorAll(`#${cid} .proposal-nav-btn`)[i]; if (btn) btn.classList.add('bg-green-50', 'border-green-500');
     
-    if (i < s.length - 1) showProposalSection(s[i + 1]); else showFinalReview();
+    // VISUAL FEEDBACK
+    showCustomAlert('success', 'Tersimpan', `Bagian berhasil disimpan.`);
+    
+    if (i < s.length - 1) {
+        setTimeout(() => { showProposalSection(s[i + 1]); }, 600);
+    } else {
+        setTimeout(() => { showFinalReview(); }, 600);
+    }
 }
 
 function toggleHipotesis() {
     const cb = document.getElementById('skip-hipotesis'); const ta = document.getElementById('output-hipotesis');
     if(!cb || !ta) return;
-    if (cb.checked) { ta.disabled = true; ta.placeholder = 'Dilewati'; proposalData.hipotesis = '(Penelitian kualitatif)'; } 
-    else { ta.disabled = false; ta.placeholder = 'Paste teks...'; proposalData.hipotesis = ''; }
+    if (cb.checked) { ta.disabled = true; ta.placeholder = 'Dilewati'; AppState.proposalData.hipotesis = '(Penelitian kualitatif)'; } 
+    else { ta.disabled = false; ta.placeholder = 'Paste teks...'; AppState.proposalData.hipotesis = ''; }
 }
 
 function showFinalReview() {
@@ -271,11 +357,11 @@ function showFinalReview() {
     const btnStandard = document.getElementById('btnDownloadStandard');
     const btnJurnal = document.getElementById('btnDownloadJurnal');
 
-    if (documentType === 'jurnal' || documentType === 'slr') {
+    if (AppState.documentType === 'jurnal' || AppState.documentType === 'slr') {
         formatContainer.classList.add('hidden'); btnStandard.classList.add('hidden'); btnJurnal.classList.remove('hidden');
-    } else if (documentType === 'skripsi' || documentType === 'makalah') {
+    } else if (AppState.documentType === 'skripsi' || AppState.documentType === 'makalah') {
         formatContainer.classList.add('hidden'); btnStandard.classList.remove('hidden'); btnJurnal.classList.add('hidden');
-        btnStandard.innerHTML = `<i class="fas fa-file-word text-2xl mr-3"></i> Download ${documentType === 'skripsi' ? 'Skripsi' : 'Makalah'} (.docx)`;
+        btnStandard.innerHTML = `<i class="fas fa-file-word text-2xl mr-3"></i> Download ${AppState.documentType === 'skripsi' ? 'Skripsi' : 'Makalah'} (.docx)`;
     } else {
         formatContainer.classList.remove('hidden'); btnStandard.classList.remove('hidden'); btnJurnal.classList.add('hidden');
         btnStandard.innerHTML = `<i class="fas fa-file-word text-2xl mr-3"></i> Download Proposal (.docx)`;
@@ -292,33 +378,40 @@ function downloadDOCX() {
     const styles = `
         <style>
             @page { size: ${paperSize}; margin: ${pageMargin}; } 
-            body { font-family: ${fontName}; font-size: 12pt; line-height: ${lineSpacing}; color: #000; }
+            body { font-family: ${fontName}; font-size: 12pt; line-height: ${lineSpacing}; color: #000; text-align: justify; }
             h1 { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 24pt; text-transform: uppercase; }
             h2 { font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 12pt; text-transform: uppercase; page-break-after: avoid; }
-            .chapter-title { text-align: center; font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 24pt; text-transform: uppercase; page-break-after: avoid; }
             h3 { font-size: 12pt; font-weight: bold; margin-top: 18pt; margin-bottom: 6pt; page-break-after: avoid; }
-            p { margin-top: 0; margin-bottom: 10pt; text-align: justify; text-indent: 1.25cm; } 
+            .chapter-title { text-align: center; font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 24pt; text-transform: uppercase; page-break-after: avoid; }
+            p { margin-top: 0; margin-bottom: 8pt; text-align: justify; text-indent: 1.25cm; } 
+            
+            .markdown-heading { text-indent: 0; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt; }
+            .markdown-heading.level-1 { font-size: 14pt; }
+            .markdown-heading.level-2 { font-size: 13pt; }
+            .markdown-heading.level-3 { font-size: 12pt; }
+
             table { border-collapse: collapse; width: 100%; margin-top: 12pt; margin-bottom: 12pt; font-size: 11pt; line-height: 1.15; }
             th, td { border: 1pt solid black; padding: 6pt 8pt; text-align: left; vertical-align: top; }
             th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
             td p { text-indent: 0; margin-bottom: 4pt; } 
+            
             .cover-page { text-align: center; margin-top: 100pt; page-break-after: always; }
             .cover-title { font-size: 16pt; font-weight: bold; text-transform: uppercase; margin-bottom: 50pt; line-height: 1.5; text-indent: 0; }
             .cover-author { margin-bottom: 80pt; font-size: 12pt; text-indent: 0; line-height: 1.5; font-weight: bold; }
             .cover-inst { font-size: 14pt; font-weight: bold; text-transform: uppercase; text-indent: 0; line-height: 1.5; }
             .page-break { page-break-before: always; }
-            .list-item { text-indent: 0; padding-left: 1.25cm; margin-bottom: 4pt; }
+            
+            .list-item { text-indent: -0.63cm; margin-left: 1.25cm; margin-bottom: 4pt; }
             .biblio-item { text-indent: -1.25cm; margin-left: 1.25cm; margin-bottom: 8pt; }
 
-            /* FORMAT JURNAL & SLR KHUSUS */
-            .jurnal-title { font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 12pt; text-transform: capitalize; line-height: 1.2; }
-            .jurnal-author { font-size: 11pt; text-align: center; margin-bottom: 24pt; font-style: italic; }
+            .jurnal-title { font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 12pt; text-transform: capitalize; line-height: 1.2; text-indent: 0;}
+            .jurnal-author { font-size: 11pt; text-align: center; margin-bottom: 24pt; font-style: italic; text-indent: 0;}
             .jurnal-abstract { font-size: 10pt; text-align: justify; margin-left: 1.5cm; margin-right: 1.5cm; margin-bottom: 24pt; padding: 10pt; border-top: 1pt solid #000; border-bottom: 1pt solid #000; }
             .jurnal-abstract p { text-indent: 0; font-size: 10pt; margin-bottom: 6pt; line-height: 1.15; }
             .jurnal-body { column-count: 2; column-gap: 0.8cm; text-align: justify; }
             .jurnal-body h2 { margin-top: 12pt; margin-bottom: 6pt; font-size: 11pt; }
             .jurnal-body p { font-size: 11pt; margin-bottom: 8pt; text-indent: 0.75cm; }
-            .jurnal-body .list-item { font-size: 11pt; padding-left: 0.75cm; }
+            .jurnal-body .list-item { font-size: 11pt; padding-left: 0.75cm; text-indent: -0.63cm; }
             .jurnal-body .biblio-item { text-indent: -0.75cm; margin-left: 0.75cm; font-size: 10pt; }
             .jurnal-body table { font-size: 9pt; } 
         </style>
@@ -326,11 +419,9 @@ function downloadDOCX() {
 
     function formatTextForWord(text) {
         if (!text) return '';
-        let html = text.replace(/^(Tentu, berikut|Berikut adalah|Tentu saja|Ini dia|Baik, ini).*?:/mi, '');
+        let html = text.replace(/^(Tentu, berikut|Berikut adalah|Tentu saja|Ini dia|Baik, ini|Ini adalah).*?:?\n/mi, '').trim();
         html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); 
         html = html.replace(/\*(.*?)\*/g, '<i>$1</i>');
-        html = html.replace(/^#+\s*(.*)$/gm, '<b>$1</b>');
-        html = html.replace(/\n\s*\n/g, '</p><p>');
 
         const lines = html.split('\n');
         let result = ''; let inTable = false;
@@ -339,141 +430,134 @@ function downloadDOCX() {
             let trimmed = line.trim();
             if (!trimmed) return;
             
+            if (trimmed.startsWith('#')) {
+                let headingLevel = trimmed.match(/^#+/)[0].length;
+                let headingText = trimmed.replace(/^#+\s*/, '');
+                result += `<p class="markdown-heading level-${headingLevel}">${headingText}</p>`;
+                return;
+            }
+            
             if (trimmed.startsWith('|') || trimmed.endsWith('|')) {
-                if (trimmed.includes('---')) return;
-                
+                if (trimmed.replace(/\s/g, '').match(/^\|?[-:|]+\|?$/)) return;
                 let cells = trimmed.split('|').map(c => c.trim());
                 if (cells[0] === '') cells.shift(); 
                 if (cells[cells.length - 1] === '') cells.pop();
-                
-                // 🚀 ANTI-BUG BARU: Deteksi & Buang "Baris Judul" AI yang cuma 1 sel
-                if (!inTable && cells.length <= 1) return;
-                
-                if (!inTable) { result += '<table>'; inTable = true; }
-                let rowHtml = '<tr>';
-                
-                cells.forEach(cell => {
-                    let cleanCell = cell.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/<br>/g, '<br/>'); 
-                    if (result.endsWith('<table>')) rowHtml += `<th>${cleanCell}</th>`;
-                    else rowHtml += `<td>${cleanCell}</td>`;
-                });
-                rowHtml += '</tr>'; result += rowHtml;
+                if (!inTable && cells.length > 1) { result += '<table>'; inTable = true; }
+                if (inTable) {
+                    let rowHtml = '<tr>';
+                    cells.forEach(cell => {
+                        let cleanCell = cell.replace(/<br\s*\/?>/gi, '<br/>'); 
+                        if (result.endsWith('<table>')) rowHtml += `<th>${cleanCell}</th>`;
+                        else rowHtml += `<td>${cleanCell}</td>`;
+                    });
+                    rowHtml += '</tr>'; result += rowHtml;
+                }
             } else {
                 if (inTable) { result += '</table>'; inTable = false; }
-                if (/^(\d+\.|-|\*)\s/.test(trimmed)) {
-                    let content = trimmed.replace(/^(\d+\.|-|\*)\s/, '');
-                    result += `<p class="list-item">• ${content}</p>`;
-                } else { result += `<p>${trimmed}</p>`; }
+                let orderedMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+                let unorderedMatch = trimmed.match(/^(-\|\*)\s+(.*)/);
+                if (orderedMatch) { result += `<p class="list-item">${orderedMatch[1]}. ${orderedMatch[2]}</p>`; } 
+                else if (unorderedMatch) { result += `<p class="list-item">• ${unorderedMatch[2]}</p>`; } 
+                else { result += `<p>${trimmed}</p>`; }
             }
         });
-        if (inTable) result += '</table>'; 
-        return result;
+        if (inTable) result += '</table>'; return result;
     }
 
     let docContent = `<!DOCTYPE html><html><head><meta charset='utf-8'><title>Doc</title>${styles}</head><body>`;
 
-    // Logika Artikel Jurnal
-    if (documentType === 'jurnal') {
-        docContent += `<div class="jurnal-title">${selectedTitle || 'Judul Artikel Belum Dipilih'}</div>`;
+    if (AppState.documentType === 'jurnal') {
+        docContent += `<div class="jurnal-title">${AppState.selectedTitle || 'Judul Artikel Belum Dipilih'}</div>`;
         docContent += `<div class="jurnal-author">[Nama Penulis]<sup>1</sup>, [Nama Penulis 2]<sup>2</sup><br><sup>1,2</sup>Pontren Husnul Khotimah, Indonesia<br>Email: author@husnulkhotimah.ac.id</div>`;
-        if (proposalData.jabstrak) docContent += `<div class="jurnal-abstract"><strong>Abstract — </strong>${formatTextForWord(proposalData.jabstrak)}</div>`;
-        
+        if (AppState.proposalData.jabstrak) docContent += `<div class="jurnal-abstract"><strong>Abstract — </strong>${formatTextForWord(AppState.proposalData.jabstrak)}</div>`;
         docContent += `<div class="jurnal-body">`;
-        if(proposalData.jpendahuluan) docContent += `<h2>1. INTRODUCTION</h2>` + formatTextForWord(proposalData.jpendahuluan);
-        if(proposalData.jmetode) docContent += `<h2>2. METHODS</h2>` + formatTextForWord(proposalData.jmetode);
-        if(proposalData.jhasil) docContent += `<h2>3. RESULTS AND DISCUSSION</h2>` + formatTextForWord(proposalData.jhasil);
-        if(proposalData.jkesimpulan) docContent += `<h2>4. CONCLUSION</h2>` + formatTextForWord(proposalData.jkesimpulan);
-        if(proposalData.jdaftar) {
+        if(AppState.proposalData.jpendahuluan) docContent += `<h2>1. INTRODUCTION</h2>` + formatTextForWord(AppState.proposalData.jpendahuluan);
+        if(AppState.proposalData.jmetode) docContent += `<h2>2. METHODS</h2>` + formatTextForWord(AppState.proposalData.jmetode);
+        if(AppState.proposalData.jhasil) docContent += `<h2>3. RESULTS AND DISCUSSION</h2>` + formatTextForWord(AppState.proposalData.jhasil);
+        if(AppState.proposalData.jkesimpulan) docContent += `<h2>4. CONCLUSION</h2>` + formatTextForWord(AppState.proposalData.jkesimpulan);
+        if(AppState.proposalData.jdaftar) {
             docContent += `<h2>REFERENCES</h2>`;
-            let sectionHtml = formatTextForWord(proposalData.jdaftar);
+            let sectionHtml = formatTextForWord(AppState.proposalData.jdaftar);
             docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
         }
         docContent += `</div>`;
     } 
-    // Logika SLR (dengan penambahan Abstrak)
-    else if (documentType === 'slr') {
-        docContent += `<div class="jurnal-title">${selectedTitle || 'Review Article Title'}</div>`;
+    else if (AppState.documentType === 'slr') {
+        docContent += `<div class="jurnal-title">${AppState.selectedTitle || 'Review Article Title'}</div>`;
         docContent += `<div class="jurnal-author">[Nama Reviewer]<sup>1</sup><br><sup>1</sup>Pontren Husnul Khotimah, Indonesia</div>`;
-        
-        if (proposalData.slrabstrak) docContent += `<div class="jurnal-abstract"><strong>Abstract — </strong>${formatTextForWord(proposalData.slrabstrak)}</div>`;
-        
+        if (AppState.proposalData.slrabstrak) docContent += `<div class="jurnal-abstract"><strong>Abstract — </strong>${formatTextForWord(AppState.proposalData.slrabstrak)}</div>`;
         docContent += `<div class="jurnal-body">`;
-        if(proposalData.slrpendahuluan) docContent += `<h2>1. INTRODUCTION</h2>` + formatTextForWord(proposalData.slrpendahuluan);
-        if(proposalData.slrmetode) docContent += `<h2>2. REVIEW METHODOLOGY</h2>` + formatTextForWord(proposalData.slrmetode);
-        docContent += `</div>`; // Break column 2 ke kolom 1 untuk mencegah tabel terpotong terlalu panjang
-        
-        if(proposalData.slrhasil) docContent += `<h2>3. DATA EXTRACTION RESULTS</h2>` + formatTextForWord(proposalData.slrhasil);
-        
+        if(AppState.proposalData.slrpendahuluan) docContent += `<h2>1. INTRODUCTION</h2>` + formatTextForWord(AppState.proposalData.slrpendahuluan);
+        if(AppState.proposalData.slrmetode) docContent += `<h2>2. REVIEW METHODOLOGY</h2>` + formatTextForWord(AppState.proposalData.slrmetode);
+        docContent += `</div>`; 
+        if(AppState.proposalData.slrhasil) docContent += `<h2>3. DATA EXTRACTION RESULTS</h2>` + formatTextForWord(AppState.proposalData.slrhasil);
         docContent += `<div class="jurnal-body">`;
-        if(proposalData.slrpembahasan) docContent += `<h2>4. DISCUSSION</h2>` + formatTextForWord(proposalData.slrpembahasan);
-        if(proposalData.slrkesimpulan) docContent += `<h2>5. CONCLUSION</h2>` + formatTextForWord(proposalData.slrkesimpulan);
-        if(proposalData.slrdaftar) {
+        if(AppState.proposalData.slrpembahasan) docContent += `<h2>4. DISCUSSION</h2>` + formatTextForWord(AppState.proposalData.slrpembahasan);
+        if(AppState.proposalData.slrkesimpulan) docContent += `<h2>5. CONCLUSION</h2>` + formatTextForWord(AppState.proposalData.slrkesimpulan);
+        if(AppState.proposalData.slrdaftar) {
             docContent += `<h2>REFERENCES</h2>`;
-            let sectionHtml = formatTextForWord(proposalData.slrdaftar);
+            let sectionHtml = formatTextForWord(AppState.proposalData.slrdaftar);
             docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
         }
         docContent += `</div>`;
     }
-    // Logika Skripsi
-    else if (documentType === 'skripsi') {
-        docContent += `<div class="cover-page"><h2>BAB IV DAN V SKRIPSI</h2><div class="cover-title">${selectedTitle || 'Judul Belum Dipilih'}</div><div class="cover-author">Disusun Oleh:<br><strong>[ NAMA MAHASISWA ]</strong></div><div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div></div>`;
+    else if (AppState.documentType === 'skripsi') {
+        docContent += `<div class="cover-page"><h2>BAB IV DAN V SKRIPSI</h2><div class="cover-title">${AppState.selectedTitle || 'Judul Belum Dipilih'}</div><div class="cover-author">Disusun Oleh:<br><strong>[ NAMA MAHASISWA ]</strong></div><div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div></div>`;
         docContent += `<div class="chapter-title">BAB IV<br>HASIL PENELITIAN DAN PEMBAHASAN</div>`;
-        if(proposalData.sdeskripsi) docContent += `<h3>4.1 Deskripsi Data Penelitian</h3>` + formatTextForWord(proposalData.sdeskripsi);
-        if(proposalData.sanalisis) docContent += `<h3>4.2 Analisis Data dan Hasil Pengujian</h3>` + formatTextForWord(proposalData.sanalisis);
-        if(proposalData.spembahasan) docContent += `<h3>4.3 Pembahasan Hasil Penelitian</h3>` + formatTextForWord(proposalData.spembahasan);
+        if(AppState.proposalData.sdeskripsi) docContent += `<h3>4.1 Deskripsi Data Penelitian</h3>` + formatTextForWord(AppState.proposalData.sdeskripsi);
+        if(AppState.proposalData.sanalisis) docContent += `<h3>4.2 Analisis Data dan Hasil Pengujian</h3>` + formatTextForWord(AppState.proposalData.sanalisis);
+        if(AppState.proposalData.spembahasan) docContent += `<h3>4.3 Pembahasan Hasil Penelitian</h3>` + formatTextForWord(AppState.proposalData.spembahasan);
         docContent += `<div class="chapter-title page-break">BAB V<br>KESIMPULAN DAN SARAN</div>`;
-        if(proposalData.skesimpulan) docContent += `<h3>5.1 Kesimpulan</h3>` + formatTextForWord(proposalData.skesimpulan);
-        if(proposalData.ssaran) docContent += `<h3>5.2 Saran</h3>` + formatTextForWord(proposalData.ssaran);
-        if(proposalData.sdaftar) {
+        if(AppState.proposalData.skesimpulan) docContent += `<h3>5.1 Kesimpulan</h3>` + formatTextForWord(AppState.proposalData.skesimpulan);
+        if(AppState.proposalData.ssaran) docContent += `<h3>5.2 Saran</h3>` + formatTextForWord(AppState.proposalData.ssaran);
+        if(AppState.proposalData.sdaftar) {
             docContent += `<div class="chapter-title page-break">DAFTAR PUSTAKA</div>`;
-            let sectionHtml = formatTextForWord(proposalData.sdaftar);
+            let sectionHtml = formatTextForWord(AppState.proposalData.sdaftar);
             docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
         }
     }
-    // Logika Makalah
-    else if (documentType === 'makalah') {
-        docContent += `<div class="cover-page"><h2>MAKALAH AKADEMIK</h2><div class="cover-title">${selectedTitle || 'Judul Belum Dipilih'}</div><div class="cover-author">Disusun Oleh:<br><strong>[ NAMA PENULIS ]</strong></div><div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div></div>`;
+    else if (AppState.documentType === 'makalah') {
+        docContent += `<div class="cover-page"><h2>MAKALAH AKADEMIK</h2><div class="cover-title">${AppState.selectedTitle || 'Judul Belum Dipilih'}</div><div class="cover-author">Disusun Oleh:<br><strong>[ NAMA PENULIS ]</strong></div><div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div></div>`;
         docContent += `<div class="chapter-title">BAB I<br>PENDAHULUAN</div>`;
-        if(proposalData.mpendahuluan) docContent += formatTextForWord(proposalData.mpendahuluan);
+        if(AppState.proposalData.mpendahuluan) docContent += formatTextForWord(AppState.proposalData.mpendahuluan);
         docContent += `<div class="chapter-title page-break">BAB II<br>PEMBAHASAN</div>`;
-        if(proposalData.mpembahasan) docContent += formatTextForWord(proposalData.mpembahasan);
+        if(AppState.proposalData.mpembahasan) docContent += formatTextForWord(AppState.proposalData.mpembahasan);
         docContent += `<div class="chapter-title page-break">BAB III<br>PENUTUP</div>`;
-        if(proposalData.mpenutup) docContent += formatTextForWord(proposalData.mpenutup);
-        if(proposalData.mdaftar) {
+        if(AppState.proposalData.mpenutup) docContent += formatTextForWord(AppState.proposalData.mpenutup);
+        if(AppState.proposalData.mdaftar) {
             docContent += `<div class="chapter-title page-break">DAFTAR PUSTAKA</div>`;
-            let sectionHtml = formatTextForWord(proposalData.mdaftar);
+            let sectionHtml = formatTextForWord(AppState.proposalData.mdaftar);
             docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
         }
     }
-    // Logika Proposal
     else {
-        docContent += `<div class="cover-page"><h2>PROPOSAL PENELITIAN</h2><div class="cover-title">${selectedTitle || 'Judul Belum Dipilih'}</div><div class="cover-author">Disusun Oleh:<br><strong>[ NAMA PENELITI ]</strong></div><div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div></div>`;
+        docContent += `<div class="cover-page"><h2>PROPOSAL PENELITIAN</h2><div class="cover-title">${AppState.selectedTitle || 'Judul Belum Dipilih'}</div><div class="cover-author">Disusun Oleh:<br><strong>[ NAMA PENELITI ]</strong></div><div class="cover-inst">PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div></div>`;
         if (formatChoice === 'mini') {
             const sectionNames = { latar: 'A. Latar Belakang', rumusan: 'B. Rumusan Masalah', tujuan: 'C. Tujuan', manfaat: 'D. Manfaat', metode: 'E. Metode', landasan: 'F. Landasan Teori', hipotesis: 'G. Hipotesis', jadwal: 'H. Jadwal', daftar: 'I. Daftar Pustaka' };
-            Object.keys(proposalData).forEach(function(key) {
-                if (proposalData[key] && sectionNames[key]) {
+            Object.keys(AppState.proposalData).forEach(function(key) {
+                if (AppState.proposalData[key] && sectionNames[key]) {
                     let extraClass = (key === 'daftar') ? ' class="page-break"' : '';
                     docContent += `<h2${extraClass}>${sectionNames[key]}</h2>`;
-                    let sectionHtml = formatTextForWord(proposalData[key]);
+                    let sectionHtml = formatTextForWord(AppState.proposalData[key]);
                     if (key === 'daftar') sectionHtml = sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
                     docContent += sectionHtml;
                 }
             });
         } else {
             docContent += `<div class="chapter-title">BAB I<br>PENDAHULUAN</div>`;
-            if(proposalData.latar) docContent += `<h3>1.1 Latar Belakang Masalah</h3>` + formatTextForWord(proposalData.latar);
-            if(proposalData.rumusan) docContent += `<h3>1.2 Rumusan Masalah</h3>` + formatTextForWord(proposalData.rumusan);
-            if(proposalData.tujuan) docContent += `<h3>1.3 Tujuan Penelitian</h3>` + formatTextForWord(proposalData.tujuan);
-            if(proposalData.manfaat) docContent += `<h3>1.4 Manfaat Penelitian</h3>` + formatTextForWord(proposalData.manfaat);
+            if(AppState.proposalData.latar) docContent += `<h3>1.1 Latar Belakang Masalah</h3>` + formatTextForWord(AppState.proposalData.latar);
+            if(AppState.proposalData.rumusan) docContent += `<h3>1.2 Rumusan Masalah</h3>` + formatTextForWord(AppState.proposalData.rumusan);
+            if(AppState.proposalData.tujuan) docContent += `<h3>1.3 Tujuan Penelitian</h3>` + formatTextForWord(AppState.proposalData.tujuan);
+            if(AppState.proposalData.manfaat) docContent += `<h3>1.4 Manfaat Penelitian</h3>` + formatTextForWord(AppState.proposalData.manfaat);
             docContent += `<div class="chapter-title page-break">BAB II<br>TINJAUAN PUSTAKA</div>`;
-            if(proposalData.landasan) docContent += `<h3>2.1 Landasan Teori dan Penelitian Terdahulu</h3>` + formatTextForWord(proposalData.landasan);
-            if(proposalData.hipotesis) docContent += `<h3>2.2 Hipotesis Penelitian</h3>` + formatTextForWord(proposalData.hipotesis);
+            if(AppState.proposalData.landasan) docContent += `<h3>2.1 Landasan Teori dan Penelitian Terdahulu</h3>` + formatTextForWord(AppState.proposalData.landasan);
+            if(AppState.proposalData.hipotesis) docContent += `<h3>2.2 Hipotesis Penelitian</h3>` + formatTextForWord(AppState.proposalData.hipotesis);
             docContent += `<div class="chapter-title page-break">BAB III<br>METODE PENELITIAN</div>`;
-            if(proposalData.metode) docContent += `<h3>3.1 Desain dan Pendekatan Penelitian</h3>` + formatTextForWord(proposalData.metode);
-            if(proposalData.jadwal) docContent += `<h3>3.2 Jadwal dan Anggaran</h3>` + formatTextForWord(proposalData.jadwal);
-            if(proposalData.daftar) {
+            if(AppState.proposalData.metode) docContent += `<h3>3.1 Desain dan Pendekatan Penelitian</h3>` + formatTextForWord(AppState.proposalData.metode);
+            if(AppState.proposalData.jadwal) docContent += `<h3>3.2 Jadwal dan Anggaran</h3>` + formatTextForWord(AppState.proposalData.jadwal);
+            if(AppState.proposalData.daftar) {
                 docContent += `<div class="chapter-title page-break">DAFTAR PUSTAKA</div>`;
-                let sectionHtml = formatTextForWord(proposalData.daftar);
+                let sectionHtml = formatTextForWord(AppState.proposalData.daftar);
                 docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
             }
         }
@@ -481,19 +565,18 @@ function downloadDOCX() {
 
     docContent += '</body></html>';
 
-    // Eksekusi Download
     if (typeof htmlDocx !== 'undefined') {
         const converted = htmlDocx.asBlob(docContent);
         const url = URL.createObjectURL(converted);
         const a = document.createElement('a'); a.href = url;
-        let safeFilename = selectedTitle ? selectedTitle.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_') : 'Dokumen';
-        a.download = `${documentType.toUpperCase()}_${safeFilename}.docx`;
+        let safeFilename = AppState.selectedTitle ? AppState.selectedTitle.substring(0, 30).replace(/[^a-zA-Z0-9]/g, '_') : 'Dokumen';
+        a.download = `${AppState.documentType.toUpperCase()}_${safeFilename}.docx`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     } else {
         const blob = new Blob(['\ufeff', docContent], { type: 'application/msword' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url;
-        a.download = `${documentType.toUpperCase()}_Dokumen.doc`;
+        a.download = `${AppState.documentType.toUpperCase()}_Dokumen.doc`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     }
 }
