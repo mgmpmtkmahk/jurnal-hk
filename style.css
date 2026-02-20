@@ -299,3 +299,45 @@ body.dark-mode .step-active {
 body.dark-mode .bg-white\/80 {
     background-color: rgba(31, 41, 55, 0.85) !important;
 }
+
+/* 10. FIX KHUSUS: KARTU JUDUL (STEP 4) SAAT HOVER/SELECTED */
+   Solusi: Paksa teks h4 di dalam kartu yang aktif menjadi putih mutlak. */
+body.dark-mode .title-card:hover h4,
+body.dark-mode .title-card.bg-yellow-50 h4 {
+    color: #ffffff !important; /* Putih bersih */
+}
+
+/* Opsional: Membuat background kartu yang dipilih (selected) 
+   sedikit lebih terang/menyala agar beda dengan kartu biasa yang gelap. */
+body.dark-mode .title-card.bg-yellow-50 {
+    /* Menggunakan warna kuning emas yang lebih cerah tapi tetap transparan */
+    background-color: rgba(234, 179, 8, 0.25) !important; 
+    border-color: rgba(234, 179, 8, 0.6) !important;
+}
+
+/* ========================================= */
+/* 11. FIX HOVER KOTAK PENCARIAN JURNAL (STEP 1) */
+/* ========================================= */
+
+/* Mencegah kotak hasil pencarian menjadi putih/terang saat di-hover di mode gelap */
+body.dark-mode .hover\:bg-red-50:hover { 
+    background-color: rgba(153, 27, 27, 0.3) !important; 
+}
+body.dark-mode .hover\:bg-blue-50:hover { 
+    background-color: rgba(30, 58, 138, 0.3) !important; 
+}
+body.dark-mode .hover\:bg-yellow-50:hover { 
+    background-color: rgba(133, 77, 14, 0.4) !important; 
+}
+body.dark-mode .hover\:bg-green-50:hover { 
+    background-color: rgba(6, 78, 59, 0.3) !important; 
+}
+body.dark-mode .hover\:bg-purple-50:hover { 
+    background-color: rgba(88, 28, 135, 0.3) !important; 
+}
+body.dark-mode .hover\:bg-teal-50:hover { 
+    background-color: rgba(19, 78, 74, 0.3) !important; 
+}
+body.dark-mode .hover\:bg-orange-50:hover { 
+    background-color: rgba(154, 52, 18, 0.3) !important; 
+}
