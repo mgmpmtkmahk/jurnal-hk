@@ -48,6 +48,8 @@ function loadStateFromLocal() {
                 const el = document.getElementById('output-' + key);
                 if (el && AppState.proposalData[key]) el.value = AppState.proposalData[key];
             });
+
+            if (typeof refreshAllWordCounters === "function") refreshAllWordCounters();
             
             const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
             if (titleDisplay) titleDisplay.textContent = AppState.selectedTitle || '-';
@@ -96,6 +98,8 @@ function processRestoreFile(event) {
                 const el = document.getElementById('output-' + key); 
                 if (el && AppState.proposalData[key]) el.value = AppState.proposalData[key]; 
             });
+
+            if (typeof refreshAllWordCounters === "function") refreshAllWordCounters();
             
             const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
             if (titleDisplay) titleDisplay.textContent = AppState.selectedTitle || '-';

@@ -253,5 +253,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         }
+
+        if (typeof setupWordCounters === 'function') {
+            setupWordCounters();
+        }
     }
 });

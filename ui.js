@@ -199,6 +199,54 @@ function initDarkMode() {
     }
 }
 
+// ==========================================
+// FITUR WORD COUNTER
+// ==========================================
+function setupWordCounters() {
+    // Cari semua text area yang id-nya diawali dengan "output-"
+    const textareas = document.querySelectorAll('textarea[id^="output-"]');
+    
+    textareas.forEach(ta => {
+        if (ta.parentElement.querySelector('.word-counter')) return; // Cegah duplikat
+
+        // Buat elemen visual untuk lencana (badge) counter
+        const counter = document.createElement('div');
+        // Kelas Tailwind agar melayang di pojok kanan bawah dan mendukung Dark Mode
+        counter.className = 'word-counter absolute bottom-6 right-6 text-xs font-bold text-gray-500 bg-white/90 dark:bg-gray-800/90 dark:text-gray-300 backdrop-blur px-2 py-1 rounded-md shadow-sm border border-gray-200 dark:border-gray-600 pointer-events-none transition-all z-10';
+        counter.innerText = '0 kata';
+        
+        ta.parentElement.appendChild(counter);
+
+        // Event listener saat user mengetik atau paste
+        ta.addEventListener('input', () => updateSingleCounter(ta, counter));
+    });
+}
+
+function updateSingleCounter(ta, counter) {
+    const text = ta.value.trim();
+    // Hitung kata dengan memisahkan teks berdasarkan spasi/enter
+    const wordCount = text === '' ? 0 : text.split(/\s+/).length;
+    counter.innerText = `${wordCount} kata`;
+    
+    // Beri efek warna menyala (biru/indigo) jika ada isinya
+    if (wordCount > 0) {
+        counter.classList.add('text-indigo-600', 'dark:text-indigo-400', 'border-indigo-200', 'dark:border-indigo-500');
+        counter.classList.remove('text-gray-500', 'dark:text-gray-300', 'border-gray-200', 'dark:border-gray-600');
+    } else {
+        counter.classList.add('text-gray-500', 'dark:text-gray-300', 'border-gray-200', 'dark:border-gray-600');
+        counter.classList.remove('text-indigo-600', 'dark:text-indigo-400', 'border-indigo-200', 'dark:border-indigo-500');
+    }
+}
+
+// Fungsi ini berguna saat memuat ulang data (Refresh/Restore)
+function refreshAllWordCounters() {
+    const textareas = document.querySelectorAll('textarea[id^="output-"]');
+    textareas.forEach(ta => {
+        const counter = ta.parentElement.querySelector('.word-counter');
+        if (counter) updateSingleCounter(ta, counter);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     initDarkMode();
     loadStateFromLocal(); 
