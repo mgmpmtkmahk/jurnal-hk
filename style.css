@@ -259,6 +259,10 @@ body.dark-mode .bg-emerald-50, body.dark-mode .bg-emerald-100 {
     background-color: rgba(6, 78, 59, 0.2) !important; 
     border-color: rgba(6, 78, 59, 0.4) !important; 
 }
+body.dark-mode .bg-indigo-50, body.dark-mode .bg-indigo-100 { 
+    background-color: rgba(49, 46, 129, 0.3) !important;
+    border-color: rgba(49, 46, 129, 0.5) !important; 
+}
 
 /* 7. MENGATASI TABEL MARKDOWN KHUSUS */
 body.dark-mode th {
@@ -340,4 +344,7 @@ body.dark-mode .hover\:bg-teal-50:hover {
 }
 body.dark-mode .hover\:bg-orange-50:hover { 
     background-color: rgba(154, 52, 18, 0.3) !important; 
+}
+body.dark-mode .hover\:bg-indigo-50:hover { 
+    background-color: rgba(49, 46, 129, 0.4) !important; 
 }

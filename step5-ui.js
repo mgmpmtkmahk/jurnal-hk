@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div id="section-${id}" class="proposal-section hidden mb-6">
             <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">${title}</h3>
             <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+                
                 <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                     <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt ${title.split(' (')[0]}</h4>
                     <div class="flex-grow flex flex-col mb-4">
@@ -23,10 +24,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
                     ${customInfo ? `<div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4"><p class="text-xs text-yellow-800 flex items-start"><i class="fas fa-info-circle mr-2 mt-0.5"></i><span>${customInfo}</span></p></div>` : ''}
-                    <button onclick="openGeminiWithPrompt('prompt-${id}')" class="mt-auto w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 shadow-lg flex-shrink-0">
-                        <i class="fas fa-external-link-alt mr-2"></i>Buka Gemini & Auto-Paste
-                    </button>
+                    
+                    <div class="mt-auto flex gap-3 flex-shrink-0">
+                        <button onclick="openGeminiWithPrompt('prompt-${id}')" class="flex-1 bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 shadow-sm flex items-center justify-center transition-all">
+                            <i class="fas fa-external-link-alt mr-2"></i>Manual Tab
+                        </button>
+                        <button onclick="generateWithAPI('prompt-${id}', 'output-${id}')" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] border border-purple-500 flex items-center justify-center transition-all">
+                            <i class="fas fa-robot mr-2"></i>Auto API
+                        </button>
+                    </div>
                 </div>
+
                 <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
                     <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
                     ${hasCheckbox ? `
@@ -37,11 +45,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
                         <textarea id="output-${id}" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil dari Gemini di sini..."></textarea>
                     </div>
+                    
                     <div class="mt-auto flex gap-3 flex-shrink-0">
                         <button onclick="prevProposalSection('${id}')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
                         <button onclick="saveProposalSection('${id}')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
                     </div>
                 </div>
+
             </div>
         </div>
     `;

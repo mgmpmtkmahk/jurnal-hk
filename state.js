@@ -7,6 +7,7 @@
 const AppState = {
     documentType: 'proposal',
     currentStep: 1,
+    geminiApiKey: '', // <-- TAMBAHKAN INI UNTUK API KEY
     journals: [],
     analysisData: {},
     generatedTitles: [],
@@ -30,6 +31,7 @@ function loadStateFromLocal() {
         try {
             const parsed = JSON.parse(savedState);
             // Rehidrasi state
+            if (parsed.geminiApiKey) AppState.geminiApiKey = parsed.geminiApiKey; // <-- TAMBAHKAN INI
             if (parsed.documentType) AppState.documentType = parsed.documentType;
             if (parsed.currentStep) AppState.currentStep = parsed.currentStep;
             if (parsed.journals) AppState.journals = parsed.journals;

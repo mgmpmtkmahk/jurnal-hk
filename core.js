@@ -42,6 +42,30 @@ function searchJournals() {
     }, 1000);
 }
 
+function extractJSON(text) {
+    if (!text) throw new Error("Teks kosong");
+    
+    // Skenario 1: Jika AI membungkusnya dalam blok ```json ... ```
+    const match = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+    if (match) return JSON.parse(match[1].trim());
+    
+    // Skenario 2: Jika AI memberikan format mentah
+    const startObj = text.indexOf('{');
+    const endObj = text.lastIndexOf('}');
+    const startArr = text.indexOf('[');
+    const endArr = text.lastIndexOf(']');
+    
+    let jsonStr = text;
+    // Cari batas kurung yang paling logis (Object atau Array)
+    if (startObj !== -1 && endObj !== -1 && (startArr === -1 || startObj < startArr)) {
+         jsonStr = text.substring(startObj, endObj + 1);
+    } else if (startArr !== -1 && endArr !== -1) {
+         jsonStr = text.substring(startArr, endArr + 1);
+    }
+    
+    return JSON.parse(jsonStr);
+}
+
 function extractVariablesFromRumusan(rumusanText) {
     if (!rumusanText) return '[VARIABEL KOSONG]';
     const variables = []; let isVarTable = false;
@@ -54,6 +78,90 @@ function extractVariablesFromRumusan(rumusanText) {
         }
     });
     return variables.length > 0 ? variables.join(', ') : '[VARIABEL KOSONG]';
+}
+
+// ==========================================
+// FITUR OTOMATISASI VIA API (BYOK)
+// ==========================================
+
+function openApiSettings() {
+    document.getElementById('geminiApiKeyInput').value = AppState.geminiApiKey || '';
+    document.getElementById('apiSettingsModal').classList.remove('hidden');
+}
+
+function closeApiSettings() {
+    document.getElementById('apiSettingsModal').classList.add('hidden');
+}
+
+function saveApiKey() {
+    const key = document.getElementById('geminiApiKeyInput').value.trim();
+    AppState.geminiApiKey = key;
+    saveStateToLocal();
+    closeApiSettings();
+    showCustomAlert('success', 'Tersimpan', 'API Key berhasil disimpan secara lokal di browser Anda.');
+}
+
+async function generateWithAPI(promptId, targetTextareaId) {
+    const apiKey = AppState.geminiApiKey;
+    if (!apiKey) {
+        showCustomAlert('warning', 'API Key Dibutuhkan', 'Harap masukkan API Key Gemini Anda terlebih dahulu.');
+        openApiSettings();
+        return;
+    }
+    if (promptId === 'step2-prompt') {
+        const rawInput = document.getElementById('rawJournalInput').value.trim();
+        if (!rawInput) {
+            showCustomAlert('warning', 'Teks Jurnal Kosong', 'Harap paste teks dari file PDF jurnal ke dalam kotak input yang disediakan sebelum menekan tombol Auto API.');
+            return;
+        }
+    }
+
+    const promptText = getDynamicPromptText(promptId);
+    const targetEl = document.getElementById(targetTextareaId);
+    
+    // Simpan isi lama untuk jaga-jaga kalau error
+    const originalVal = targetEl.value; 
+    
+    // Visual Loading State
+    targetEl.value = "Sedang generate teks menggunakan AI... Mohon tunggu sekitar 10-20 detik...";
+    targetEl.disabled = true;
+    targetEl.classList.add('animate-pulse', 'bg-indigo-50');
+
+    try {
+        // Menggunakan model gemini-1.5-flash (terbaik untuk teks panjang dan format JSON)
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: promptText }] }],
+                generationConfig: { temperature: 0.7 }
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || "Gagal menghubungi API Google.");
+        }
+
+        const data = await response.json();
+        const aiText = data.candidates[0].content.parts[0].text;
+        
+        targetEl.value = aiText;
+        showCustomAlert('success', 'Generate Berhasil!', 'Silakan periksa hasilnya dan klik tombol Parse/Simpan.');
+        
+    } catch (error) {
+        console.error("API Error:", error);
+        targetEl.value = originalVal; // Kembalikan teks asli jika gagal
+        if (error.message.includes('API key')) {
+            showCustomAlert('error', 'API Key Salah', 'API Key tidak valid atau kuota habis.');
+            openApiSettings();
+        } else {
+            showCustomAlert('error', 'Gagal Generate', error.message);
+        }
+    } finally {
+        targetEl.disabled = false;
+        targetEl.classList.remove('animate-pulse', 'bg-indigo-50');
+    }
 }
 
 // HELPER: Membersihkan basa-basi AI dan mengambil tabel
@@ -100,9 +208,14 @@ function getDynamicPromptText(elementId) {
 
     if (memoryText !== "") {
         text = `=========================================\n🚨 INGATAN KONTEKS DRAF SAYA (WAJIB DIBACA DULU) 🚨\nAgar dokumen ini koheren dan logis, Anda WAJIB membaca draf bab-bab sebelumnya yang sudah saya tulis di bawah ini. Jawaban Anda saat ini HARUS menyambung secara logis dengan teks ini dan tidak boleh bertentangan:\n${memoryText}\n=========================================\n\n` + text;
-    }
+    }  
 
     // REPLACEMENT MENGGUNAKAN CALLBACK
+    if (elementId === 'step2-prompt') {
+        const rawJournalEl = document.getElementById('rawJournalInput');
+        const rawJournalText = rawJournalEl ? rawJournalEl.value.trim() : '';
+        text = text.replace(/\[INSERT TEKS JURNAL DISINI\]/g, () => rawJournalText || '[PERINGATAN: TEKS JURNAL BELUM DIMASUKKAN]');
+    }
     if (elementId === 'step3-prompt') {
         const allJournalsData = AppState.journals.map(j => j.raw).join('\n\n---\n\n');
         text = text.replace(/\[INSERT SEMUA DATA JURNAL DARI STEP 2\]/g, () => allJournalsData || '[PERINGATAN: DATA JURNAL KOSONG]');
@@ -178,23 +291,40 @@ function parseStep2Output() {
     if (!rawOutput.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil dari Gemini!'); return; }
     
     try {
-        const cleanOutput = cleanMarkdownTable(rawOutput);
-        const outputToProcess = cleanOutput || rawOutput; 
-        const parsedData = extractTableData(outputToProcess);
+        // Parse data JSON
+        const parsedData = extractJSON(rawOutput);
         
-        if (!parsedData.title) { 
-            showCustomAlert('error', 'Format Salah', 'Gagal membaca tabel. Pastikan copy utuh dan format benar.'); 
-            return; 
+        // Validasi dasar
+        if (!parsedData.judul) { 
+            throw new Error("Properti 'judul' tidak ditemukan di JSON"); 
         }
         
-        AppState.journals.push({ id: Date.now(), raw: outputToProcess, parsed: parsedData });
+        // Ubah JSON menjadi Markdown bersih untuk keperluan UI & Memory Step berikutnya
+        const displayMarkdown = `**Judul**: ${parsedData.judul}
+**Penulis**: ${parsedData.penulis} (${parsedData.tahun})
+**Jurnal**: ${parsedData.nama_jurnal}
+**Hasil Utama**: ${parsedData.hasil_utama}
+**Research Gap**: ${parsedData.research_gap}`;
+
+        AppState.journals.push({ 
+            id: Date.now(), 
+            raw: displayMarkdown, // Raw ini akan dibaca oleh fungsi di UI & Prompt
+            parsed: {
+                title: parsedData.judul,
+                authors: parsedData.penulis,
+                year: parsedData.tahun
+            },
+            fullJson: parsedData // Simpan JSON utuh jika butuh di masa depan
+        });
+        
         saveStateToLocal();
         updateSavedJournalsList();
         
         document.getElementById('geminiOutputStep2').value = '';
         showCustomAlert('success', 'Berhasil', 'Data jurnal direkam!');
     } catch (error) { 
-        showCustomAlert('error', 'Error', 'Gagal memproses teks.'); 
+        console.error("JSON Parse Error:", error);
+        showCustomAlert('error', 'Error Parsing JSON', 'Format teks tidak valid. Pastikan AI menghasilkan struktur JSON yang benar.'); 
     }
 }
 
@@ -210,16 +340,68 @@ function removeJournal(index) { AppState.journals.splice(index, 1); saveStateToL
 function parseStep3Output() {
     const output = document.getElementById('geminiOutputStep3').value;
     if (!output.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil Gemini!'); return; }
-    AppState.analysisData = { raw: output, timestamp: new Date() };
-    saveStateToLocal();
-    renderAnalysisSummaryPreview(); 
-    document.getElementById('geminiOutputStep3').value = '';
+    
+    try {
+        const parsedData = extractJSON(output);
+        
+        // Buat Ringkasan Markdown untuk dimunculkan di UI dan dimasukkan ke Prompt Step 4
+        let summaryText = "### Analisis Research Gap\n\n";
+        
+        if (parsedData.research_gap && parsedData.research_gap.length > 0) {
+            parsedData.research_gap.forEach(gap => {
+                summaryText += `- **${gap.kategori}**: ${gap.detail}\n`;
+            });
+        }
+        summaryText += "\n### Peluang Pengembangan\n\n";
+        if (parsedData.peluang_baru && parsedData.peluang_baru.length > 0) {
+            parsedData.peluang_baru.forEach(peluang => {
+                summaryText += `- **${peluang.kategori}**: ${peluang.detail}\n`;
+            });
+        }
+
+        AppState.analysisData = { raw: summaryText, json: parsedData, timestamp: new Date() };
+        saveStateToLocal();
+        renderAnalysisSummaryPreview(); 
+        
+        document.getElementById('geminiOutputStep3').value = '';
+        showCustomAlert('success', 'Berhasil', 'Analisis komparatif berhasil direkam!');
+    } catch (error) {
+        console.error("JSON Parse Error:", error);
+        showCustomAlert('error', 'Error', 'Gagal memproses JSON Analisis.'); 
+    }
 }
 
 function renderAnalysisSummaryPreview() {
     if(!AppState.analysisData.raw) return;
     const container = document.getElementById('analysisSummary');
-    if(container) container.innerHTML = `<div class="bg-white border-2 border-purple-200 shadow-sm rounded-xl p-4"><div class="flex items-center mb-3"><i class="fas fa-check-circle text-purple-600 mr-2 text-xl"></i><h4 class="font-bold text-purple-800 text-lg">Analisis Direkam</h4></div><div class="max-h-96 overflow-y-auto custom-scrollbar">${renderMarkdownTable(AppState.analysisData.raw)}</div></div>`;
+    if(!container) return;
+
+    // Menyulap karakter Markdown menjadi HTML yang cantik dengan Tailwind
+    let cleanHTML = AppState.analysisData.raw;
+    
+    // 1. Ubah "### Teks" menjadi Judul Sub-bab
+    cleanHTML = cleanHTML.replace(/###\s+(.*)/g, '<h5 class="font-bold text-lg text-indigo-600 dark:text-indigo-400 mt-4 mb-1">$1</h5>');
+    
+    // 2. Ubah "**Teks**" menjadi Huruf Tebal
+    cleanHTML = cleanHTML.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900 dark:text-white">$1</strong>');
+    
+    // 3. Ubah "- " menjadi Bullet Point (•) yang rapi
+    cleanHTML = cleanHTML.replace(/^- /gm, '<span class="text-purple-500 font-bold mr-2 text-lg leading-none">•</span>');
+    
+    // 4. Ubah enter menjadi baris baru HTML (<br>)
+    cleanHTML = cleanHTML.replace(/\n/g, '<br>');
+
+    // Merender ke layar
+    container.innerHTML = `
+        <div class="bg-white border-2 border-purple-200 shadow-sm rounded-xl p-5 dark:bg-gray-800 dark:border-purple-500/30">
+            <div class="flex items-center mb-2 border-b border-gray-100 dark:border-gray-700 pb-3">
+                <i class="fas fa-check-circle text-purple-600 dark:text-purple-400 mr-2 text-xl"></i>
+                <h4 class="font-bold text-purple-800 dark:text-purple-300 text-lg">Analisis Direkam</h4>
+            </div>
+            <div class="max-h-96 overflow-y-auto custom-scrollbar text-sm text-gray-700 dark:text-gray-300 leading-relaxed pt-2">
+                ${cleanHTML}
+            </div>
+        </div>`;
 }
 
 function parseStep4Output() {
@@ -227,32 +409,27 @@ function parseStep4Output() {
     if (!output.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil Gemini!'); return; }
     
     try {
-        const titles = []; 
-        output.split('\n').forEach(line => {
-            const trimmedLine = line.trim();
-            if (trimmedLine.match(/^\|\s*(?:\*\*)?\d+(?:\*\*)?\s*\|/)) {
-                const parts = trimmedLine.split('|');
-                if (parts.length >= 3) {
-                    const no = parts[1].replace(/\*\*/g, '').trim();
-                    const title = parts[2].replace(/\*\*/g, '').trim();
-                    titles.push({ no: no, title: title });
-                }
-            }
-        });
+        const jsonArray = extractJSON(output);
         
-        if (titles.length === 0) { 
-            showCustomAlert('error', 'Format Salah', 'Tabel judul tidak ditemukan.'); 
-            return; 
+        if (!Array.isArray(jsonArray) || jsonArray.length === 0) { 
+            throw new Error("Data JSON bukan berupa Array Judul");
         }
+        
+        // Mapping langsung ke State Array kita
+        const titles = jsonArray.map((item, index) => ({
+            no: item.no || (index + 1),
+            title: item.judul || item.title || "Judul Tidak Diketahui"
+        }));
         
         AppState.generatedTitles = titles; 
         saveStateToLocal();
         displayTitleSelection();
         
         document.getElementById('geminiOutputStep4').value = '';
-        showCustomAlert('success', 'Berhasil', 'Judul diekstrak.');
+        showCustomAlert('success', 'Berhasil', 'Daftar judul berhasil diekstrak!');
     } catch (error) { 
-        showCustomAlert('error', 'Error', 'Gagal memproses teks.'); 
+        console.error("JSON Parse Error:", error);
+        showCustomAlert('error', 'Error Format', 'Gagal memproses JSON daftar judul.'); 
     }
 }
 
