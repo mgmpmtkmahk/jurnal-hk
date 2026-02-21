@@ -406,10 +406,20 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
         <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 relative z-10 animate-fade-in-up">
             <h3 class="text-xl font-bold mb-2 flex items-center text-gray-800"><i class="fas fa-key text-indigo-500 mr-2"></i>Pengaturan API</h3>
             <p class="text-sm text-gray-600 mb-4">Masukkan API Key Google Gemini Anda untuk mode otomatis. Dapatkan gratis di <a href="https://aistudio.google.com/api-keys" target="_blank" class="text-blue-600 underline font-bold">Google AI Studio</a>.</p>
-            <input type="password" id="geminiApiKeyInput" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-4 focus:border-indigo-500 outline-none" placeholder="AIzaSy...">
-            <div class="flex gap-3">
-                <button onclick="closeApiSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200">Batal</button>
-                <button onclick="saveApiKey()" class="flex-1 bg-indigo-600 py-3 rounded-xl text-white font-bold hover:bg-indigo-700 shadow-lg">Simpan Key</button>
+            
+            <input type="password" id="geminiApiKeyInput" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-3 focus:border-indigo-500 outline-none" placeholder="AIzaSy...">
+            
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-5 rounded-r-xl">
+                <p class="text-xs text-yellow-800 leading-relaxed flex items-start">
+                    <i class="fas fa-exclamation-triangle mt-0.5 mr-2"></i>
+                    <span><strong>Peringatan Keamanan:</strong> Key Anda disimpan di browser lokal (LocalStorage). Jika menggunakan komputer publik/kampus, <strong>WAJIB</strong> hapus key setelah selesai agar tidak disalahgunakan orang lain.</span>
+                </p>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="closeApiSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200 text-sm">Batal</button>
+                <button onclick="removeApiKey()" class="flex-1 bg-red-50 border border-red-200 py-3 rounded-xl text-red-600 font-bold hover:bg-red-100 text-sm">Hapus Key</button>
+                <button onclick="saveApiKey()" class="flex-1 bg-indigo-600 py-3 rounded-xl text-white font-bold hover:bg-indigo-700 shadow-lg text-sm">Simpan</button>
             </div>
         </div>
     </div>

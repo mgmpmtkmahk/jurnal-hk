@@ -19,9 +19,9 @@ function searchJournals() {
         
         const indoSources = [
             { name: 'Google Scholar ID', url: 'https://scholar.google.co.id/scholar?q=' + encodeURIComponent(keyword) + '&lr=lang_id', icon: 'fa-graduation-cap', color: 'red', desc: 'Google Cendikia' },
-            { name: 'SINTA', url: 'https://sinta.kemdiktisaintek.go.id/', icon: 'fa-university', color: 'green', desc: 'Web SINTA' },
-            { name: 'Garuda', url: 'https://garuda.kemdiktisaintek.go.id/documents?q=' + encodeURIComponent(keyword), icon: 'fa-book', color: 'yellow', desc: 'Jurnal Garuda' },
-            { name: 'Neliti Indonesia', url: 'https://www.neliti.com/id/search?q=' + encodeURIComponent(keyword), icon: 'fa-search', color: 'teal', desc: 'Repository Jurnal' },
+            { name: 'SINTA', url: 'https://sinta.kemdiktisaintek.go.id/', icon: 'fa-university', color: 'green', desc: 'Science and Technology Index' },
+            { name: 'Garuda', url: 'https://garuda.kemdiktisaintek.go.id/documents?q=' + encodeURIComponent(keyword), icon: 'fa-book', color: 'yellow', desc: 'Garba Rujukan Digital' },
+            { name: 'Neliti Indonesia', url: 'https://www.neliti.com/id/search?q=' + encodeURIComponent(keyword), icon: 'fa-search', color: 'teal', desc: 'Repository, Jurnal, dan Konferensi' },
             { name: 'UI Scholars Hub', url: 'https://scholarhub.ui.ac.id/do/search/?q=' + encodeURIComponent(keyword), icon: 'fa-university', color: 'blue', desc: 'Scholarhub UI' },
             { name: 'E-Jurnal UNDIP', url: 'https://ejournal.undip.ac.id/index.php/index/search?query=' + encodeURIComponent(keyword), icon: 'fa-book-open', color: 'purple', desc: 'Jurnal Multidisiplin UNDIP' },
             { name: 'Jurnal Online UGM', url: 'https://journal.ugm.ac.id/index/search/search?query=' + encodeURIComponent(keyword), icon: 'fa-graduation-cap', color: 'green', desc: 'Repositori UGM' },
@@ -101,6 +101,14 @@ function saveApiKey() {
     showCustomAlert('success', 'Tersimpan', 'API Key berhasil disimpan secara lokal di browser Anda.');
 }
 
+function removeApiKey() {
+    AppState.geminiApiKey = '';
+    document.getElementById('geminiApiKeyInput').value = '';
+    saveStateToLocal();
+    closeApiSettings();
+    showCustomAlert('success', 'Terhapus', 'API Key telah dihapus dari browser ini demi keamanan.');
+}
+
 async function generateWithAPI(promptId, targetTextareaId) {
     const apiKey = AppState.geminiApiKey;
     if (!apiKey) {
@@ -128,7 +136,6 @@ async function generateWithAPI(promptId, targetTextareaId) {
     targetEl.classList.add('animate-pulse', 'bg-indigo-50');
 
     try {
-        // Menggunakan model gemini-1.5-flash (terbaik untuk teks panjang dan format JSON)
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -138,13 +145,37 @@ async function generateWithAPI(promptId, targetTextareaId) {
             })
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || "Gagal menghubungi API Google.");
+            throw new Error(data.error?.message || "Gagal menghubungi API Google.");
         }
 
-        const data = await response.json();
-        const aiText = data.candidates[0].content.parts[0].text;
+        // --- TAMBAHAN OPTIMASI KEAMANAN & VALIDASI STRUKTUR ---
+        
+        // 1. Cek apakah di-blokir oleh filter keamanan Google
+        if (data.promptFeedback && data.promptFeedback.blockReason) {
+            throw new Error(`Akses ditolak oleh filter keamanan Google (Alasan: ${data.promptFeedback.blockReason}). Harap periksa apakah teks jurnal mengandung kata-kata sensitif.`);
+        }
+        
+        // 2. Cek apakah API mengembalikan kandidat jawaban
+        if (!data.candidates || data.candidates.length === 0) {
+            // Kadang response finishReason-nya 'SAFETY' ada di dalam candidates[0]
+            throw new Error("API tidak mengembalikan jawaban. Ini biasanya terjadi karena batasan keamanan atau teks terlalu panjang.");
+        }
+
+        // 3. Cek struktur konten AI
+        const firstCandidate = data.candidates[0];
+        if (firstCandidate.finishReason === 'SAFETY' || firstCandidate.finishReason === 'RECITATION') {
+             throw new Error(`AI menghentikan *generate* teks karena alasan: ${firstCandidate.finishReason}.`);
+        }
+
+        if (!firstCandidate.content || !firstCandidate.content.parts || firstCandidate.content.parts.length === 0) {
+            throw new Error("Format respons API tidak sesuai dugaan atau kosong.");
+        }
+        // -----------------------------------------------------
+
+        const aiText = firstCandidate.content.parts[0].text;
         
         targetEl.value = aiText;
         showCustomAlert('success', 'Generate Berhasil!', 'Silakan periksa hasilnya dan klik tombol Parse/Simpan.');
@@ -152,10 +183,12 @@ async function generateWithAPI(promptId, targetTextareaId) {
     } catch (error) {
         console.error("API Error:", error);
         targetEl.value = originalVal; // Kembalikan teks asli jika gagal
+        
         if (error.message.includes('API key')) {
             showCustomAlert('error', 'API Key Salah', 'API Key tidak valid atau kuota habis.');
             openApiSettings();
         } else {
+            // Tampilkan pesan error yang lebih spesifik kepada pengguna
             showCustomAlert('error', 'Gagal Generate', error.message);
         }
     } finally {

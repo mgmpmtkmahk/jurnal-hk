@@ -1,11 +1,11 @@
 // ==========================================
-// FILE 4: step5-ui.js (DATA DRIVEN REFACTOR)
+// FILE 4: step5-ui.js (DATA DRIVEN REFACTOR + DYNAMIC NAV)
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', function() {
     const step5Container = document.getElementById('step5-container');
     
-    // Fungsi Template Builder Utama
+    // 1. FUNGSI TEMPLATE BUILDER UNTUK SECTION PROMPT
     const buildSectionHTML = (id, title, promptText, customInfo = null, hasCheckbox = false) => `
         <div id="section-${id}" class="proposal-section hidden mb-6">
             <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">${title}</h3>
@@ -56,7 +56,78 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     `;
 
-    // Seluruh Data Prompt Lengkap (Dari source awal)
+    // 2. DATA KONFIGURASI NAVIGASI TOMBOL (DYNAMIC NAV)
+    const navConfig = {
+        proposal: [
+            { id: 'latar', icon: 'fa-file-alt', label: '1. Latar Belakang' },
+            { id: 'rumusan', icon: 'fa-question-circle', label: '2. Rumusan' },
+            { id: 'tujuan', icon: 'fa-bullseye', label: '3. Tujuan' },
+            { id: 'manfaat', icon: 'fa-hand-holding-heart', label: '4. Manfaat' },
+            { id: 'metode', icon: 'fa-flask', label: '5. Metode' },
+            { id: 'landasan', icon: 'fa-book', label: '6. Landasan Teori' },
+            { id: 'hipotesis', icon: 'fa-balance-scale', label: '7. Hipotesis' },
+            { id: 'jadwal', icon: 'fa-calendar-alt', label: '8. Jadwal & Biaya' },
+            { id: 'daftar', icon: 'fa-list-ol', label: '9. Pustaka' },
+            { id: 'final', icon: 'fa-file-export', label: 'Setup & Export', isFinal: true }
+        ],
+        skripsi: [
+            { id: 'sdeskripsi', icon: 'fa-users', label: '1. Deskripsi Data' },
+            { id: 'sanalisis', icon: 'fa-chart-pie', label: '2. Analisis Hasil' },
+            { id: 'spembahasan', icon: 'fa-comments', label: '3. Pembahasan' },
+            { id: 'skesimpulan', icon: 'fa-check-double', label: '4. Kesimpulan' },
+            { id: 'ssaran', icon: 'fa-lightbulb', label: '5. Saran' },
+            { id: 'sdaftar', icon: 'fa-list', label: '6. Pustaka' },
+            { id: 'final', icon: 'fa-file-export', label: 'Setup & Export', isFinal: true }
+        ],
+        makalah: [
+            { id: 'mpendahuluan', icon: 'fa-flag', label: '1. Pendahuluan' },
+            { id: 'mpembahasan', icon: 'fa-comments', label: '2. Pembahasan' },
+            { id: 'mpenutup', icon: 'fa-check-square', label: '3. Penutup' },
+            { id: 'mdaftar', icon: 'fa-list-ol', label: '4. Pustaka' },
+            { id: 'final', icon: 'fa-file-export', label: 'Setup & Export', isFinal: true }
+        ],
+        jurnal: [
+            { id: 'jpendahuluan', icon: 'fa-flag', label: '1. Pendahuluan' },
+            { id: 'jmetode', icon: 'fa-flask', label: '2. Metode' },
+            { id: 'jhasil', icon: 'fa-chart-bar', label: '3. Hasil & Bahas' },
+            { id: 'jkesimpulan', icon: 'fa-check-double', label: '4. Kesimpulan' },
+            { id: 'jabstrak', icon: 'fa-align-center', label: '5. Abstrak' },
+            { id: 'jdaftar', icon: 'fa-list', label: '6. Pustaka' },
+            { id: 'final', icon: 'fa-file-export', label: 'Setup & Export', isFinal: true }
+        ],
+        slr: [
+            { id: 'slrpendahuluan', icon: 'fa-flag', label: '1. Pendahuluan' },
+            { id: 'slrmetode', icon: 'fa-search-plus', label: '2. Metode PRISMA' },
+            { id: 'slrhasil', icon: 'fa-table', label: '3. Hasil Ekstraksi' },
+            { id: 'slrpembahasan', icon: 'fa-comments', label: '4. Pembahasan' },
+            { id: 'slrkesimpulan', icon: 'fa-check-double', label: '5. Kesimpulan' },
+            { id: 'slrabstrak', icon: 'fa-align-center', label: '6. Abstrak SLR' },
+            { id: 'slrdaftar', icon: 'fa-list', label: '7. Pustaka' },
+            { id: 'final', icon: 'fa-file-export', label: 'Setup & Export', isFinal: true }
+        ]
+    };
+
+    // 3. FUNGSI TEMPLATE BUILDER UNTUK TOMBOL NAVIGASI
+    const buildNavButtonsHTML = (docType, buttons) => {
+        let html = `<div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="${docType}-nav-buttons">`;
+        buttons.forEach(btn => {
+            if (btn.isFinal) {
+                html += `
+                <button data-section="${btn.id}" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center">
+                    <i class="fas ${btn.icon} text-2xl mb-2"></i><span class="text-sm font-bold">${btn.label}</span>
+                </button>`;
+            } else {
+                html += `
+                <button data-section="${btn.id}" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center">
+                    <i class="fas ${btn.icon} text-2xl mb-2"></i><span class="text-sm font-semibold">${btn.label}</span>
+                </button>`;
+            }
+        });
+        html += `</div>`;
+        return html;
+    };
+
+    // 4. SELURUH DATA PROMPT LENGKAP
     const sectionsData = [
         // --- PROPOSAL ---
         { id: 'latar', title: '5.1 Latar Belakang (Proposal)', promptText: `LATAR BELAKANG - STANDAR SINTA/SCOPUS\n\nBuatkan latar belakang untuk:\nJudul: [JUDUL]\nResearch Gap: [GAP]\nReferensi: [DATA JURNAL]\n\nATURAN KETAT:\n1. Gunakan pola Piramida Terbalik (Global -> Spesifik/Lokal).\n2. WAJIB berbasis data empiris, hindari asumsi tanpa dasar.\n3. SETIAP paragraf WAJIB memiliki sitasi (Penulis, Tahun) dari Referensi.\n4. Tegaskan "Research Gap" dan solusi penelitian ini.\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI (Dilarang memberi kalimat sapaan/pengantar/penutup).\n- DILARANG menulis ulang judul bab (Jangan tulis "Latar Belakang").\n- HANYA output paragraf utuh (800-1000 kata) tanpa tabel.` },
@@ -113,68 +184,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h3 class="text-lg font-bold mb-2">Judul Terpilih:</h3>
                 <p id="selectedTitleDisplayStep5" class="text-xl font-semibold">-</p>
             </div>
-
-            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="proposal-nav-buttons">
-                <button data-section="latar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-file-alt text-2xl mb-2"></i><span class="text-sm font-semibold">1. Latar Belakang</span></button>
-                <button data-section="rumusan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-question-circle text-2xl mb-2"></i><span class="text-sm font-semibold">2. Rumusan</span></button>
-                <button data-section="tujuan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-bullseye text-2xl mb-2"></i><span class="text-sm font-semibold">3. Tujuan</span></button>
-                <button data-section="manfaat" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-hand-holding-heart text-2xl mb-2"></i><span class="text-sm font-semibold">4. Manfaat</span></button>
-                <button data-section="metode" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flask text-2xl mb-2"></i><span class="text-sm font-semibold">5. Metode</span></button>
-                <button data-section="landasan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-book text-2xl mb-2"></i><span class="text-sm font-semibold">6. Landasan Teori</span></button>
-                <button data-section="hipotesis" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-balance-scale text-2xl mb-2"></i><span class="text-sm font-semibold">7. Hipotesis</span></button>
-                <button data-section="jadwal" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-calendar-alt text-2xl mb-2"></i><span class="text-sm font-semibold">8. Jadwal & Biaya</span></button>
-                <button data-section="daftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list-ol text-2xl mb-2"></i><span class="text-sm font-semibold">9. Pustaka</span></button>
-                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
-            </div>
-
-            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="skripsi-nav-buttons">
-                <button data-section="sdeskripsi" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-users text-2xl mb-2"></i><span class="text-sm font-semibold">1. Deskripsi Data</span></button>
-                <button data-section="sanalisis" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-chart-pie text-2xl mb-2"></i><span class="text-sm font-semibold">2. Analisis Hasil</span></button>
-                <button data-section="spembahasan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-comments text-2xl mb-2"></i><span class="text-sm font-semibold">3. Pembahasan</span></button>
-                <button data-section="skesimpulan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-check-double text-2xl mb-2"></i><span class="text-sm font-semibold">4. Kesimpulan</span></button>
-                <button data-section="ssaran" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-lightbulb text-2xl mb-2"></i><span class="text-sm font-semibold">5. Saran</span></button>
-                <button data-section="sdaftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list text-2xl mb-2"></i><span class="text-sm font-semibold">6. Pustaka</span></button>
-                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
-            </div>
-
-            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="makalah-nav-buttons">
-                <button data-section="mpendahuluan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flag text-2xl mb-2"></i><span class="text-sm font-semibold">1. Pendahuluan</span></button>
-                <button data-section="mpembahasan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-comments text-2xl mb-2"></i><span class="text-sm font-semibold">2. Pembahasan</span></button>
-                <button data-section="mpenutup" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-check-square text-2xl mb-2"></i><span class="text-sm font-semibold">3. Penutup</span></button>
-                <button data-section="mdaftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list-ol text-2xl mb-2"></i><span class="text-sm font-semibold">4. Pustaka</span></button>
-                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
-            </div>
-
-            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="jurnal-nav-buttons">
-                <button data-section="jpendahuluan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flag text-2xl mb-2"></i><span class="text-sm font-semibold">1. Pendahuluan</span></button>
-                <button data-section="jmetode" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flask text-2xl mb-2"></i><span class="text-sm font-semibold">2. Metode</span></button>
-                <button data-section="jhasil" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-chart-bar text-2xl mb-2"></i><span class="text-sm font-semibold">3. Hasil & Bahas</span></button>
-                <button data-section="jkesimpulan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-check-double text-2xl mb-2"></i><span class="text-sm font-semibold">4. Kesimpulan</span></button>
-                <button data-section="jabstrak" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-align-center text-2xl mb-2"></i><span class="text-sm font-semibold">5. Abstrak</span></button>
-                <button data-section="jdaftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list text-2xl mb-2"></i><span class="text-sm font-semibold">6. Pustaka</span></button>
-                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
-            </div>
-
-            <div class="hidden grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8" id="slr-nav-buttons">
-                <button data-section="slrpendahuluan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-flag text-2xl mb-2"></i><span class="text-sm font-semibold">1. Pendahuluan</span></button>
-                <button data-section="slrmetode" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-search-plus text-2xl mb-2"></i><span class="text-sm font-semibold">2. Metode PRISMA</span></button>
-                <button data-section="slrhasil" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-table text-2xl mb-2"></i><span class="text-sm font-semibold">3. Hasil Ekstraksi</span></button>
-                <button data-section="slrpembahasan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-comments text-2xl mb-2"></i><span class="text-sm font-semibold">4. Pembahasan</span></button>
-                <button data-section="slrkesimpulan" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-check-double text-2xl mb-2"></i><span class="text-sm font-semibold">5. Kesimpulan</span></button>
-                <button data-section="slrabstrak" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-align-center text-2xl mb-2"></i><span class="text-sm font-semibold">6. Abstrak SLR</span></button>
-                <button data-section="slrdaftar" class="proposal-nav-btn bg-white p-3 rounded-xl shadow-sm hover:shadow-md transition-all text-center border-2 border-gray-200 text-gray-600 flex flex-col items-center justify-center"><i class="fas fa-list text-2xl mb-2"></i><span class="text-sm font-semibold">7. Pustaka</span></button>
-                <button data-section="final" class="proposal-nav-btn bg-gradient-to-tr from-green-500 to-teal-500 text-white p-3 rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all text-center border-2 border-transparent flex flex-col items-center justify-center"><i class="fas fa-file-export text-2xl mb-2"></i><span class="text-sm font-bold">Setup & Export</span></button>
-            </div>
+            
+            ${Object.keys(navConfig).map(type => buildNavButtonsHTML(type, navConfig[type])).join('')}
 
             <div id="proposal-content">
         `;
 
-        // INJEKSI KOMPONEN DINAMIS
+        // 5. INJEKSI KOMPONEN DINAMIS UNTUK SECTION PROMPT
         sectionsData.forEach(sec => {
             htmlContent += buildSectionHTML(sec.id, sec.title, sec.promptText, sec.customInfo, sec.hasCheckbox);
         });
 
-        // INJEKSI BAGIAN FINAL (EKSPOR)
+        // 6. INJEKSI BAGIAN FINAL (EKSPOR)
         htmlContent += `
                 <div id="section-final" class="proposal-section hidden bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
                     <div class="text-center mb-8 mt-4">
