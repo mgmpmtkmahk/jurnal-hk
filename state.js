@@ -21,17 +21,24 @@ const AppState = {
     }
 };
 
+// ==========================================
+// MESIN PENYIMPANAN BARU MENGGUNAKAN LOCALFORAGE (INDEXEDDB)
+// ==========================================
+
 function saveStateToLocal() {
-    localStorage.setItem('scientificDocGenState', JSON.stringify(AppState));
+    // localforage otomatis menyimpan object/array tanpa perlu JSON.stringify
+    localforage.setItem('scientificDocGenState', AppState).catch(function (err) {
+        console.error("Gagal menyimpan ke database lokal:", err);
+    });
 }
 
-function loadStateFromLocal() {
-    const savedState = localStorage.getItem('scientificDocGenState');
-    if (savedState) {
-        try {
-            const parsed = JSON.parse(savedState);
+async function loadStateFromLocal() {
+    try {
+        const parsed = await localforage.getItem('scientificDocGenState');
+        
+        if (parsed) {
             // Rehidrasi state
-            if (parsed.geminiApiKey) AppState.geminiApiKey = parsed.geminiApiKey; // <-- TAMBAHKAN INI
+            if (parsed.geminiApiKey) AppState.geminiApiKey = parsed.geminiApiKey;
             if (parsed.documentType) AppState.documentType = parsed.documentType;
             if (parsed.currentStep) AppState.currentStep = parsed.currentStep;
             if (parsed.journals) AppState.journals = parsed.journals;
@@ -56,13 +63,17 @@ function loadStateFromLocal() {
             const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
             if (titleDisplay) titleDisplay.textContent = AppState.selectedTitle || '-';
             if (typeof goToStep === "function") goToStep(AppState.currentStep);
-        } catch (e) { console.error("Gagal memuat data:", e); }
+        }
+    } catch (e) { 
+        console.error("Gagal memuat data dari database lokal:", e); 
     }
 }
 
 function executeReset() { 
-    localStorage.removeItem('scientificDocGenState'); 
-    location.reload(); 
+    // Bersihkan IndexedDB lalu reload halaman
+    localforage.removeItem('scientificDocGenState').then(function() {
+        location.reload(); 
+    });
 }
 
 function downloadBackup() {

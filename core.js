@@ -872,3 +872,57 @@ function downloadDOCX() {
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     }
 }
+
+// ==========================================
+// 🌟 FITUR BARU: EKSTRAKSI TEKS DARI PDF MENGGUNAKAN PDF.JS
+// ==========================================
+
+async function extractTextFromPDF(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const textarea = document.getElementById('rawJournalInput');
+    
+    // UI Feedback: Beritahu pengguna sistem sedang bekerja
+    textarea.value = "Membaca file PDF... Sedang mengekstrak teks halaman demi halaman... Mohon tunggu...";
+    textarea.disabled = true;
+    textarea.classList.add('animate-pulse', 'bg-red-50/50'); // Efek kedap-kedip
+    
+    try {
+        // Ubah file menjadi format biner yang bisa dibaca PDF.js
+        const arrayBuffer = await file.arrayBuffer();
+        
+        // Load dokumen PDF
+        const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+        let fullText = "";
+
+        // Looping untuk membaca setiap halaman satu per satu
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const textContent = await page.getTextContent();
+            
+            // Gabungkan setiap potongan teks di halaman tersebut
+            const pageText = textContent.items.map(item => item.str).join(" ");
+            
+            // Tambahkan ke string utama dengan penanda halaman
+            fullText += `\n\n--- Halaman ${pageNum} ---\n${pageText}`;
+        }
+
+        // Tampilkan hasilnya di dalam kotak teks
+        textarea.value = fullText.trim();
+        
+        showCustomAlert('success', 'Ekstraksi Selesai', `Berhasil mengekstrak ${pdf.numPages} halaman dari file PDF. Silakan klik "Auto API" untuk mulai mengkaji.`);
+        
+    } catch (error) {
+        console.error("PDF Extraction Error:", error);
+        textarea.value = ""; // Kosongkan lagi jika gagal
+        showCustomAlert('error', 'Gagal Membaca PDF', 'Dokumen PDF mungkin diproteksi password, rusak, atau merupakan hasil scan (berupa gambar tanpa teks). Silakan copy-paste manual.');
+    } finally {
+        // Kembalikan kotak teks ke kondisi normal
+        textarea.disabled = false;
+        textarea.classList.remove('animate-pulse', 'bg-red-50/50');
+        
+        // Reset input file agar pengguna bisa mengunggah file yang sama lagi jika perlu
+        event.target.value = '';
+    }
+}
