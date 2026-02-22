@@ -45,7 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
                         <textarea id="output-${id}" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil dari Gemini di sini..."></textarea>
                     </div>
-                    
+                    <div class="flex flex-wrap gap-2 mb-4 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100 shadow-inner">
+                        <span class="text-xs font-bold text-indigo-500 flex items-center mr-1"><i class="fas fa-magic mr-1"></i> Edit Blok Teks:</span>
+                        <button onclick="handleMicroEdit('${id}', 'perpanjang')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm"><i class="fas fa-expand-alt mr-1"></i>Perpanjang</button>
+                        <button onclick="handleMicroEdit('${id}', 'perbaiki')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm"><i class="fas fa-spell-check mr-1"></i>Perbaiki Tata Bahasa</button>
+                        <button onclick="handleMicroEdit('${id}', 'parafrase')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm"><i class="fas fa-sync-alt mr-1"></i>Parafrase</button>
+                    </div>
                     <div class="mt-auto flex gap-3 flex-shrink-0">
                         <button onclick="prevProposalSection('${id}')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
                         <button onclick="saveProposalSection('${id}')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>

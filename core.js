@@ -120,6 +120,7 @@ function extractVariablesFromRumusan(rumusanText) {
 
 function openApiSettings() {
     document.getElementById('geminiApiKeyInput').value = AppState.geminiApiKey || '';
+    document.getElementById('aiToneSelect').value = AppState.tone || 'akademis'; // Load gaya bahasa
     document.getElementById('apiSettingsModal').classList.remove('hidden');
 }
 
@@ -128,11 +129,11 @@ function closeApiSettings() {
 }
 
 function saveApiKey() {
-    const key = document.getElementById('geminiApiKeyInput').value.trim();
-    AppState.geminiApiKey = key;
+    AppState.geminiApiKey = document.getElementById('geminiApiKeyInput').value.trim();
+    AppState.tone = document.getElementById('aiToneSelect').value; // Save gaya bahasa
     saveStateToLocal();
     closeApiSettings();
-    showCustomAlert('success', 'Tersimpan', 'API Key berhasil disimpan secara lokal di browser Anda.');
+    showCustomAlert('success', 'Tersimpan', 'API Key dan Gaya Bahasa AI berhasil diperbarui!');
 }
 
 function removeApiKey() {
@@ -311,7 +312,6 @@ function getDynamicPromptText(elementId, isForAPI = false) {
     if (currentIndex > 0 && !exceptions.includes(currentKey) && !elementId.includes('step')) {
         
         // --- LOGIKA PEMISAHAN MANUAL VS API ---
-        // Jika pakai Auto API, batasi 2 bab. Jika Manual, ambil semua (0).
         const startIndex = isForAPI ? Math.max(0, currentIndex - 2) : 0;
         
         for (let i = startIndex; i < currentIndex; i++) {
@@ -391,8 +391,13 @@ function getDynamicPromptText(elementId, isForAPI = false) {
     if(AppState.proposalData.tujuan) text = text.replace(/\[TUJUAN\]/g, () => AppState.proposalData.tujuan);
 
     // HUMANIZER
+    // HUMANIZER & TONE SETTING
+    let toneInstruction = "Gunakan bahasa akademis yang sangat formal, objektif, baku, dan sesuai standar penulisan tugas akhir/jurnal ilmiah.";
+    if (AppState.tone === 'populer') toneInstruction = "Gunakan bahasa semi-formal yang mengalir, mudah dipahami, dan tidak terlalu kaku, namun tetap menjaga substansi ilmiah.";
+    if (AppState.tone === 'kritis') toneInstruction = "Gunakan gaya bahasa yang sangat kritis, analitis, dan tajam. Sering membandingkan pro dan kontra, serta memberikan evaluasi mendalam pada setiap argumen.";
+
     if (elementId.startsWith('prompt-')) {
-        text += `\n\nATURAN ANTI-PLAGIASI & HUMANIZER (SANGAT PENTING):\n1. Tulis dengan gaya bahasa natural manusia (Human-like text).\n2. Tingkatkan variasi struktur dan panjang kalimat (Burstiness) serta gunakan kosa kata yang dinamis (Perplexity).\n3. HARAM menggunakan frasa AI klise: "Kesimpulannya", "Dalam era digital", "Secara keseluruhan".\n4. Lakukan parafrase tingkat tinggi pada setiap teori/jurnal yang disitasi agar lolos uji Turnitin < 5%.`;
+        text += `\n\nATURAN NADA & GAYA BAHASA:\n- ${toneInstruction}\n\nATURAN ANTI-PLAGIASI & HUMANIZER:\n1. Tulis dengan gaya bahasa natural manusia (Human-like text).\n2. Tingkatkan variasi struktur kalimat (Burstiness) & kosa kata dinamis (Perplexity).\n3. HARAM menggunakan frasa AI klise: "Kesimpulannya", "Dalam era digital", "Secara keseluruhan".\n4. Lakukan parafrase tingkat tinggi agar lolos uji Turnitin < 5%.`;
     }
     
     return text;
@@ -1020,5 +1025,134 @@ async function extractTextFromPDF(event) {
         
         // Reset input file agar pengguna bisa mengunggah file yang sama lagi jika perlu
         event.target.value = '';
+    }
+}
+
+async function applyMicroEdit(sectionId, action) {
+    const editor = window.mdeEditors[`output-${sectionId}`];
+    if (!editor) return;
+
+    const originalText = editor.value();
+    if (!originalText.trim()) {
+        showCustomAlert('warning', 'Teks Kosong', 'Tulis atau generate teks dulu sebelum diedit!');
+        return;
+    }
+
+    const actionPrompts = {
+        'expand': `Kembangkan dan perpanjang paragraf di bawah ini agar lebih detail tanpa mengubah inti pesannya: \n\n${originalText}`,
+        'fix': `Perbaiki tata bahasa, ejaan, dan struktur kalimat pada teks di bawah ini agar lebih profesional dan baku: \n\n${originalText}`,
+        'paraphrase': `Lakukan parafrase pada teks di bawah ini agar memiliki struktur kalimat yang berbeda namun tetap mempertahankan makna aslinya (agar lolos uji plagiasi): \n\n${originalText}`
+    };
+
+    // UI Feedback
+    showCustomAlert('info', 'Sedang Memproses', 'AI sedang menyempurnakan teks Anda...');
+    
+    // Gunakan logic API yang sudah ada tapi dengan prompt kustom
+    // Kita buat dummy element untuk menampung instruksi kustom
+    const dummyId = `temp-prompt-${Date.now()}`;
+    const pre = document.createElement('pre');
+    pre.id = dummyId;
+    pre.innerText = actionPrompts[action];
+    pre.style.display = 'none';
+    document.body.appendChild(pre);
+
+    try {
+        await generateWithAPI(dummyId, `output-${sectionId}`);
+    } finally {
+        document.body.removeChild(pre);
+    }
+}
+
+// ==========================================
+// 🌟 FITUR BARU: MICRO-EDITING (RTE)
+// ==========================================
+async function handleMicroEdit(sectionId, action) {
+    const editor = window.mdeEditors[`output-${sectionId}`];
+    if (!editor) return;
+
+    const cm = editor.codemirror;
+    const selectedText = cm.getSelection();
+
+    if (!selectedText || selectedText.trim() === '') {
+        showCustomAlert('warning', 'Pilih Teks Dulu', 'Silakan blok (highlight) kalimat atau paragraf di dalam editor yang ingin diedit oleh AI.');
+        return;
+    }
+
+    const apiKey = AppState.geminiApiKey;
+    if (!apiKey) {
+        showCustomAlert('warning', 'API Key Dibutuhkan', 'Harap masukkan API Key Gemini Anda di pengaturan.');
+        openApiSettings();
+        return;
+    }
+
+    let promptText = "";
+    let actionLabel = "";
+    if (action === 'perpanjang') {
+        actionLabel = "Memperpanjang teks...";
+        promptText = `Kembangkan dan perpanjang teks berikut agar lebih detail, mendalam, dan komprehensif secara akademis. Pertahankan konteks aslinya.\n\nTeks Asli:\n"${selectedText}"\n\nATURAN MUTLAK: Hanya berikan teks hasil pengembangannya saja tanpa kata pengantar/penutup.`;
+    } else if (action === 'perbaiki') {
+        actionLabel = "Memperbaiki tata bahasa...";
+        promptText = `Perbaiki tata bahasa, ejaan (PUEBI), dan struktur kalimat pada teks berikut agar menjadi bahasa akademis yang baku dan profesional.\n\nTeks Asli:\n"${selectedText}"\n\nATURAN MUTLAK: Hanya berikan teks hasil perbaikannya saja tanpa kata pengantar/penutup.`;
+    } else if (action === 'parafrase') {
+        actionLabel = "Memparafrase teks...";
+        promptText = `Lakukan parafrase tingkat tinggi pada teks berikut untuk menghindari plagiasi (Turnitin) namun tetap menjaga makna, substansi, dan sitasi aslinya.\n\nTeks Asli:\n"${selectedText}"\n\nATURAN MUTLAK: Hanya berikan teks hasil parafrase saja tanpa kata pengantar/penutup.`;
+    }
+
+    cm.setOption("readOnly", true); // Kunci editor sementara
+    
+    // Beri penanda visual bahwa AI sedang bekerja di teks yang diblok
+    const marker = `[⏳ AI sedang ${actionLabel}]`;
+    cm.replaceSelection(marker);
+    
+    // Pilih kembali (highlight) teks marker tersebut agar nanti tertimpa oleh jawaban AI
+    const endCursor = cm.getCursor();
+    cm.setSelection({line: endCursor.line, ch: endCursor.ch - marker.length}, endCursor);
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+        });
+
+        if (!response.ok) throw new Error("Gagal menghubungi API Google.");
+
+        // Hapus marker loading
+        cm.replaceSelection(""); 
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split(/\r?\n/);
+            buffer = lines.pop();
+            
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const jsonStr = line.slice(6).trim();
+                    if (!jsonStr || jsonStr === '[DONE]') continue;
+                    try {
+                        const dataObj = JSON.parse(jsonStr);
+                        if (dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
+                            // Ketik teks baru persis di titik kursor
+                            cm.replaceSelection(dataObj.candidates[0].content.parts[0].text);
+                        }
+                    } catch (e) {}
+                }
+            }
+        }
+        showCustomAlert('success', 'Berhasil', 'Teks berhasil diedit oleh AI.');
+    } catch (error) {
+        console.error("Micro-edit error:", error);
+        cm.replaceSelection(selectedText); // Kembalikan ke teks asli jika error
+        showCustomAlert('error', 'Gagal Edit', 'Terjadi kesalahan saat memproses API.');
+    } finally {
+        cm.setOption("readOnly", false); // Buka kunci editor
+        document.getElementById(`output-${sectionId}`).value = cm.getValue(); // Sinkronisasi state
     }
 }

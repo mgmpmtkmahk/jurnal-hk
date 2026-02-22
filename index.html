@@ -406,22 +406,27 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
     <div id="apiSettingsModal" class="fixed inset-0 z-[130] hidden flex items-center justify-center">
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="closeApiSettings()"></div>
         <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 relative z-10 animate-fade-in-up">
-            <h3 class="text-xl font-bold mb-2 flex items-center text-gray-800"><i class="fas fa-key text-indigo-500 mr-2"></i>Pengaturan API</h3>
-            <p class="text-sm text-gray-600 mb-4">Masukkan API Key Google Gemini Anda untuk mode otomatis. Dapatkan gratis di <a href="https://aistudio.google.com/api-keys" target="_blank" class="text-blue-600 underline font-bold">Google AI Studio</a>.</p>
+            <h3 class="text-xl font-bold mb-4 flex items-center text-gray-800"><i class="fas fa-cog text-indigo-500 mr-2"></i>Pengaturan AI & API</h3>
             
-            <input type="password" id="geminiApiKeyInput" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-3 focus:border-indigo-500 outline-none" placeholder="AIzaSy...">
-            
-            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-5 rounded-r-xl">
-                <p class="text-xs text-yellow-800 leading-relaxed flex items-start">
-                    <i class="fas fa-exclamation-triangle mt-0.5 mr-2"></i>
-                    <span><strong>Peringatan Keamanan:</strong> Key Anda disimpan di browser lokal (LocalStorage). Jika menggunakan komputer publik/kampus, <strong>WAJIB</strong> hapus key setelah selesai agar tidak disalahgunakan orang lain.</span>
-                </p>
+            <div class="mb-4">
+                <label class="block text-sm font-bold text-gray-700 mb-2">1. Gaya Bahasa (Tone) AI</label>
+                <select id="aiToneSelect" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-medium text-gray-700">
+                    <option value="akademis">🎓 Akademis Formal (Standar Skripsi/Jurnal)</option>
+                    <option value="populer">✍️ Semi-Formal (Artikel Populer/Makalah Santai)</option>
+                    <option value="kritis">🔍 Kritis & Analitis (Banyak Evaluasi Pro-Kontra)</option>
+                </select>
             </div>
 
-            <div class="flex gap-2">
-                <button onclick="closeApiSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200 text-sm">Batal</button>
-                <button onclick="removeApiKey()" class="flex-1 bg-red-50 border border-red-200 py-3 rounded-xl text-red-600 font-bold hover:bg-red-100 text-sm">Hapus Key</button>
-                <button onclick="saveApiKey()" class="flex-1 bg-indigo-600 py-3 rounded-xl text-white font-bold hover:bg-indigo-700 shadow-lg text-sm">Simpan</button>
+            <div class="mb-5">
+                <label class="block text-sm font-bold text-gray-700 mb-2">2. API Key Google Gemini</label>
+                <input type="password" id="geminiApiKeyInput" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-2 focus:border-indigo-500 outline-none text-sm" placeholder="Paste API Key di sini (AIzaSy...)">
+                <p class="text-xs text-gray-500 leading-relaxed"><i class="fas fa-info-circle mr-1"></i>Dapatkan gratis di <a href="https://aistudio.google.com/api-keys" target="_blank" class="text-blue-600 underline font-bold">Google AI Studio</a>.</p>
+            </div>
+
+            <div class="flex gap-2 pt-2 border-t border-gray-100">
+                <button onclick="closeApiSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200 text-sm transition-all">Batal</button>
+                <button onclick="removeApiKey()" class="flex-1 bg-red-50 border border-red-200 py-3 rounded-xl text-red-600 font-bold hover:bg-red-100 text-sm transition-all">Hapus Key</button>
+                <button onclick="saveApiKey()" class="flex-[1.5] bg-indigo-600 py-3 rounded-xl text-white font-bold hover:bg-indigo-700 shadow-lg text-sm transition-all">Simpan Aturan</button>
             </div>
         </div>
     </div>
