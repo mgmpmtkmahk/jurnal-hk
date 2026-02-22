@@ -143,29 +143,20 @@
                         <div class="absolute inset-0 p-3 overflow-y-auto mt-8 custom-scrollbar">
 <pre id="step2-prompt" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">ANALISIS JURNAL - OUTPUT FORMAT JSON MUTLAK
 
-Baca jurnal berikut dan berikan output HANYA dalam format JSON valid (tanpa penjelasan tambahan, tanpa narasi pembuka/penutup):
+Anda adalah asisten akademik. Baca jurnal di bawah ini dan berikan output HANYA dalam format JSON valid (tanpa penjelasan tambahan, tanpa markdown selain json). 
+Anda WAJIB mematuhi struktur JSON di bawah ini dan DILARANG MENGURANGI PROPERTI APAPUN (Terutama "research_gap"):
 
-[INSERT TEKS JURNAL DISINI]
-
-OUTPUT HARUS PERSIS FORMAT JSON INI:
 {
   "judul": "[Judul Lengkap Jurnal]",
-  "penulis": "[Nama1 - Institusi1; Nama2 - Institusi2]",
+  "penulis": "[Nama Penulis]",
   "tahun": "[YYYY]",
   "nama_jurnal": "[nama lengkap jurnal]",
-  "publisher": "[nama publisher]",
-  "volume": "[angka]",
-  "issue": "[angka]",
-  "issn": "[kode]",
-  "doi": "[isi atau 'Tidak tersedia']",
-  "halaman": "[halaman]",
-  "keywords": ["[keyword1]", "[keyword2]", "[keyword3]"],
-  "bahasa": "[Indonesia/Inggris]",
-  "research_gap": "[3-5 kalimat ringkas temuan gap]",
-  "tujuan": ["[poin 1]", "[poin 2]"],
-  "metode_singkat": "[jenis, alat utama, platform]",
+  "research_gap": "[WAJIB DIISI: Temukan dan tuliskan 2-4 kalimat ringkas mengenai 'Research Gap' (kesenjangan/kekurangan penelitian sebelumnya) yang mendasari penelitian ini dilakukan]",
   "hasil_utama": "[temuan kunci 1-2 kalimat]"
-}</pre>
+}
+
+--- TEKS JURNAL MULAI DARI SINI ---
+[INSERT TEKS JURNAL DISINI]</pre>
                         </div>
                     </div>
 

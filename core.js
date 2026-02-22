@@ -166,15 +166,14 @@ async function generateWithAPI(promptId, targetTextareaId) {
         }
     }
 
-    // KIRIM TRUE KE PARAMETER KEDUA AGAR SISTEM TAHU INI DARI AUTO API
     const promptText = getDynamicPromptText(promptId, true); 
     const targetEl = document.getElementById(targetTextareaId);
     
     const originalVal = targetEl.value; 
     
-    targetEl.value = "Sedang generate teks menggunakan AI... Mohon tunggu sekitar 10-20 detik...";
+    targetEl.value = "Menghubungkan ke satelit AI... Memulai streaming teks...";
     targetEl.disabled = true;
-    targetEl.classList.add('animate-pulse', 'bg-indigo-50');
+    targetEl.classList.add('bg-indigo-50', 'border-indigo-400');
 
     const isJsonExpected = promptId === 'step2-prompt' || promptId === 'step3-prompt' || promptId === 'step4-prompt';
     const genConfig = { temperature: 0.7 };
@@ -184,19 +183,15 @@ async function generateWithAPI(promptId, targetTextareaId) {
     }
 
     try {
-        // --- 🌟 FITUR BARU: AUTO RETRY LOGIC ---
-        let maxRetries = 3; // Maksimal 3 kali percobaan
+        let maxRetries = 3;
         let attempt = 0;
-        let success = false;
-        let firstCandidate = null;
+        let response = null;
 
-        while (attempt < maxRetries && !success) {
+        while (attempt < maxRetries) {
             try {
-                if (attempt > 0) {
-                    targetEl.value = `Server Google sibuk. Mencoba ulang (Percobaan ${attempt + 1} dari ${maxRetries})... Mohon tunggu...`;
-                }
+                if (attempt > 0) targetEl.value = `Server Google sibuk. Mencoba ulang (Percobaan ${attempt + 1} dari ${maxRetries})...`;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -205,42 +200,68 @@ async function generateWithAPI(promptId, targetTextareaId) {
                     })
                 });
 
-                const data = await response.json();
-
-                if (!response.ok) throw new Error(data.error?.message || "Gagal menghubungi API Google.");
-                if (data.promptFeedback && data.promptFeedback.blockReason) throw new Error(`Akses ditolak oleh filter keamanan Google (Alasan: ${data.promptFeedback.blockReason}).`);
-                if (!data.candidates || data.candidates.length === 0) throw new Error("API tidak mengembalikan jawaban.");
-
-                firstCandidate = data.candidates[0];
-                if (firstCandidate.finishReason === 'SAFETY' || firstCandidate.finishReason === 'RECITATION') {
-                     throw new Error(`AI menghentikan *generate* teks karena alasan: ${firstCandidate.finishReason}.`);
-                }
-                if (!firstCandidate.content || !firstCandidate.content.parts || firstCandidate.content.parts.length === 0) {
-                    throw new Error("Format respons API tidak sesuai dugaan atau kosong.");
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error?.message || "Gagal menghubungi API Google.");
                 }
                 
-                // Jika lolos semua validasi di atas, tandai sukses
-                success = true;
-
+                break; 
+                
             } catch (err) {
                 attempt++;
                 console.warn(`Percobaan API ke-${attempt} gagal:`, err.message);
-                
-                // Jangan lakukan retry jika errornya soal API Key atau Filter Keamanan (karena pasti akan ditolak lagi)
                 if (attempt >= maxRetries || err.message.includes('API key') || err.message.includes('keamanan')) {
-                    throw err; // Lempar error untuk ditangkap catch utama di bawah
+                    throw err; 
                 }
-                
-                // Beri jeda 2 detik sebelum mencoba lagi (agar tidak di-banned Google karena spamming)
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
         }
-        // --- AKHIR BLOK RETRY ---
 
-        const aiText = firstCandidate.content.parts[0].text;
+        // --- 🌟 LOGIKA BARU: MEMBACA STREAMING (LEBIH AMAN & ROBUST) ---
+        targetEl.value = ""; 
         
-        targetEl.value = aiText;
-        showCustomAlert('success', 'Generate Berhasil!', 'Silakan periksa hasilnya dan klik tombol Parse/Simpan.');
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            buffer += decoder.decode(value, { stream: true });
+            
+            // PERBAIKAN: Pisahkan buffer baris demi baris (menangani \n maupun \r\n)
+            const lines = buffer.split(/\r?\n/);
+            
+            // Simpan elemen terakhir (yang mungkin belum 1 baris utuh) kembali ke buffer
+            buffer = lines.pop();
+            
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const jsonStr = line.slice(6).trim();
+                    
+                    // Lewati jika kosong atau penanda selesai
+                    if (!jsonStr || jsonStr === '[DONE]') continue;
+                    
+                    try {
+                        const dataObj = JSON.parse(jsonStr);
+                        if (dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
+                            const newText = dataObj.candidates[0].content.parts[0].text;
+                            targetEl.value += newText;
+                            targetEl.scrollTop = targetEl.scrollHeight;
+                        }
+                    } catch (e) {
+                        // Abaikan jika ada potongan JSON yang tidak utuh, biarkan stream lanjut
+                    }
+                }
+            }
+        }
+        
+        // Pemicu update word counter
+        const event = new Event('input', { bubbles: true });
+        targetEl.dispatchEvent(event);
+
+        showCustomAlert('success', 'Generate Selesai!', 'Proses penyusunan teks oleh AI telah selesai.');
         
     } catch (error) {
         console.error("API Error Final:", error);
@@ -254,7 +275,7 @@ async function generateWithAPI(promptId, targetTextareaId) {
         }
     } finally {
         targetEl.disabled = false;
-        targetEl.classList.remove('animate-pulse', 'bg-indigo-50');
+        targetEl.classList.remove('bg-indigo-50', 'border-indigo-400');
     }
 }
 
@@ -381,40 +402,98 @@ function parseStep2Output() {
     if (!rawOutput.trim()) { showCustomAlert('warning', 'Kosong', 'Paste hasil dari Gemini!'); return; }
     
     try {
-        // Parse data JSON
-        const parsedData = extractJSON(rawOutput);
+        let parsedData = extractJSON(rawOutput);
         
-        // Validasi dasar
-        if (!parsedData.judul) { 
-            throw new Error("Properti 'judul' tidak ditemukan di JSON"); 
+        // 🌟 PERBAIKAN 1: REKURSIF EKSTRAKTOR (ANTI [object Object])
+        // Fungsi ini akan menyelam sedalam mungkin ke dalam Array/Object untuk menyedot teks aslinya
+        const safeExtractString = (prop) => {
+            if (prop === undefined || prop === null || prop === "") return null;
+            if (typeof prop === 'string') return prop.trim();
+            if (typeof prop === 'number' || typeof prop === 'boolean') return String(prop);
+            
+            // Jika AI mengirim Array (misal: list penulis atau list temuan)
+            if (Array.isArray(prop)) {
+                const arrStrings = prop.map(item => safeExtractString(item)).filter(Boolean);
+                return arrStrings.length > 0 ? arrStrings.join(', ') : null;
+            }
+            
+            // Jika AI mengirim Object bersarang (seperti "hasil_dan_pembahasan" di kasus Anda)
+            if (typeof prop === 'object') {
+                const objStrings = Object.values(prop).map(val => safeExtractString(val)).filter(Boolean);
+                return objStrings.length > 0 ? objStrings.join(' ') : null;
+            }
+            
+            return String(prop);
+        };
+
+        // 🌟 PERBAIKAN 2: DEEP HUNTER YANG LEBIH CERDAS
+        const findKeyLike = (obj, keywords) => {
+            if (!obj || typeof obj !== 'object') return null;
+            
+            let bestMatch = null;
+            
+            for (let key in obj) {
+                let lowerKey = key.toLowerCase();
+                if (keywords.some(kw => lowerKey.includes(kw))) {
+                    const extracted = safeExtractString(obj[key]);
+                    if (extracted) {
+                        // Prioritaskan teks string langsung (seperti "simpulan") daripada objek raksasa ("hasil_dan_pembahasan")
+                        if (typeof obj[key] === 'string') return extracted; 
+                        if (!bestMatch) bestMatch = extracted; 
+                    }
+                }
+            }
+            
+            if (bestMatch) return bestMatch;
+
+            // Selami lebih dalam jika belum ketemu
+            for (let key in obj) {
+                if (typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                    let found = findKeyLike(obj[key], keywords);
+                    if (found) return found;
+                }
+            }
+            return null;
+        };
+
+        let finalData = { judul: "", penulis: "", tahun: "", nama_jurnal: "", hasil_utama: "", research_gap: "" };
+        const identitas = parsedData.identitas_jurnal || parsedData.metadata || parsedData.info || parsedData;
+
+        // Ekstraksi Identitas
+        finalData.judul = safeExtractString(identitas.judul_artikel) || safeExtractString(identitas.judul) || safeExtractString(identitas.title) || findKeyLike(parsedData, ['judul', 'title']) || "Judul Tidak Ditemukan";
+        finalData.penulis = safeExtractString(identitas.penulis) || safeExtractString(identitas.authors) || findKeyLike(parsedData, ['penulis', 'author']) || "Penulis Tidak Ditemukan";
+        finalData.tahun = safeExtractString(identitas.tahun) || safeExtractString(identitas.year) || findKeyLike(parsedData, ['tahun', 'year']) || "Tahun Tidak Ditemukan";
+        finalData.nama_jurnal = safeExtractString(identitas.nama_jurnal) || safeExtractString(identitas.journal_name) || findKeyLike(parsedData, ['jurnal', 'journal']) || "-";
+        
+        // Ekstraksi Hasil dan Gap (Mencoba kunci langsung dulu, baru pakai Hunter)
+        finalData.hasil_utama = safeExtractString(parsedData.simpulan) || safeExtractString(parsedData.hasil_utama) || findKeyLike(parsedData, ['hasil', 'simpulan', 'kesimpulan', 'temuan', 'result', 'conclusion', 'inti_sari']) || "-";
+        finalData.research_gap = safeExtractString(parsedData.research_gap) || findKeyLike(parsedData, ['gap', 'kekurangan', 'keterbatasan', 'limit', 'saran', 'future', 'rekomendasi', 'kebaruan']) || "-";
+
+        if (!finalData.judul || finalData.judul === "Judul Tidak Ditemukan") { 
+            throw new Error("Sistem tidak dapat menemukan properti Judul dalam JSON."); 
         }
         
-        // Ubah JSON menjadi Markdown bersih untuk keperluan UI & Memory Step berikutnya
-        const displayMarkdown = `**Judul**: ${parsedData.judul}
-**Penulis**: ${parsedData.penulis} (${parsedData.tahun})
-**Jurnal**: ${parsedData.nama_jurnal}
-**Hasil Utama**: ${parsedData.hasil_utama}
-**Research Gap**: ${parsedData.research_gap}`;
+        const displayMarkdown = `**Judul**: ${finalData.judul}
+**Penulis**: ${finalData.penulis} (${finalData.tahun})
+**Jurnal**: ${finalData.nama_jurnal}
+**Hasil Utama**: ${finalData.hasil_utama}
+**Research Gap**: ${finalData.research_gap}`;
 
         AppState.journals.push({ 
             id: Date.now(), 
-            raw: displayMarkdown, // Raw ini akan dibaca oleh fungsi di UI & Prompt
-            parsed: {
-                title: parsedData.judul,
-                authors: parsedData.penulis,
-                year: parsedData.tahun
-            },
-            fullJson: parsedData // Simpan JSON utuh jika butuh di masa depan
+            raw: displayMarkdown, 
+            parsed: { title: finalData.judul, authors: finalData.penulis, year: finalData.tahun },
+            fullJson: parsedData 
         });
         
         saveStateToLocal();
         updateSavedJournalsList();
         
         document.getElementById('geminiOutputStep2').value = '';
-        showCustomAlert('success', 'Berhasil', 'Data jurnal direkam!');
+        showCustomAlert('success', 'Berhasil', 'Data jurnal direkam secara adaptif!');
     } catch (error) { 
         console.error("JSON Parse Error:", error);
-        showCustomAlert('error', 'Error Parsing JSON', 'Format teks tidak valid. Pastikan AI menghasilkan struktur JSON yang benar.'); 
+        showCustomAlert('error', 'Error Parsing JSON', 'Format teks JSON dari AI melenceng terlalu jauh. Silakan periksa kembali JSON-nya.'); 
     }
 }
 
