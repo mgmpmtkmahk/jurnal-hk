@@ -11,10 +11,10 @@ function searchJournals() {
 
     setTimeout(() => {
         const intlSources = [
-            { name: 'Google Scholar', url: 'https://scholar.google.com/scholar?q=' + encodeURIComponent(keyword), icon: 'fa-graduation-cap', color: 'blue' },
+            { name: 'Google Scholar', url: 'https://scholar.google.com/scholar?q=filetype:pdf ' + encodeURIComponent(keyword), icon: 'fa-graduation-cap', color: 'blue' },
             { name: 'IEEE Xplore', url: 'https://ieeexplore.ieee.org/search/searchresult.jsp?queryText=' + encodeURIComponent(keyword), icon: 'fa-microchip', color: 'purple' },
             { name: 'ScienceDirect', url: 'https://www.sciencedirect.com/search?qs=' + encodeURIComponent(keyword), icon: 'fa-atom', color: 'orange' },
-            { name: 'DOAJ (Open Access)', url: 'https://doaj.org/search/articles?q=' + encodeURIComponent(keyword), icon: 'fa-unlock-alt', color: 'teal' }
+            { name: 'DOAJ (Open Access)', url: 'https://doaj.org/', icon: 'fa-unlock-alt', color: 'teal' }
         ];
         
         const indoSources = [
