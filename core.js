@@ -43,27 +43,61 @@ function searchJournals() {
 }
 
 function extractJSON(text) {
-    if (!text) throw new Error("Teks kosong");
-    
-    // Skenario 1: Jika AI membungkusnya dalam blok ```json ... ```
-    const match = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-    if (match) return JSON.parse(match[1].trim());
-    
-    // Skenario 2: Jika AI memberikan format mentah
-    const startObj = text.indexOf('{');
-    const endObj = text.lastIndexOf('}');
-    const startArr = text.indexOf('[');
-    const endArr = text.lastIndexOf(']');
-    
-    let jsonStr = text;
-    // Cari batas kurung yang paling logis (Object atau Array)
-    if (startObj !== -1 && endObj !== -1 && (startArr === -1 || startObj < startArr)) {
-         jsonStr = text.substring(startObj, endObj + 1);
-    } else if (startArr !== -1 && endArr !== -1) {
-         jsonStr = text.substring(startArr, endArr + 1);
+    if (!text || typeof text !== 'string') {
+        throw new Error("Teks respons AI kosong atau tidak valid.");
     }
     
-    return JSON.parse(jsonStr);
+    let jsonStr = text.trim();
+
+    // Skenario 1: Ambil secara spesifik dari dalam blok markdown ```json ... ```
+    const match = jsonStr.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+    if (match) {
+        jsonStr = match[1].trim();
+    } else {
+        // Skenario 2: Pembersihan manual jika AI tidak memakai blok markdown
+        // Kita cari kurung pertama dan terakhir yang logis
+        const firstBrace = jsonStr.indexOf('{');
+        const lastBrace = jsonStr.lastIndexOf('}');
+        const firstBracket = jsonStr.indexOf('[');
+        const lastBracket = jsonStr.lastIndexOf(']');
+
+        let startIdx = -1;
+        let endIdx = -1;
+
+        // Tentukan apakah output utamanya Object {} atau Array []
+        if (firstBrace !== -1 && firstBracket !== -1) {
+            // Jika ada keduanya, lihat mana yang muncul LEBIH DULU
+            if (firstBrace < firstBracket) {
+                startIdx = firstBrace; endIdx = lastBrace;
+            } else {
+                startIdx = firstBracket; endIdx = lastBracket;
+            }
+        } else if (firstBrace !== -1) {
+            startIdx = firstBrace; endIdx = lastBrace;
+        } else if (firstBracket !== -1) {
+            startIdx = firstBracket; endIdx = lastBracket;
+        }
+
+        // Potong string hanya pada area yang mengandung format JSON
+        if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+            jsonStr = jsonStr.substring(startIdx, endIdx + 1);
+        }
+    }
+
+    // Skenario 3: Parsing dengan Proteksi dan Pembersihan (Sanitization)
+    try {
+        // AI sering melakukan kesalahan kecil: menaruh koma sebelum tutup kurung.
+        // Regex ini akan menghapus koma berlebih tersebut (contoh: "data",} menjadi "data"} )
+        jsonStr = jsonStr.replace(/,\s*([\]}])/g, '$1'); 
+        
+        // Hapus karakter kontrol yang tersembunyi (non-printable) jika AI berhalusinasi
+        jsonStr = jsonStr.replace(/[\u0000-\u0019]+/g, ""); 
+
+        return JSON.parse(jsonStr);
+    } catch (error) {
+        console.error("Gagal parse JSON. Teks mentah setelah dibersihkan:", jsonStr);
+        throw new Error("Format JSON dari AI terpotong atau rusak. Silakan coba klik 'Auto API' sekali lagi.");
+    }
 }
 
 function extractVariablesFromRumusan(rumusanText) {
@@ -117,10 +151,21 @@ async function generateWithAPI(promptId, targetTextareaId) {
         return;
     }
     if (promptId === 'step2-prompt') {
-        const rawInput = document.getElementById('rawJournalInput').value.trim();
+        let rawInput = document.getElementById('rawJournalInput').value.trim();
         if (!rawInput) {
             showCustomAlert('warning', 'Teks Jurnal Kosong', 'Harap paste teks dari file PDF jurnal ke dalam kotak input yang disediakan sebelum menekan tombol Auto API.');
             return;
+        }
+
+        // --- TAMBAHAN BARU: Proteksi Limit Karakter ---
+        const MAX_CHARS = 40000; // Batas aman untuk API Gemini
+        if (rawInput.length > MAX_CHARS) {
+            // Beri tahu pengguna bahwa teks terlalu panjang
+            showCustomAlert('warning', 'Teks Terlalu Panjang', `Teks jurnal Anda mencapai ${rawInput.length.toLocaleString()} karakter. Sistem memotong otomatis menjadi ${MAX_CHARS.toLocaleString()} karakter pertama agar API tidak error.`);
+            
+            // Potong teks di kotak input secara otomatis
+            rawInput = rawInput.substring(0, MAX_CHARS);
+            document.getElementById('rawJournalInput').value = rawInput;
         }
     }
 
@@ -135,13 +180,26 @@ async function generateWithAPI(promptId, targetTextareaId) {
     targetEl.disabled = true;
     targetEl.classList.add('animate-pulse', 'bg-indigo-50');
 
+    // --- 🌟 PERBAIKAN DI SINI: Deteksi Kebutuhan JSON ---
+    // Cek apakah tombol yang diklik adalah milik Step 2, 3, atau 4
+    const isJsonExpected = promptId === 'step2-prompt' || promptId === 'step3-prompt' || promptId === 'step4-prompt';
+    
+    // Siapkan konfigurasi default
+    const genConfig = { temperature: 0.7 };
+    
+    // Aktifkan mode JSON HANYA jika diperlukan
+    if (isJsonExpected) {
+        genConfig.responseMimeType = "application/json";
+    }
+    // ----------------------------------------------------
+
     try {
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ parts: [{ text: promptText }] }],
-                generationConfig: { temperature: 0.7 }
+                generationConfig: genConfig // <-- Masukkan variabel genConfig yang sudah pintar ke sini
             })
         });
 
@@ -195,27 +253,6 @@ async function generateWithAPI(promptId, targetTextareaId) {
         targetEl.disabled = false;
         targetEl.classList.remove('animate-pulse', 'bg-indigo-50');
     }
-}
-
-// HELPER: Membersihkan basa-basi AI dan mengambil tabel
-function cleanMarkdownTable(text) {
-    if (!text) return '';
-    return text.split('\n')
-        .map(line => line.trim())
-        .filter(line => line.startsWith('|'))
-        .join('\n');
-}
-
-function extractTableData(text) {
-    const data = {};
-    const titleMatch = text.match(/\|\s*(?:\*\*)?Judul Lengkap(?:\*\*)?\s*\|\s*([^|]+)/i);
-    const authorsMatch = text.match(/\|\s*(?:\*\*)?Penulis & Afiliasi(?:\*\*)?\s*\|\s*([^|]+)/i);
-    const yearMatch = text.match(/\|\s*(?:\*\*)?Tahun(?:\*\*)?\s*\|\s*([^|]+)/i);
-    
-    if (titleMatch) data.title = titleMatch[1].replace(/\*\*/g, '').trim();
-    if (authorsMatch) data.authors = authorsMatch[1].replace(/\*\*/g, '').trim();
-    if (yearMatch) data.year = yearMatch[1].replace(/\*\*/g, '').trim();
-    return data;
 }
 
 // MESIN PROMPT UTAMA
@@ -588,48 +625,60 @@ function downloadDOCX() {
     const styles = `
         <style>
             @page { size: ${paperSize}; margin: ${pageMargin}; } 
-            body { font-family: ${fontName}; font-size: 12pt; line-height: ${lineSpacing}; color: #000; text-align: justify; }
-            h1 { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 24pt; text-transform: uppercase; }
-            h2 { font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 12pt; text-transform: uppercase; page-break-after: avoid; }
-            h3 { font-size: 12pt; font-weight: bold; margin-top: 18pt; margin-bottom: 6pt; page-break-after: avoid; }
-            .chapter-title { text-align: center; font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 24pt; text-transform: uppercase; page-break-after: avoid; }
-            p { margin-top: 0; margin-bottom: 8pt; text-align: justify; text-indent: 1.25cm; } 
+            body { font-family: ${fontName}; font-size: 12pt; color: #000; }
             
-            .markdown-heading { text-indent: 0; font-weight: bold; margin-top: 12pt; margin-bottom: 6pt; }
-            .markdown-heading.level-1 { font-size: 14pt; }
-            .markdown-heading.level-2 { font-size: 13pt; }
-            .markdown-heading.level-3 { font-size: 12pt; }
+            /* Tipografi Paragraf Standar Akademik */
+            p { 
+                margin-top: 0; 
+                margin-bottom: 10pt; 
+                text-align: justify; 
+                line-height: ${lineSpacing}; 
+                text-justify: inter-ideograph;
+            } 
+            
+            /* Indentasi paragraf normal (kecuali judul/tabel/list) */
+            p.indent { text-indent: 1.25cm; }
 
-            table { border-collapse: collapse; width: 100%; margin-top: 12pt; margin-bottom: 12pt; font-size: 11pt; line-height: 1.15; }
-            th, td { border: 1pt solid black; padding: 6pt 8pt; text-align: left; vertical-align: top; }
-            th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+            h1, h2, h3 { font-family: ${fontName}; color: #000; page-break-after: avoid; }
+            h1 { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 24pt; text-transform: uppercase; }
+            h2 { font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 12pt; text-transform: uppercase; }
+            h3 { font-size: 12pt; font-weight: bold; margin-top: 18pt; margin-bottom: 6pt; }
+            
+            .chapter-title { text-align: center; font-size: 12pt; font-weight: bold; margin-top: 24pt; margin-bottom: 24pt; text-transform: uppercase; page-break-after: avoid; }
+            
+            /* Tabel yang lebih rapi untuk Word */
+            table { border-collapse: collapse; width: 100%; margin-top: 12pt; margin-bottom: 12pt; font-size: 11pt; }
+            th, td { border: 1pt solid windowtext; padding: 6pt 8pt; vertical-align: top; text-align: left; }
+            th { background-color: #e2e8f0; font-weight: bold; text-align: center; }
             td p { text-indent: 0; margin-bottom: 4pt; } 
             
-            .cover-page { text-align: center; margin-top: 100pt; page-break-after: always; }
-            .cover-title { font-size: 16pt; font-weight: bold; text-transform: uppercase; margin-bottom: 50pt; line-height: 1.5; text-indent: 0; }
-            .cover-author { margin-bottom: 80pt; font-size: 12pt; text-indent: 0; line-height: 1.5; font-weight: bold; }
+            /* Halaman Sampul Eksklusif */
+            .cover-page { text-align: center; margin-top: 120pt; page-break-after: always; }
+            .cover-title { font-size: 16pt; font-weight: bold; text-transform: uppercase; margin-top: 40pt; margin-bottom: 80pt; line-height: 1.5; text-indent: 0; }
+            .cover-author { margin-bottom: 100pt; font-size: 12pt; text-indent: 0; line-height: 1.5; font-weight: normal; }
             .cover-inst { font-size: 14pt; font-weight: bold; text-transform: uppercase; text-indent: 0; line-height: 1.5; }
             .page-break { page-break-before: always; }
             
-            .list-item { text-indent: -0.63cm; margin-left: 1.25cm; margin-bottom: 4pt; }
-            .biblio-item { text-indent: -1.25cm; margin-left: 1.25cm; margin-bottom: 8pt; }
+            /* Perbaikan List (Bullet & Numbering) */
+            .list-item { text-indent: -0.63cm; margin-left: 1.25cm; margin-bottom: 4pt; text-align: justify; }
+            .biblio-item { text-indent: -1.25cm; margin-left: 1.25cm; margin-bottom: 10pt; text-align: justify; }
 
+            /* Jurnal Khusus */
             .jurnal-title { font-size: 16pt; font-weight: bold; text-align: center; margin-bottom: 12pt; text-transform: capitalize; line-height: 1.2; text-indent: 0;}
             .jurnal-author { font-size: 11pt; text-align: center; margin-bottom: 24pt; font-style: italic; text-indent: 0;}
-            .jurnal-abstract { font-size: 10pt; text-align: justify; margin-left: 1.5cm; margin-right: 1.5cm; margin-bottom: 24pt; padding: 10pt; border-top: 1pt solid #000; border-bottom: 1pt solid #000; }
+            .jurnal-abstract { font-size: 10pt; text-align: justify; margin-left: 1.5cm; margin-right: 1.5cm; margin-bottom: 24pt; padding: 10pt; border-top: 1pt solid windowtext; border-bottom: 1pt solid windowtext; }
             .jurnal-abstract p { text-indent: 0; font-size: 10pt; margin-bottom: 6pt; line-height: 1.15; }
             .jurnal-body { column-count: 2; column-gap: 0.8cm; text-align: justify; }
-            .jurnal-body h2 { margin-top: 12pt; margin-bottom: 6pt; font-size: 11pt; }
-            .jurnal-body p { font-size: 11pt; margin-bottom: 8pt; text-indent: 0.75cm; }
-            .jurnal-body .list-item { font-size: 11pt; padding-left: 0.75cm; text-indent: -0.63cm; }
-            .jurnal-body .biblio-item { text-indent: -0.75cm; margin-left: 0.75cm; font-size: 10pt; }
-            .jurnal-body table { font-size: 9pt; } 
         </style>
     `;
 
     function formatTextForWord(text) {
         if (!text) return '';
         let html = text.replace(/^(Tentu, berikut|Berikut adalah|Tentu saja|Ini dia|Baik, ini|Ini adalah).*?:?\n/mi, '').trim();
+        
+        // BERSIHKAN LINK MARKDOWN: Ubah [teks](url) menjadi teks biasa
+        html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" style="color: #0563C1; text-decoration: underline;">$1</a>');
+        
         html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>'); 
         html = html.replace(/\*(.*?)\*/g, '<i>$1</i>');
 
@@ -643,7 +692,7 @@ function downloadDOCX() {
             if (trimmed.startsWith('#')) {
                 let headingLevel = trimmed.match(/^#+/)[0].length;
                 let headingText = trimmed.replace(/^#+\s*/, '');
-                result += `<p class="markdown-heading level-${headingLevel}">${headingText}</p>`;
+                result += `<h${headingLevel}>${headingText}</h${headingLevel}>`;
                 return;
             }
             
@@ -652,23 +701,36 @@ function downloadDOCX() {
                 let cells = trimmed.split('|').map(c => c.trim());
                 if (cells[0] === '') cells.shift(); 
                 if (cells[cells.length - 1] === '') cells.pop();
-                if (!inTable && cells.length > 1) { result += '<table>'; inTable = true; }
+                if (!inTable && cells.length > 1) { result += '<table border="1">'; inTable = true; }
                 if (inTable) {
                     let rowHtml = '<tr>';
                     cells.forEach(cell => {
                         let cleanCell = cell.replace(/<br\s*\/?>/gi, '<br/>'); 
-                        if (result.endsWith('<table>')) rowHtml += `<th>${cleanCell}</th>`;
+                        if (result.endsWith('<table border="1">')) rowHtml += `<th>${cleanCell}</th>`;
                         else rowHtml += `<td>${cleanCell}</td>`;
                     });
                     rowHtml += '</tr>'; result += rowHtml;
                 }
             } else {
                 if (inTable) { result += '</table>'; inTable = false; }
+                
+                // PERBAIKAN: Deteksi Bullet Point asli (•)
                 let orderedMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
-                let unorderedMatch = trimmed.match(/^(-\|\*)\s+(.*)/);
-                if (orderedMatch) { result += `<p class="list-item">${orderedMatch[1]}. ${orderedMatch[2]}</p>`; } 
-                else if (unorderedMatch) { result += `<p class="list-item">• ${unorderedMatch[2]}</p>`; } 
-                else { result += `<p>${trimmed}</p>`; }
+                let unorderedMatch = trimmed.match(/^[-*•]\s+(.*)/); 
+                
+                if (orderedMatch) { 
+                    result += `<p class="list-item">${orderedMatch[1]}. ${orderedMatch[2]}</p>`; 
+                } else if (unorderedMatch) { 
+                    result += `<p class="list-item">&#8226; ${unorderedMatch[1]}</p>`; 
+                } 
+                // PERBAIKAN: Jika satu baris penuh ditebalkan (biasanya Sub-Judul), jangan beri indent
+                else if (trimmed.startsWith('<b>') && trimmed.endsWith('</b>')) {
+                    result += `<p style="margin-top:12pt; margin-bottom:4pt; text-indent:0;">${trimmed}</p>`;
+                } 
+                // Paragraf normal
+                else { 
+                    result += `<p class="indent">${trimmed}</p>`; 
+                }
             }
         });
         if (inTable) result += '</table>'; return result;
@@ -688,7 +750,7 @@ function downloadDOCX() {
         if(AppState.proposalData.jdaftar) {
             docContent += `<h2>REFERENCES</h2>`;
             let sectionHtml = formatTextForWord(AppState.proposalData.jdaftar);
-            docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
+            docContent += sectionHtml.replace(/<p[^>]*>/g, '<p class="biblio-item">');
         }
         docContent += `</div>`;
     } 
@@ -707,7 +769,7 @@ function downloadDOCX() {
         if(AppState.proposalData.slrdaftar) {
             docContent += `<h2>REFERENCES</h2>`;
             let sectionHtml = formatTextForWord(AppState.proposalData.slrdaftar);
-            docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
+            docContent += sectionHtml.replace(/<p[^>]*>/g, '<p class="biblio-item">');
         }
         docContent += `</div>`;
     }
@@ -723,7 +785,7 @@ function downloadDOCX() {
         if(AppState.proposalData.sdaftar) {
             docContent += `<div class="chapter-title page-break">DAFTAR PUSTAKA</div>`;
             let sectionHtml = formatTextForWord(AppState.proposalData.sdaftar);
-            docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
+            docContent += sectionHtml.replace(/<p[^>]*>/g, '<p class="biblio-item">');
         }
     }
     else if (AppState.documentType === 'makalah') {
@@ -737,7 +799,7 @@ function downloadDOCX() {
         if(AppState.proposalData.mdaftar) {
             docContent += `<div class="chapter-title page-break">DAFTAR PUSTAKA</div>`;
             let sectionHtml = formatTextForWord(AppState.proposalData.mdaftar);
-            docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
+            docContent += sectionHtml.replace(/<p[^>]*>/g, '<p class="biblio-item">');
         }
     }
     else {
@@ -749,7 +811,7 @@ function downloadDOCX() {
                     let extraClass = (key === 'daftar') ? ' class="page-break"' : '';
                     docContent += `<h2${extraClass}>${sectionNames[key]}</h2>`;
                     let sectionHtml = formatTextForWord(AppState.proposalData[key]);
-                    if (key === 'daftar') sectionHtml = sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
+                    if (key === 'daftar') sectionHtml = sectionHtml.replace(/<p[^>]*>/g, '<p class="biblio-item">');
                     docContent += sectionHtml;
                 }
             });
@@ -768,7 +830,7 @@ function downloadDOCX() {
             if(AppState.proposalData.daftar) {
                 docContent += `<div class="chapter-title page-break">DAFTAR PUSTAKA</div>`;
                 let sectionHtml = formatTextForWord(AppState.proposalData.daftar);
-                docContent += sectionHtml.replace(/<p>/g, '<p class="biblio-item">');
+                docContent += sectionHtml.replace(/<p[^>]*>/g, '<p class="biblio-item">');
             }
         }
     }
