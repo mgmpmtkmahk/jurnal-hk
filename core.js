@@ -319,9 +319,8 @@ function getDynamicPromptText(elementId, isForAPI = false) {
             let sectionText = AppState.proposalData[secKey];
             
             if (sectionText && sectionText.trim() !== '') {
-                // Potong teks hanya jika diakses dari Auto API
-                if (isForAPI && sectionText.length > 1500) {
-                    sectionText = sectionText.substring(0, 1500) + "\n... [teks dipotong otomatis oleh sistem untuk efisiensi token API]";
+                if (sectionText.length > 1500) {
+                    sectionText = sectionText.substring(0, 1500) + "\n... [teks dipotong otomatis oleh sistem untuk efisiensi]";
                 }
                 memoryText += `\n\n--- BAB/BAGIAN: ${secKey.toUpperCase()} ---\n${sectionText}`;
             }
@@ -365,9 +364,8 @@ function getDynamicPromptText(elementId, isForAPI = false) {
             }
         });
         
-        // Proteksi API dari error batas maksimal token Google
-        if (isForAPI && fullDraft.length > 35000) {
-             fullDraft = fullDraft.substring(0, 35000) + "\n\n[... SEBAGIAN TEKS DIPOTONG KARENA BATAS MAKSIMAL API ...]";
+        if (fullDraft.length > 35000) {
+             fullDraft = fullDraft.substring(0, 35000) + "\n\n[... SEBAGIAN TEKS DIPOTONG KARENA BATAS MAKSIMAL ...]";
         }
         
         text = text.replace(/\[DRAF_TULISAN\]/g, () => fullDraft || "[BELUM ADA TULISAN]");
