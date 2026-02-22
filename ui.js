@@ -183,10 +183,14 @@ function toggleDarkMode() {
     localStorage.setItem('scientificDocDarkMode', isDark); // Simpan preferensi
 
     const icon = document.querySelector('#darkModeBtn i');
-    if (isDark) {
-        icon.className = 'fas fa-sun text-xl text-yellow-300 group-hover:scale-110 transition-transform';
-    } else {
-        icon.className = 'fas fa-moon text-xl text-yellow-300 group-hover:scale-110 transition-transform';
+    if (icon) {
+        if (isDark) {
+            // Beri warna kuning menyala hanya saat mode gelap (Matahari)
+            icon.className = 'fas fa-sun text-base md:text-xl transform group-hover:scale-110 transition-transform text-yellow-400';
+        } else {
+            // Kembali ke warna dasar abu-abu saat mode terang (Bulan)
+            icon.className = 'fas fa-moon text-base md:text-xl transform group-hover:scale-110 transition-transform';
+        }
     }
 }
 
@@ -195,7 +199,9 @@ function initDarkMode() {
     if (isDark) {
         document.body.classList.add('dark-mode');
         const icon = document.querySelector('#darkModeBtn i');
-        if (icon) icon.className = 'fas fa-sun text-xl text-yellow-300 group-hover:scale-110 transition-transform';
+        if (icon) {
+            icon.className = 'fas fa-sun text-base md:text-xl transform group-hover:scale-110 transition-transform text-yellow-400';
+        }
     }
 }
 

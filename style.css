@@ -221,14 +221,14 @@ body.dark-mode .hover\:bg-gray-100:hover {
 }
 
 /* 5. MENERANGKAN WARNA TEKS JUDUL & INFO BOX (Kuning, Hijau, Ungu, dll) */
-body.dark-mode .text-indigo-600, body.dark-mode .text-indigo-700 { color: #818cf8 !important; } /* Indigo terang */
-body.dark-mode .text-green-600, body.dark-mode .text-green-700 { color: #34d399 !important; } /* Hijau terang */
-body.dark-mode .text-purple-600, body.dark-mode .text-purple-700 { color: #a78bfa !important; } /* Ungu terang */
-body.dark-mode .text-yellow-600, body.dark-mode .text-yellow-700, body.dark-mode .text-yellow-800 { color: #fde047 !important; } /* Kuning menyala */
-body.dark-mode .text-red-600, body.dark-mode .text-red-700, body.dark-mode .text-red-800 { color: #f87171 !important; }
-body.dark-mode .text-blue-600, body.dark-mode .text-blue-700, body.dark-mode .text-blue-800 { color: #60a5fa !important; }
-body.dark-mode .text-teal-600, body.dark-mode .text-teal-700 { color: #2dd4bf !important; }
-body.dark-mode .text-emerald-600, body.dark-mode .text-emerald-700 { color: #34d399 !important; }
+body.dark-mode .text-indigo-600, body.dark-mode .text-indigo-700, body.dark-mode .text-indigo-800, body.dark-mode .text-indigo-900 { color: #818cf8 !important; }
+body.dark-mode .text-green-600, body.dark-mode .text-green-700, body.dark-mode .text-green-800, body.dark-mode .text-green-900 { color: #34d399 !important; }
+body.dark-mode .text-purple-600, body.dark-mode .text-purple-700, body.dark-mode .text-purple-800, body.dark-mode .text-purple-900 { color: #a78bfa !important; }
+body.dark-mode .text-yellow-600, body.dark-mode .text-yellow-700, body.dark-mode .text-yellow-800, body.dark-mode .text-yellow-900 { color: #fde047 !important; }
+body.dark-mode .text-red-600, body.dark-mode .text-red-700, body.dark-mode .text-red-800, body.dark-mode .text-red-900 { color: #f87171 !important; }
+body.dark-mode .text-blue-600, body.dark-mode .text-blue-700, body.dark-mode .text-blue-800, body.dark-mode .text-blue-900 { color: #60a5fa !important; }
+body.dark-mode .text-teal-600, body.dark-mode .text-teal-700, body.dark-mode .text-teal-800, body.dark-mode .text-teal-900 { color: #2dd4bf !important; }
+body.dark-mode .text-emerald-600, body.dark-mode .text-emerald-700, body.dark-mode .text-emerald-800, body.dark-mode .text-emerald-900 { color: #34d399 !important; }
 
 /* 6. MENGATASI BACKGROUND BOX PERINGATAN & LINGKARAN IKON/NOMOR */
 body.dark-mode .bg-red-50, body.dark-mode .bg-red-50\/50, body.dark-mode .bg-red-100 { 
