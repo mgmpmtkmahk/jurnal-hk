@@ -150,6 +150,7 @@ async function generateWithAPI(promptId, targetTextareaId) {
         openApiSettings();
         return;
     }
+    
     if (promptId === 'step2-prompt') {
         let rawInput = document.getElementById('rawJournalInput').value.trim();
         if (!rawInput) {
@@ -157,81 +158,84 @@ async function generateWithAPI(promptId, targetTextareaId) {
             return;
         }
 
-        // --- TAMBAHAN BARU: Proteksi Limit Karakter ---
-        const MAX_CHARS = 40000; // Batas aman untuk API Gemini
+        const MAX_CHARS = 40000; 
         if (rawInput.length > MAX_CHARS) {
-            // Beri tahu pengguna bahwa teks terlalu panjang
             showCustomAlert('warning', 'Teks Terlalu Panjang', `Teks jurnal Anda mencapai ${rawInput.length.toLocaleString()} karakter. Sistem memotong otomatis menjadi ${MAX_CHARS.toLocaleString()} karakter pertama agar API tidak error.`);
-            
-            // Potong teks di kotak input secara otomatis
             rawInput = rawInput.substring(0, MAX_CHARS);
             document.getElementById('rawJournalInput').value = rawInput;
         }
     }
 
-    const promptText = getDynamicPromptText(promptId);
+    // KIRIM TRUE KE PARAMETER KEDUA AGAR SISTEM TAHU INI DARI AUTO API
+    const promptText = getDynamicPromptText(promptId, true); 
     const targetEl = document.getElementById(targetTextareaId);
     
-    // Simpan isi lama untuk jaga-jaga kalau error
     const originalVal = targetEl.value; 
     
-    // Visual Loading State
     targetEl.value = "Sedang generate teks menggunakan AI... Mohon tunggu sekitar 10-20 detik...";
     targetEl.disabled = true;
     targetEl.classList.add('animate-pulse', 'bg-indigo-50');
 
-    // --- 🌟 PERBAIKAN DI SINI: Deteksi Kebutuhan JSON ---
-    // Cek apakah tombol yang diklik adalah milik Step 2, 3, atau 4
     const isJsonExpected = promptId === 'step2-prompt' || promptId === 'step3-prompt' || promptId === 'step4-prompt';
-    
-    // Siapkan konfigurasi default
     const genConfig = { temperature: 0.7 };
     
-    // Aktifkan mode JSON HANYA jika diperlukan
     if (isJsonExpected) {
         genConfig.responseMimeType = "application/json";
     }
-    // ----------------------------------------------------
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: promptText }] }],
-                generationConfig: genConfig // <-- Masukkan variabel genConfig yang sudah pintar ke sini
-            })
-        });
+        // --- 🌟 FITUR BARU: AUTO RETRY LOGIC ---
+        let maxRetries = 3; // Maksimal 3 kali percobaan
+        let attempt = 0;
+        let success = false;
+        let firstCandidate = null;
 
-        const data = await response.json();
+        while (attempt < maxRetries && !success) {
+            try {
+                if (attempt > 0) {
+                    targetEl.value = `Server Google sibuk. Mencoba ulang (Percobaan ${attempt + 1} dari ${maxRetries})... Mohon tunggu...`;
+                }
 
-        if (!response.ok) {
-            throw new Error(data.error?.message || "Gagal menghubungi API Google.");
-        }
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }],
+                        generationConfig: genConfig 
+                    })
+                });
 
-        // --- TAMBAHAN OPTIMASI KEAMANAN & VALIDASI STRUKTUR ---
-        
-        // 1. Cek apakah di-blokir oleh filter keamanan Google
-        if (data.promptFeedback && data.promptFeedback.blockReason) {
-            throw new Error(`Akses ditolak oleh filter keamanan Google (Alasan: ${data.promptFeedback.blockReason}). Harap periksa apakah teks jurnal mengandung kata-kata sensitif.`);
-        }
-        
-        // 2. Cek apakah API mengembalikan kandidat jawaban
-        if (!data.candidates || data.candidates.length === 0) {
-            // Kadang response finishReason-nya 'SAFETY' ada di dalam candidates[0]
-            throw new Error("API tidak mengembalikan jawaban. Ini biasanya terjadi karena batasan keamanan atau teks terlalu panjang.");
-        }
+                const data = await response.json();
 
-        // 3. Cek struktur konten AI
-        const firstCandidate = data.candidates[0];
-        if (firstCandidate.finishReason === 'SAFETY' || firstCandidate.finishReason === 'RECITATION') {
-             throw new Error(`AI menghentikan *generate* teks karena alasan: ${firstCandidate.finishReason}.`);
-        }
+                if (!response.ok) throw new Error(data.error?.message || "Gagal menghubungi API Google.");
+                if (data.promptFeedback && data.promptFeedback.blockReason) throw new Error(`Akses ditolak oleh filter keamanan Google (Alasan: ${data.promptFeedback.blockReason}).`);
+                if (!data.candidates || data.candidates.length === 0) throw new Error("API tidak mengembalikan jawaban.");
 
-        if (!firstCandidate.content || !firstCandidate.content.parts || firstCandidate.content.parts.length === 0) {
-            throw new Error("Format respons API tidak sesuai dugaan atau kosong.");
+                firstCandidate = data.candidates[0];
+                if (firstCandidate.finishReason === 'SAFETY' || firstCandidate.finishReason === 'RECITATION') {
+                     throw new Error(`AI menghentikan *generate* teks karena alasan: ${firstCandidate.finishReason}.`);
+                }
+                if (!firstCandidate.content || !firstCandidate.content.parts || firstCandidate.content.parts.length === 0) {
+                    throw new Error("Format respons API tidak sesuai dugaan atau kosong.");
+                }
+                
+                // Jika lolos semua validasi di atas, tandai sukses
+                success = true;
+
+            } catch (err) {
+                attempt++;
+                console.warn(`Percobaan API ke-${attempt} gagal:`, err.message);
+                
+                // Jangan lakukan retry jika errornya soal API Key atau Filter Keamanan (karena pasti akan ditolak lagi)
+                if (attempt >= maxRetries || err.message.includes('API key') || err.message.includes('keamanan')) {
+                    throw err; // Lempar error untuk ditangkap catch utama di bawah
+                }
+                
+                // Beri jeda 2 detik sebelum mencoba lagi (agar tidak di-banned Google karena spamming)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
         }
-        // -----------------------------------------------------
+        // --- AKHIR BLOK RETRY ---
 
         const aiText = firstCandidate.content.parts[0].text;
         
@@ -239,14 +243,13 @@ async function generateWithAPI(promptId, targetTextareaId) {
         showCustomAlert('success', 'Generate Berhasil!', 'Silakan periksa hasilnya dan klik tombol Parse/Simpan.');
         
     } catch (error) {
-        console.error("API Error:", error);
-        targetEl.value = originalVal; // Kembalikan teks asli jika gagal
+        console.error("API Error Final:", error);
+        targetEl.value = originalVal; 
         
         if (error.message.includes('API key')) {
             showCustomAlert('error', 'API Key Salah', 'API Key tidak valid atau kuota habis.');
             openApiSettings();
         } else {
-            // Tampilkan pesan error yang lebih spesifik kepada pengguna
             showCustomAlert('error', 'Gagal Generate', error.message);
         }
     } finally {
@@ -256,7 +259,7 @@ async function generateWithAPI(promptId, targetTextareaId) {
 }
 
 // MESIN PROMPT UTAMA
-function getDynamicPromptText(elementId) {
+function getDynamicPromptText(elementId, isForAPI = false) {
     let text = document.getElementById(elementId).innerText;
     
     // AUTO-MEMORY INJECTION
@@ -268,10 +271,21 @@ function getDynamicPromptText(elementId) {
 
     let memoryText = "";
     if (currentIndex > 0 && !exceptions.includes(currentKey) && !elementId.includes('step')) {
-        for (let i = 0; i < currentIndex; i++) {
+        
+        // --- LOGIKA PEMISAHAN MANUAL VS API ---
+        // Jika pakai Auto API, batasi 2 bab. Jika Manual, ambil semua (0).
+        const startIndex = isForAPI ? Math.max(0, currentIndex - 2) : 0;
+        
+        for (let i = startIndex; i < currentIndex; i++) {
             const secKey = sectionsList[i];
-            if (AppState.proposalData[secKey] && AppState.proposalData[secKey].trim() !== '') {
-                memoryText += `\n\n--- BAB/BAGIAN: ${secKey.toUpperCase()} ---\n${AppState.proposalData[secKey]}`;
+            let sectionText = AppState.proposalData[secKey];
+            
+            if (sectionText && sectionText.trim() !== '') {
+                // Potong teks hanya jika diakses dari Auto API
+                if (isForAPI && sectionText.length > 1500) {
+                    sectionText = sectionText.substring(0, 1500) + "\n... [teks dipotong otomatis oleh sistem untuk efisiensi token API]";
+                }
+                memoryText += `\n\n--- BAB/BAGIAN: ${secKey.toUpperCase()} ---\n${sectionText}`;
             }
         }
     }
@@ -312,6 +326,12 @@ function getDynamicPromptText(elementId) {
                 fullDraft += `\n\n--- BAGIAN ${key.toUpperCase()} ---\n${AppState.proposalData[key]}`; 
             }
         });
+        
+        // Proteksi API dari error batas maksimal token Google
+        if (isForAPI && fullDraft.length > 35000) {
+             fullDraft = fullDraft.substring(0, 35000) + "\n\n[... SEBAGIAN TEKS DIPOTONG KARENA BATAS MAKSIMAL API ...]";
+        }
+        
         text = text.replace(/\[DRAF_TULISAN\]/g, () => fullDraft || "[BELUM ADA TULISAN]");
     }
 
