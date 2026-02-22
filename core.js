@@ -219,6 +219,10 @@ async function generateWithAPI(promptId, targetTextareaId) {
 
         // --- 🌟 LOGIKA BARU: MEMBACA STREAMING (LEBIH AMAN & ROBUST) ---
         targetEl.value = ""; 
+        if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
+            window.mdeEditors[targetTextareaId].value("");
+            window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", true); // Kunci editor saat AI mengetik
+        } 
         
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
@@ -248,7 +252,16 @@ async function generateWithAPI(promptId, targetTextareaId) {
                         if (dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
                             const newText = dataObj.candidates[0].content.parts[0].text;
                             targetEl.value += newText;
-                            targetEl.scrollTop = targetEl.scrollHeight;
+                            
+                            // 🌟 Inject teks ke dalam Visual Editor secara realtime
+                            if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
+                                const cm = window.mdeEditors[targetTextareaId].codemirror;
+                                const doc = cm.getDoc();
+                                doc.replaceRange(newText, {line: doc.lastLine(), ch: doc.getLine(doc.lastLine()).length});
+                                cm.scrollTo(null, cm.getScrollInfo().height);
+                            } else {
+                                targetEl.scrollTop = targetEl.scrollHeight;
+                            }
                         }
                     } catch (e) {
                         // Abaikan jika ada potongan JSON yang tidak utuh, biarkan stream lanjut
@@ -276,6 +289,10 @@ async function generateWithAPI(promptId, targetTextareaId) {
     } finally {
         targetEl.disabled = false;
         targetEl.classList.remove('bg-indigo-50', 'border-indigo-400');
+        // Buka kembali kunci editor
+        if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
+            window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", false);
+        }
     }
 }
 

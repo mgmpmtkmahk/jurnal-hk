@@ -136,21 +136,35 @@ document.addEventListener('DOMContentLoaded', function() {
         { id: 'manfaat', title: '5.4 Manfaat Penelitian (Proposal)', promptText: `MANFAAT PENELITIAN - FORMAT NARATIF\n\nBuatkan manfaat penelitian untuk judul: [JUDUL] dan tujuan: [TUJUAN]\n\nATURAN KETAT:\n1. Hindari kalimat klise ("berguna bagi bangsa"). Harus spesifik.\n2. Manfaat Teoritis: Kontribusi pada teori terkait.\n3. Manfaat Praktis: Solusi nyata untuk stakeholder terkait.\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI. DILARANG menulis ulang judul bab.\n- Langsung ikuti format teks di bawah ini:\n\nPenelitian ini diharapkan dapat memberikan manfaat secara teoritis maupun praktis, yaitu:\n\n1. Manfaat Teoritis\n[Jelaskan paragraf kontribusi teoritisnya].\n\n2. Manfaat Praktis\n[Jelaskan paragraf solusi nyata bagi stakeholder].` },
         { id: 'metode', title: '5.5 Metode Penelitian (Proposal)', promptText: `METODE PENELITIAN - FORMAT PARAGRAF TERSTRUKTUR\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI. DILARANG menulis ulang judul bab.\n- Langsung outputkan dengan struktur tebal berikut:\n\n**1. Desain Penelitian**\n[Jelaskan paragrafnya]\n\n**2. Lokasi dan Waktu Penelitian**\n[Jelaskan paragrafnya]\n\n**3. Populasi dan Sampel / Subjek Penelitian**\n[Jelaskan paragrafnya]\n\n**4. Teknik Pengumpulan Data**\n[Jelaskan paragrafnya]\n\n**5. Teknik Analisis Data**\n[Jelaskan paragrafnya]` },
         { id: 'landasan', title: '5.6 Landasan Teori (Proposal)', promptText: `LANDASAN TEORI & STATE OF THE ART\n\nBuatkan untuk judul: [JUDUL] dan variabel: [VARIABEL]\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI. DILARANG menulis ulang judul bab utama.\n- Langsung ikuti format di bawah ini:\n\n**1. Kajian Teori**\n[Buat 2-3 paragraf naratif yang mensintesis Grand Theory dan variabel utama].\n\n**2. Kerangka Pemikiran**\n[Buat 1 paragraf naratif yang menjelaskan alur logika hubungan antar variabel].\n\n**3. Kajian Penelitian Terdahulu (State of the Art)**\n[Buatkan 1 TABEL berisi 4 penelitian terdahulu yang relevan. Kolom tabel wajib: | Penulis & Tahun | Judul Penelitian | Metode | Hasil/Temuan | Perbedaan dgn Riset Ini | ]` },
-        { id: 'hipotesis', title: '5.7 Hipotesis (Proposal)', promptText: `HIPOTESIS PENELITIAN\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI.\n- Rumuskan hipotesis (H0 dan Ha) yang didasarkan PADA TEORI.\n- Pastikan variabel yang dihipotesiskan sama persis dengan yang ada di teori.`, hasCheckbox: true },
+        { id: 'hipotesis', title: '5.7 Hipotesis (Proposal)', promptText: `HIPOTESIS PENELITIAN - FORMAT FORMAL
+
+Berdasarkan tinjauan pustaka, buatlah hipotesis penelitian untuk judul: [JUDUL]
+
+ATURAN OUTPUT MUTLAK:
+1. TANPA BASA-BASI (Langsung ke daftar hipotesis).
+2. Gunakan format penomoran (1, 2, dst) dan tebalkan kode Ha/H0.
+3. Gunakan angka nol (0) untuk H0, bukan huruf O.
+4. JANGAN gunakan simbol asterisk (*) di tengah kalimat.
+
+CONTOH FORMAT YG DIWAJIBKAN:
+1. **Ha**: Terdapat pengaruh signifikan...
+   **H0**: Tidak terdapat pengaruh signifikan...
+2. **Ha**: Integrasi metode wearable dan diari...
+   **H0**: Integrasi metode wearable dan diari...`, hasCheckbox: true },
         { id: 'jadwal', title: '5.8 Jadwal & Anggaran (Proposal)', promptText: `JADWAL & ANGGARAN - WAJIB FORMAT TABEL\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI. DILARANG menulis ulang judul bab.\n- HANYA output 2 Tabel ini saja secara berurutan:\n\n**1. Jadwal Penelitian**\n| No | Tahapan Kegiatan | B1 | B2 | B3 | B4 | B5 | B6 |\n|----|------------------|----|----|----|----|----|----|\n| 1 | Pengajuan Judul & Izin | ██ | | | | | |\n| 2 | Penyusunan Instrumen | | ██ | | | | |\n| 3 | Pengumpulan Data Lapangan | | | ██ | ██ | | |\n| 4 | Analisis & Validasi Data | | | | | ██ | |\n| 5 | Penyusunan Laporan & Sidang | | | | | | ██ |\n\n**2. Rencana Anggaran Biaya (RAB)**\n| No | Kategori Komponen Biaya | Rincian Kebutuhan | Estimasi Alokasi (%) |\n|----|-------------------------|-------------------|----------------------|\n| 1 | Bahan Habis Pakai / ATK | [kertas, print, internet] | 15% |\n| 2 | Operasional Lapangan | [transportasi, izin] | 40% |\n| 3 | Pengolahan Data | [lisensi software, jilid] | 20% |\n| 4 | Publikasi & Pelaporan | [APC Jurnal SINTA] | 25% |\n| | | TOTAL | 100% |` },
         { id: 'daftar', title: '5.9 Daftar Pustaka (Proposal)', promptText: `DAFTAR PUSTAKA - OUTPUT MUTLAK APA 7TH\n\nDRAF TULISAN SAYA:\n[DRAF_TULISAN]\n\nSUMBER DATA UTAMA:\n[DATA JURNAL YANG DIKAJI]\n\nATURAN MUTLAK (BACA DENGAN TELITI):\n1. DILARANG KERAS memberikan komentar, analisis konsistensi, sapaan, atau penolakan. HANYA KELUARKAN DAFTAR PUSTAKA.\n2. Susun daftar pustaka dari Sumber Data Utama. Jika ada sitasi di Draf yang tidak ada di Sumber Data, buatkan referensi yang logis.\n3. Format WAJIB: APA 7th Edition, urut abjad (A-Z).\n4. WAJIB sertakan URL web/DOI di setiap akhir referensi dengan format Markdown persis seperti ini: [https://linkjurnal.com](https://linkjurnal.com)` },
         
         // --- SKRIPSI (BAB 4 & 5) ---
-        { id: 'sdeskripsi', title: '1. Deskripsi Data (Bab IV)', promptText: `BAB 4 - DESKRIPSI DATA PENELITIAN\n\nATURAN KHUSUS UNTUK USER:\n(Isi/Paste ringkasan data mentah responden, demografi, atau hasil survei awal Anda di bawah ini sebelum dikirim ke AI)\nDATA PROFIL/DESKRIPTIF SAYA:\n...\n\nATURAN OUTPUT MUTLAK (UNTUK AI):\n- DILARANG menulis ulang kata "Bab 4".\n- Buat narasi akademik (minimal 3 paragraf) yang menjelaskan profil data di atas secara profesional.\n- Gunakan bahasa baku skripsi/tesis.\n- TANPA BASA-BASI AI.`, customInfo: 'Paste data responden/statistik deskriptif di Gemini sebelum Enter!' },
-        { id: 'sanalisis', title: '2. Analisis Data / Hasil Pengujian (Bab IV)', promptText: `BAB 4 - ANALISIS DATA & PENGUJIAN\n\nATURAN KHUSUS UNTUK USER:\n(Paste output tabel SPSS / hasil uji lab / kutipan wawancara Anda di bawah ini)\nHASIL UJI SAYA:\n...\n\nATURAN OUTPUT MUTLAK (UNTUK AI):\n- DILARANG menulis ulang kata "Bab 4".\n- Tafsirkan hasil uji tersebut ke dalam paragraf naratif.\n- Jika ada angka statistik (t-hitung, p-value), sebutkan apakah itu signifikan atau tidak.\n- Jika kualitatif, narasikan temanya.\n- TANPA BASA-BASI AI.`, customInfo: 'Paste output tabel SPSS / hasil uji lab / kutipan wawancara Anda!' },
-        { id: 'spembahasan', title: '3. Pembahasan Penelitian (Bab IV)', promptText: `BAB 4 - PEMBAHASAN HASIL (DEEP DISCUSSION)\n\nATURAN KHUSUS UNTUK USER:\n(Ceritakan singkat hasil kesimpulan uji data lapangan Anda di sini)\nHASIL UJI LAPANGAN SAYA:\n...\n\nATURAN OUTPUT MUTLAK (UNTUK AI):\n- DILARANG menulis ulang kata "Bab 4".\n- SINTESISKAN: Bandingkan "HASIL UJI LAPANGAN SAYA" dengan Landasan Teori yang sudah ditulis.\n- Jelaskan apakah hasil lapangan MENDUKUNG atau MENOLAK teori tersebut.\n- Berikan argumentasi ilmiah (Why/How) mengapa hasilnya demikian.`, customInfo: 'Ceritakan singkat hasil kesimpulan uji data Anda di dalam prompt!' },
+        { id: 'sdeskripsi', title: '1. Deskripsi Data (Bab IV)', promptText: `BAB 4 - DESKRIPSI DATA PENELITIAN\n\nTopik Skripsi: [JUDUL]\n\nATURAN KHUSUS UNTUK USER:\n(Isi/Paste ringkasan data mentah responden, demografi, atau hasil survei awal Anda di bawah ini sebelum dikirim ke AI)\nDATA PROFIL/DESKRIPTIF SAYA:\n...\n\nATURAN OUTPUT MUTLAK (UNTUK AI):\n- DILARANG menulis ulang kata "Bab 4".\n- Buat narasi akademik (minimal 3 paragraf) yang menjelaskan profil data di atas secara profesional dan kaitkan dengan topik Skripsi.\n- Gunakan bahasa baku skripsi/tesis.\n- TANPA BASA-BASI AI.`, customInfo: 'Paste data responden/statistik deskriptif di Gemini sebelum Enter!' },
+        { id: 'sanalisis', title: '2. Analisis Data / Hasil Pengujian (Bab IV)', promptText: `BAB 4 - ANALISIS DATA & PENGUJIAN\n\nTopik Skripsi: [JUDUL]\n\nATURAN KHUSUS UNTUK USER:\n(Paste output tabel SPSS / hasil uji lab / kutipan wawancara Anda di bawah ini)\nHASIL UJI SAYA:\n...\n\nATURAN OUTPUT MUTLAK (UNTUK AI):\n- DILARANG menulis ulang kata "Bab 4".\n- Tafsirkan hasil uji tersebut ke dalam paragraf naratif sesuai dengan topik skripsi.\n- Jika ada angka statistik (t-hitung, p-value), sebutkan apakah itu signifikan atau tidak.\n- Jika kualitatif, narasikan temanya.\n- TANPA BASA-BASI AI.`, customInfo: 'Paste output tabel SPSS / hasil uji lab / kutipan wawancara Anda!' },
+        { id: 'spembahasan', title: '3. Pembahasan Penelitian (Bab IV)', promptText: `BAB 4 - PEMBAHASAN HASIL (DEEP DISCUSSION)\n\nTopik Skripsi: [JUDUL]\n\nATURAN KHUSUS UNTUK USER:\n(Ceritakan singkat hasil kesimpulan uji data lapangan Anda di sini)\nHASIL UJI LAPANGAN SAYA:\n...\n\nATURAN OUTPUT MUTLAK (UNTUK AI):\n- DILARANG menulis ulang kata "Bab 4".\n- SINTESISKAN: Bandingkan "HASIL UJI LAPANGAN SAYA" dengan teori terkait topik di atas.\n- Jelaskan apakah hasil lapangan MENDUKUNG atau MENOLAK teori umum tersebut.\n- Berikan argumentasi ilmiah (Why/How) mengapa hasilnya demikian.`, customInfo: 'Ceritakan singkat hasil kesimpulan uji data Anda di dalam prompt!' },
         { id: 'skesimpulan', title: '4. Kesimpulan (Bab V)', promptText: `BAB 5 - KESIMPULAN (KOHEREN)\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI.\n- Buat kesimpulan yang MENJAWAB LANGSUNG poin Rumusan Masalah Awal.\n- Jawaban harus didasarkan pada fakta di Ringkasan Hasil Pembahasan.\n- Jangan memunculkan data baru yang tidak dibahas sebelumnya.` },
         { id: 'ssaran', title: '5. Saran Penelitian (Bab V)', promptText: `BAB 5 - SARAN\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Bab 5".\n- Berdasarkan topik tersebut, berikan saran konstruktif yang dibagi menjadi dua bagian:\n1. Bagi Akademisi/Peneliti Selanjutnya (Metode apa yang perlu diperbaiki).\n2. Bagi Praktisi/Masyarakat Terkait (Bagaimana temuan ini dimanfaatkan).\n- Format berupa paragraf atau poin.\n- TANPA BASA-BASI AI.` },
         { id: 'sdaftar', title: '6. Daftar Pustaka Akhir', promptText: `DAFTAR PUSTAKA SKRIPSI - OUTPUT MUTLAK APA 7TH\n\nDRAF BAB 4 & 5:\n[DRAF_TULISAN]\n\nREFERENSI UTAMA:\n[DATA JURNAL YANG DIKAJI]\n\nATURAN MUTLAK:\n1. DILARANG memberikan komentar, analisis, sapaan, atau penolakan. SAYA HANYA BUTUH TEKS DAFTAR PUSTAKA.\n2. Susun referensi dari draf dan referensi utama ke dalam format APA 7th Edition (A-Z).\n3. Sertakan tautan URL atau DOI ASLI dari jurnal tersebut (jika ada). DILARANG menggunakan tautan palsu atau contoh link` },
 
         // --- MAKALAH ---
         { id: 'mpendahuluan', title: '1. Pendahuluan (Makalah)', promptText: `BAB I PENDAHULUAN (MAKALAH)\n\nTopik/Judul: [JUDUL]\nReferensi Utama: [DATA JURNAL YANG DIKAJI]\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI. DILARANG menggunakan tabel.\n- DILARANG menulis ulang judul "BAB I PENDAHULUAN".\n- Langsung ikuti format di bawah ini dengan lengkap dan mendalam:\n\n**A. Latar Belakang**\n[Buat 3-4 paragraf naratif yang menjelaskan fenomena, teori dasar, dan urgensi topik ini dibahas. Wajib sertakan sitasi (Penulis, Tahun) dari referensi di atas].\n\n**B. Rumusan Masalah**\nBerdasarkan latar belakang di atas, rumusan masalah dalam makalah ini adalah:\n1. [Tulis pertanyaan 1]\n2. [Tulis pertanyaan 2]\n3. [Tulis pertanyaan 3]\n\n**C. Tujuan Penulisan**\n1. [Tujuan sinkron dengan masalah 1]\n2. [Tujuan sinkron dengan masalah 2]\n3. [Tujuan sinkron dengan masalah 3]` },
-        { id: 'mpembahasan', title: '2. Pembahasan (Makalah)', promptText: `BAB II PEMBAHASAN (MAKALAH)\n\nTopik/Judul: [JUDUL]\nReferensi Utama: [DATA JURNAL YANG DIKAJI]\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI. DILARANG menggunakan tabel kecuali sangat perlu.\n- DILARANG menulis ulang judul "BAB II PEMBAHASAN".\n- Buat pembahasan sepanjang 1000-1500 kata yang padat materi.\n\nSTRUKTUR OUTPUT YANG DIWAJIBKAN:\n**A. [Sub-Bab 1: Konsep Dasar / Teori Utama]**\n[Bahas teori dari jurnal dengan sangat detail. Gunakan banyak sitasi (Nama, Tahun)].\n\n**B. [Sub-Bab 2: Analisis / Implementasi pada Topik]**\n[Sintesiskan temuan dari jurnal-jurnal di atas. Bandingkan metode/hasil mereka, apa kelebihan dan kekurangannya].\n\n**C. [Sub-Bab 3: Solusi / Pandangan Kritis]**\n[Bahas kesimpulan analitis terkait topik ini berdasarkan fakta akademik].` },
+        { id: 'mpembahasan', title: '2. Pembahasan (Makalah)', promptText: `BAB II PEMBAHASAN (MAKALAH)\n\nTopik/Judul: [JUDUL]\nData Jurnal Referensi: \n[DATA JURNAL]\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI. DILARANG menggunakan tabel kecuali sangat perlu.\n- DILARANG menulis ulang judul "BAB II PEMBAHASAN".\n- Buat pembahasan sepanjang 1000-1500 kata yang padat materi.\n\nSTRUKTUR OUTPUT YANG DIWAJIBKAN:\n**A. [Sub-Bab 1: Konsep Dasar / Teori Utama]**\n[Bahas teori dari kumpulan jurnal di atas dengan sangat detail. Gunakan banyak sitasi (Nama, Tahun)].\n\n**B. [Sub-Bab 2: Analisis / Implementasi pada Topik]**\n[Sintesiskan temuan dari jurnal-jurnal di atas. Bandingkan metode/hasil mereka, apa kelebihan dan kekurangannya].\n\n**C. [Sub-Bab 3: Solusi / Pandangan Kritis]**\n[Bahas kesimpulan analitis terkait topik ini berdasarkan fakta akademik].` },
         { id: 'mpenutup', title: '3. Penutup (Makalah)', promptText: `BAB III PENUTUP (MAKALAH)\n\nTopik/Judul: [JUDUL]\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI. DILARANG menggunakan tabel.\n- DILARANG menulis ulang judul "BAB III PENUTUP".\n- Langsung ikuti format di bawah ini:\n\n**A. Kesimpulan**\n[Buat 2 paragraf kesimpulan yang padat dan tajam, merangkum inti dari pembahasan sebelumnya dan menjawab rumusan masalah].\n\n**B. Saran**\n[Buat 1-2 paragraf saran atau rekomendasi yang konstruktif dan bisa diaplikasikan di lapangan terkait topik ini].` },
         { id: 'mdaftar', title: '4. Daftar Pustaka (Makalah)', promptText: `DAFTAR PUSTAKA MAKALAH - OUTPUT MUTLAK APA 7TH\n\nTeks Makalah:\n[DRAF_TULISAN]\n\nReferensi Utama:\n[DATA JURNAL YANG DIKAJI]\n\nATURAN MUTLAK:\n1. DILARANG KERAS mengevaluasi teks saya. DILARANG memberikan komentar atau menolak. KELUARKAN HANYA DAFTAR PUSTAKA.\n2. Format APA 7th Style, A-Z.\n3. WAJIB sertakan link di setiap akhir referensi menggunakan format Markdown: [https://link.com](https://link.com)` },
 
@@ -163,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // --- SLR ---
         { id: 'slrpendahuluan', title: '1. Pendahuluan (Review SLR)', promptText: `PENDAHULUAN SYSTEMATIC LITERATURE REVIEW (SLR)\n\nTopik/Judul: [JUDUL]\nReferensi Utama: [DATA JURNAL YANG DIKAJI]\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Pendahuluan".\n- Tulis 4-5 paragraf naratif standar publikasi internasional.\n- Paragraf 1-2: Jelaskan fenomena, pentingnya topik ini, dan teori dasar.\n- Paragraf 3: Jelaskan mengapa riset SLR di bidang ini sangat mendesak dilakukan (Research Gap dari studi review sebelumnya).\n- Paragraf 4: Tuliskan "Research Questions (RQ)" atau Pertanyaan Penelitian yang ingin dijawab dalam review ini (minimal 2 RQ).\n- TANPA BASA-BASI AI.` },        { id: 'slrmetode', title: '2. Metode PRISMA (Review SLR)', promptText: `METODOLOGI SYSTEMATIC LITERATURE REVIEW\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Metodologi".\n- Tulis metode berdasarkan panduan PRISMA (Preferred Reporting Items for Systematic Reviews and Meta-Analyses).\n- Wajib memiliki Sub-bab ini:\n  **A. Strategi Pencarian (Search Strategy)**: Sebutkan database (Google Scholar, SINTA, Scopus) dan keyword boolean yang digunakan.\n  **B. Kriteria Inklusi dan Eksklusi**: Buat dalam bentuk list (misal: hanya jurnal 5 tahun terakhir, bahasa inggris/indonesia, tipe artikel primary).\n  **C. Ekstraksi Data**: Jelaskan bagaimana data dari literatur diekstrak.\n- DILARANG MENGGUNAKAN TABEL.\n- TANPA BASA-BASI AI.` },
-        { id: 'slrhasil', title: '3. Hasil Ekstraksi (Review SLR)', promptText: `HASIL EKSTRAKSI DATA SYSTEMATIC REVIEW\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Hasil Ekstraksi".\n- Buat 1 TABEL MATRIKS SINTESIS RAKSASA yang membedah seluruh jurnal di atas.\n- Format Kolom Tabel WAJIB:\n  | Author & Tahun | Tujuan Studi | Metode / Sampel | Temuan Utama (Results) | Limitasi Jurnal |\n- Pastikan semua jurnal yang diberikan masuk ke dalam tabel tersebut secara rapi.\n- Berikan sedikit 1 paragraf narasi pengantar sebelum tabel.\n- TANPA BASA-BASI AI.` },
+        { id: 'slrhasil', title: '3. Hasil Ekstraksi (Review SLR)', promptText: `HASIL EKSTRAKSI DATA SYSTEMATIC REVIEW\n\nTopik SLR: [JUDUL]\nData Jurnal Mentah untuk Diekstrak: \n[DATA JURNAL]\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Hasil Ekstraksi".\n- Buat 1 TABEL MATRIKS SINTESIS RAKSASA yang membedah seluruh jurnal mentah di atas.\n- Format Kolom Tabel WAJIB:\n  | Author & Tahun | Tujuan Studi | Metode / Sampel | Temuan Utama (Results) | Limitasi Jurnal |\n- Pastikan semua data jurnal yang diberikan di atas masuk ke dalam tabel tersebut secara rapi dan akurat tanpa dikarang.\n- Berikan 1 paragraf narasi pengantar sebelum tabel.\n- TANPA BASA-BASI AI.` },
         { id: 'slrpembahasan', title: '4. Pembahasan SLR (Review SLR)', promptText: `PEMBAHASAN SYSTEMATIC LITERATURE REVIEW (DISCUSSION)\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Pembahasan".\n- DILARANG menggunakan tabel.\n- Berdasarkan kumpulan jurnal tersebut, buat analisis pembahasan mendalam (minimal 800 kata).\n- Kelompokkan pembahasan berdasarkan 2-3 tema besar yang mendominasi temuan jurnal-jurnal tersebut (Gunakan Sub-bab tebal untuk setiap tema).\n- Bandingkan perbedaan pandangan atau metode antar author.\n- TANPA BASA-BASI AI.` },
         { id: 'slrkesimpulan', title: '5. Kesimpulan (Review SLR)', promptText: `KESIMPULAN SYSTEMATIC LITERATURE REVIEW\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Kesimpulan".\n- Buat 2 paragraf padat.\n- Paragraf 1: Jawaban inti dari review literatur ini (apa benang merahnya).\n- Paragraf 2: Rekomendasi gap penelitian untuk riset di masa depan (Future Work) yang sangat spesifik berdasarkan kekurangan literatur saat ini.\n- TANPA BASA-BASI AI.` },
         { id: 'slrabstrak', title: '6. Abstrak (Review SLR)', promptText: `ABSTRAK SYSTEMATIC LITERATURE REVIEW\n\nTugas: Buat Abstrak berdasarkan naskah SLR penuh di bawah ini.\n\n[DRAF_TULISAN]\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Abstrak".\n- Rangkum naskah di atas menjadi 1 paragraf padat (150-250 kata).\n- Struktur Wajib: Latar Belakang & Urgensi SLR -> Tujuan -> Metode (PRISMA) -> Temuan Utama Ekstraksi -> Kesimpulan & Rekomendasi Masa Depan.\n- Jangan mengarang data yang tidak ada di naskah.\n- Tambahkan "Keywords: [kata kunci 1], [kata kunci 2], [kata kunci 3]" di akhir paragraf.` },
@@ -273,6 +287,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
         step5Container.innerHTML = htmlContent;
 
+        // 🌟 FITUR BARU: INISIALISASI RICH TEXT EDITOR
+        window.mdeEditors = {};
+        sectionsData.forEach(sec => {
+            const ta = document.getElementById(`output-${sec.id}`);
+            if (ta) {
+                // Sulap textarea menjadi Editor Visual
+                window.mdeEditors[`output-${sec.id}`] = new EasyMDE({
+                    element: ta,
+                    spellChecker: false,
+                    autoDownloadFontAwesome: false, // Kita sudah pakai FontAwesome bawaan aplikasi
+                    status: [{
+                        className: "words",
+                        defaultValue: (el) => { el.innerHTML = "0 kata"; },
+                        onUpdate: (el) => { 
+                            const text = window.mdeEditors[`output-${sec.id}`].value();
+                            const count = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+                            el.innerHTML = count + " kata"; 
+                        }
+                    }],
+                    placeholder: "Tulis atau paste teks dari AI di sini...",
+                    minHeight: "250px"
+                });
+                
+                // Sinkronisasi: Saat user mengetik di Editor, simpan ke textarea asli agar bisa di-Save
+                window.mdeEditors[`output-${sec.id}`].codemirror.on("change", () => {
+                    ta.value = window.mdeEditors[`output-${sec.id}`].value();
+                });
+            }
+        });
+
+        // Load data lama dari state ke dalam Editor (jika ada)
+        Object.keys(AppState.proposalData).forEach(key => {
+            if (AppState.proposalData[key] && window.mdeEditors[`output-${key}`]) {
+                window.mdeEditors[`output-${key}`].value(AppState.proposalData[key]);
+            }
+        });
+
         // Pasang Event Listener Navigasi
         const navButtons = document.querySelectorAll('.proposal-nav-btn');
         if (navButtons.length > 0 && typeof showProposalSection === 'function') {
@@ -281,10 +332,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     showProposalSection(this.getAttribute('data-section')); 
                 });
             });
-        }
-
-        if (typeof setupWordCounters === 'function') {
-            setupWordCounters();
         }
     }
 });

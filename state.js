@@ -55,10 +55,14 @@ async function loadStateFromLocal() {
             
             Object.keys(AppState.proposalData).forEach(key => {
                 const el = document.getElementById('output-' + key);
-                if (el && AppState.proposalData[key]) el.value = AppState.proposalData[key];
+                if (el && AppState.proposalData[key]) {
+                    el.value = AppState.proposalData[key];
+                    // 🌟 Masukkan teks ke Visual Editor
+                    if (window.mdeEditors && window.mdeEditors['output-' + key]) {
+                        window.mdeEditors['output-' + key].value(AppState.proposalData[key]);
+                    }
+                }
             });
-
-            if (typeof refreshAllWordCounters === "function") refreshAllWordCounters();
             
             const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
             if (titleDisplay) titleDisplay.textContent = AppState.selectedTitle || '-';
@@ -107,12 +111,16 @@ function processRestoreFile(event) {
             if (typeof renderAnalysisSummaryPreview === "function") renderAnalysisSummaryPreview();
             if (AppState.generatedTitles.length > 0 && typeof displayTitleSelection === "function") displayTitleSelection();
             
-            Object.keys(AppState.proposalData).forEach(key => { 
-                const el = document.getElementById('output-' + key); 
-                if (el && AppState.proposalData[key]) el.value = AppState.proposalData[key]; 
+            Object.keys(AppState.proposalData).forEach(key => {
+                const el = document.getElementById('output-' + key);
+                if (el && AppState.proposalData[key]) {
+                    el.value = AppState.proposalData[key];
+                    // 🌟 Masukkan teks ke Visual Editor
+                    if (window.mdeEditors && window.mdeEditors['output-' + key]) {
+                        window.mdeEditors['output-' + key].value(AppState.proposalData[key]);
+                    }
+                }
             });
-
-            if (typeof refreshAllWordCounters === "function") refreshAllWordCounters();
             
             const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
             if (titleDisplay) titleDisplay.textContent = AppState.selectedTitle || '-';
