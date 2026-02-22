@@ -205,25 +205,25 @@ Anda WAJIB mematuhi struktur JSON di bawah ini dan DILARANG MENGURANGI PROPERTI 
                     <div class="flex-grow flex flex-col mb-4"><div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[300px]"><button onclick="copyPromptText('step3-prompt')" class="copy-btn absolute top-2 right-2 bg-purple-600 text-white px-3 py-1 rounded text-xs hover:bg-purple-700 z-10" data-prompt-id="step3-prompt"><i class="fas fa-copy mr-1"></i>Copy</button><div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
 <pre id="step3-prompt" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">ANALISIS KOMPARATIF - OUTPUT FORMAT JSON MUTLAK
 
-Analisis kumpulan data jurnal berikut dan berikan output HANYA dalam format JSON valid (tanpa penjelasan tambahan):
+Anda adalah asisten akademik ahli. Analisis kumpulan data jurnal berikut dan berikan output HANYA dalam format JSON valid (tanpa penjelasan tambahan/markdown).
 
 [INSERT SEMUA DATA JURNAL DARI STEP 2]
 
-OUTPUT HARUS PERSIS FORMAT JSON INI:
+OUTPUT HARUS PERSIS FORMAT JSON INI (JANGAN UBAH NAMA KATEGORI):
 {
   "analisis_tema": {
     "tema_dominan": ["[tema1]", "[tema2]"],
     "metode_umum": ["[metode1]", "[metode2]"],
-    "hasil_kontradiktif": "[penjelasan jika ada yang bertentangan]"
+    "hasil_kontradiktif": "[penjelasan jika ada hasil yang berbeda, atau isi 'Hasil umumnya sejalan']"
   },
   "research_gap": [
-    {"kategori": "Gap Metodologi", "detail": "[penjelasan]"},
-    {"kategori": "Gap Teknologi", "detail": "[penjelasan]"},
-    {"kategori": "Gap Variabel", "detail": "[penjelasan]"}
+    {"kategori": "Gap Kontekstual (Subjek/Lokasi/Dataset)", "detail": "[Jelaskan celah lokasi, subjek, dataset, atau kondisi lingkungan yang belum diuji/diteliti]"},
+    {"kategori": "Gap Metodologi (Pendekatan/Algoritma)", "detail": "[Jelaskan celah metode, algoritma, atau alat ukur yang belum banyak digunakan]"},
+    {"kategori": "Gap Konseptual (Fokus/Variabel/Fitur)", "detail": "[Jelaskan variabel, fitur, atau fokus permasalahan yang masih terlewatkan]"}
   ],
   "peluang_baru": [
-    {"kategori": "Kombinasi Metode", "detail": "[penjelasan]"},
-    {"kategori": "Lokasi/Subjek Baru", "detail": "[penjelasan]"}
+    {"kategori": "Pembaruan Fokus/Fitur", "detail": "[Ide penelitian dari sisi variabel/fitur baru]"},
+    {"kategori": "Pembaruan Metode/Konteks", "detail": "[Ide penelitian dari sisi metode/dataset baru]"}
   ]
 }</pre>
                     </div></div></div>
