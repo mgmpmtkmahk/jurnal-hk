@@ -1028,41 +1028,6 @@ async function extractTextFromPDF(event) {
     }
 }
 
-async function applyMicroEdit(sectionId, action) {
-    const editor = window.mdeEditors[`output-${sectionId}`];
-    if (!editor) return;
-
-    const originalText = editor.value();
-    if (!originalText.trim()) {
-        showCustomAlert('warning', 'Teks Kosong', 'Tulis atau generate teks dulu sebelum diedit!');
-        return;
-    }
-
-    const actionPrompts = {
-        'expand': `Kembangkan dan perpanjang paragraf di bawah ini agar lebih detail tanpa mengubah inti pesannya: \n\n${originalText}`,
-        'fix': `Perbaiki tata bahasa, ejaan, dan struktur kalimat pada teks di bawah ini agar lebih profesional dan baku: \n\n${originalText}`,
-        'paraphrase': `Lakukan parafrase pada teks di bawah ini agar memiliki struktur kalimat yang berbeda namun tetap mempertahankan makna aslinya (agar lolos uji plagiasi): \n\n${originalText}`
-    };
-
-    // UI Feedback
-    showCustomAlert('info', 'Sedang Memproses', 'AI sedang menyempurnakan teks Anda...');
-    
-    // Gunakan logic API yang sudah ada tapi dengan prompt kustom
-    // Kita buat dummy element untuk menampung instruksi kustom
-    const dummyId = `temp-prompt-${Date.now()}`;
-    const pre = document.createElement('pre');
-    pre.id = dummyId;
-    pre.innerText = actionPrompts[action];
-    pre.style.display = 'none';
-    document.body.appendChild(pre);
-
-    try {
-        await generateWithAPI(dummyId, `output-${sectionId}`);
-    } finally {
-        document.body.removeChild(pre);
-    }
-}
-
 // ==========================================
 // 🌟 FITUR BARU: MICRO-EDITING (RTE)
 // ==========================================

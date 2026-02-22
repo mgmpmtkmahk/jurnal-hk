@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Buku Panduan - Scientific Document Generator</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,80 +16,90 @@
 <body class="bg-gray-100 text-gray-700">
 
     <header class="gradient-bg text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center gap-4">
+        <div class="container mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center gap-4 max-w-7xl">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-inner">
                     <i class="fas fa-book-open text-xl md:text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl md:text-2xl font-bold tracking-tight">Buku Panduan</h1>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-tight">Buku Panduan Pengguna</h1>
                     <p class="text-xs md:text-sm text-indigo-100">Scientific Document Generator</p>
                 </div>
             </div>
             <button onclick="window.close()" class="bg-white/20 hover:bg-white/30 text-white px-3 md:px-4 h-10 md:h-12 rounded-xl backdrop-blur-sm transition-all text-sm font-bold flex items-center shadow-sm whitespace-nowrap">
-                <i class="fas fa-times md:mr-2"></i> <span class="hidden md:inline">Tutup Panduan</span>
+                <i class="fas fa-times md:mr-2 text-base"></i> <span class="hidden md:inline">Tutup Panduan</span>
             </button>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 py-8 max-w-4xl">
+    <main class="container mx-auto px-4 py-8 max-w-7xl">
         
-        <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-6 mb-8 text-indigo-900 shadow-sm">
-            <h2 class="text-xl font-bold mb-3 flex items-center"><i class="fas fa-microchip mr-2 text-indigo-600"></i>Dua Mode Penggunaan Aplikasi</h2>
-            <p class="mb-4 text-sm leading-relaxed">Aplikasi ini sangat fleksibel dan dapat digunakan dengan dua metode di setiap langkahnya:</p>
-            <div class="grid md:grid-cols-2 gap-4">
-                <div class="bg-white p-5 rounded-xl border-l-4 border-l-purple-500 shadow-sm">
-                    <h4 class="font-bold text-purple-700 mb-2"><i class="fas fa-robot mr-2"></i>1. Mode Auto API (Otomatis)</h4>
-                    <p class="text-xs leading-relaxed text-gray-600">Sistem akan mengetik jawaban AI langsung ke dalam aplikasi secara <em>real-time</em> (streaming).<br><br><strong>Syarat:</strong> Anda wajib memasukkan <em>API Key Google Gemini</em> (Gratis) melalui ikon Kunci (<i class="fas fa-key"></i>) di sidebar kanan. Catatan: Akun gratis dibatasi 15-20 klik per menit.</p>
+        <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-8 mb-8 text-indigo-900 shadow-sm">
+            <h2 class="text-2xl font-bold mb-4 flex items-center"><i class="fas fa-microchip mr-3 text-indigo-600"></i>Dua Mode Penggunaan Aplikasi</h2>
+            <p class="mb-6 text-base md:text-lg leading-relaxed">Aplikasi ini sangat fleksibel dan dapat digunakan dengan dua metode di setiap langkahnya:</p>
+            <div class="grid lg:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl border-l-8 border-l-purple-500 shadow-sm">
+                    <h4 class="font-bold text-purple-700 text-lg mb-3"><i class="fas fa-robot mr-2"></i>1. Mode Auto API (Otomatis)</h4>
+                    <p class="text-base leading-relaxed text-gray-600">Sistem akan mengetik jawaban AI langsung ke dalam aplikasi secara <em>real-time</em> (streaming).<br><br><strong>Syarat:</strong> Anda wajib memasukkan <em>API Key Google Gemini</em> (Gratis) melalui ikon Kunci (<i class="fas fa-key"></i>) di sidebar kanan. Catatan: Akun gratis dibatasi 15-20 klik per menit.</p>
                 </div>
-                <div class="bg-white p-5 rounded-xl border-l-4 border-l-indigo-500 shadow-sm">
-                    <h4 class="font-bold text-indigo-700 mb-2"><i class="fas fa-external-link-alt mr-2"></i>2. Mode Manual Tab (Copy-Paste)</h4>
-                    <p class="text-xs leading-relaxed text-gray-600">Anda meng-<em>copy</em> instruksi (Prompt) dari aplikasi, lalu mem-<em>paste</em>-nya secara manual ke web Google Gemini. Hasil dari Gemini kemudian di-<em>copy</em> kembali ke aplikasi.<br><br><strong>Kelebihan:</strong> 100% Bebas limit/kuota dan tidak memerlukan pengaturan API Key.</p>
+                <div class="bg-white p-6 rounded-xl border-l-8 border-l-indigo-500 shadow-sm">
+                    <h4 class="font-bold text-indigo-700 text-lg mb-3"><i class="fas fa-external-link-alt mr-2"></i>2. Mode Manual Tab (Copy-Paste)</h4>
+                    <p class="text-base leading-relaxed text-gray-600">Anda meng-<em>copy</em> instruksi (Prompt) dari aplikasi, lalu mem-<em>paste</em>-nya secara manual ke web Google Gemini. Hasil dari Gemini kemudian di-<em>copy</em> kembali ke aplikasi.<br><br><strong>Kelebihan:</strong> 100% Bebas limit/kuota dan tidak memerlukan pengaturan API Key.</p>
                 </div>
             </div>
-            <div class="mt-4 bg-green-100 text-green-800 p-3 rounded-lg text-xs font-semibold flex items-center">
-                <i class="fas fa-shield-alt mr-2 text-lg flex-shrink-0"></i> 
+            <div class="mt-4 bg-orange-50 border-l-4 border-orange-500 p-4 rounded-xl shadow-sm text-sm md:text-base flex items-start md:items-center">
+                <i class="fas fa-lightbulb text-orange-500 mr-3 text-2xl flex-shrink-0 mt-1 md:mt-0"></i> 
+                <div>
+                    <strong class="text-orange-800 block mb-1">Tips Pro untuk Dokumen Super Panjang (Skripsi/SLR):</strong>
+                    <span class="text-orange-700">Jika Anda memasukkan data PDF atau hasil lapangan yang sangat tebal (ratusan halaman), sistem <strong>Auto API</strong> akan memotong sebagian teks masa lalu secara otomatis agar API Google tidak <em>crash/error</em>. Jika Anda ingin 100% data Anda terbaca utuh tanpa dipotong sedikit pun, kami sangat menyarankan Anda menggunakan tombol <strong>Manual Tab</strong>.</span>
+                </div>
+            </div>
+            <div class="mt-6 bg-green-100 text-green-800 p-4 rounded-xl text-sm md:text-base font-semibold flex items-start md:items-center">
+                <i class="fas fa-shield-alt mr-3 text-2xl flex-shrink-0 mt-1 md:mt-0"></i> 
                 <span>Info: Seluruh teks yang di-generate oleh aplikasi ini telah dipatenkan dengan perintah rahasia (Humanizer) agar terhindar dari deteksi plagiasi dan dijamin lolos uji Turnitin < 5%.</span>
             </div>
         </div>
 
-        <div class="space-y-6">
+        <div class="space-y-8">
+            
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center">
-                    <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold mr-3 shadow-inner">1</div>
-                    <h3 class="text-lg font-bold text-gray-800">Cari Referensi Jurnal</h3>
+                <div class="bg-gray-50 px-8 py-5 border-b border-gray-200 flex items-center">
+                    <div class="w-10 h-10 bg-indigo-600 text-white text-lg rounded-full flex items-center justify-center font-bold mr-4 shadow-inner">1</div>
+                    <h3 class="text-xl md:text-2xl font-bold text-gray-800">Cari Referensi Jurnal</h3>
                 </div>
-                <div class="p-6 text-sm">
-                    <p class="font-bold text-gray-800 mb-1"><i class="fas fa-hand-pointer text-indigo-500 mr-2"></i>Aksi Anda:</p>
-                    <p class="text-gray-600 mb-3 ml-6">Ketik kata kunci penelitian Anda (misal: <em>kualitas tidur santri</em>), lalu tekan tombol <strong>Cari Jurnal</strong>. Klik pada salah satu rekomendasi portal (misal: SINTA atau Scopus).</p>
-                    <p class="font-bold text-gray-800 mb-1"><i class="fas fa-desktop text-green-500 mr-2"></i>Respon Aplikasi:</p>
-                    <p class="text-gray-600 ml-6">Aplikasi akan membuka tab browser baru langsung menuju portal jurnal terkait berdasarkan kata kunci Anda. Silakan *download* 3-5 file PDF jurnal dari web tersebut ke laptop Anda.</p>
+                <div class="p-8 text-base md:text-lg">
+                    <p class="font-bold text-gray-800 mb-2"><i class="fas fa-hand-pointer text-indigo-500 mr-2"></i>Aksi Anda:</p>
+                    <p class="text-gray-600 mb-5 ml-8">Ketik kata kunci penelitian Anda (misal: <em>kualitas tidur santri</em>), lalu tekan tombol <strong>Cari Jurnal</strong>. Klik pada salah satu rekomendasi portal (misal: SINTA atau Scopus).</p>
+                    
+                    <p class="font-bold text-gray-800 mb-2"><i class="fas fa-desktop text-green-500 mr-2"></i>Respon Aplikasi:</p>
+                    <p class="text-gray-600 ml-8">Aplikasi akan membuka tab browser baru langsung menuju portal jurnal terkait berdasarkan kata kunci Anda. Silakan *download* 3-5 file PDF jurnal dari web tersebut ke laptop Anda.</p>
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center">
-                    <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold mr-3 shadow-inner">2</div>
-                    <h3 class="text-lg font-bold text-gray-800">Kaji Jurnal (Ekstraksi PDF)</h3>
+                <div class="bg-gray-50 px-8 py-5 border-b border-gray-200 flex items-center">
+                    <div class="w-10 h-10 bg-indigo-600 text-white text-lg rounded-full flex items-center justify-center font-bold mr-4 shadow-inner">2</div>
+                    <h3 class="text-xl md:text-2xl font-bold text-gray-800">Kaji Jurnal (Ekstraksi PDF)</h3>
                 </div>
-                <div class="p-6 text-sm">
-                    <p class="font-bold text-gray-800 mb-1"><i class="fas fa-hand-pointer text-indigo-500 mr-2"></i>Aksi Anda (Memasukkan File):</p>
-                    <p class="text-gray-600 mb-3 ml-6">Klik tombol <strong>Upload PDF Otomatis</strong>, lalu pilih file PDF jurnal yang baru di-download.</p>
-                    <p class="font-bold text-gray-800 mb-1"><i class="fas fa-desktop text-green-500 mr-2"></i>Respon Aplikasi:</p>
-                    <p class="text-gray-600 mb-4 ml-6">Kotak teks akan berkedip merah terang dengan tulisan <em>"Membaca file PDF..."</em>. Dalam 1-3 detik, notifikasi Pop-up muncul, dan seluruh teks jurnal tersedot masuk ke kotak.</p>
+                <div class="p-8 text-base md:text-lg">
+                    <p class="font-bold text-gray-800 mb-2"><i class="fas fa-hand-pointer text-indigo-500 mr-2"></i>Aksi Anda (Memasukkan File):</p>
+                    <p class="text-gray-600 mb-5 ml-8">Klik tombol <strong>Upload PDF Otomatis</strong>, lalu pilih file PDF jurnal yang baru di-download.</p>
                     
-                    <div class="ml-6 grid md:grid-cols-2 gap-4 mb-4">
-                        <div class="border border-gray-200 p-3 rounded-xl bg-gray-50">
-                            <p class="font-bold text-indigo-700 mb-2"><i class="fas fa-robot mr-1"></i> Jika Pakai Auto API:</p>
-                            <ol class="list-decimal list-inside text-gray-600 space-y-1">
+                    <p class="font-bold text-gray-800 mb-2"><i class="fas fa-desktop text-green-500 mr-2"></i>Respon Aplikasi:</p>
+                    <p class="text-gray-600 mb-6 ml-8">Kotak teks akan berkedip merah terang dengan tulisan <em>"Membaca file PDF..."</em>. Dalam 1-3 detik, notifikasi Pop-up muncul, dan seluruh teks jurnal tersedot masuk ke kotak.</p>
+                    
+                    <div class="ml-8 grid lg:grid-cols-2 gap-6 mb-6">
+                        <div class="border border-gray-200 p-5 rounded-xl bg-gray-50">
+                            <p class="font-bold text-indigo-700 text-lg mb-3"><i class="fas fa-robot mr-2"></i> Jika Pakai Auto API:</p>
+                            <ol class="list-decimal list-inside text-gray-600 space-y-2">
                                 <li>Klik tombol <strong>Auto API</strong>.</li>
                                 <li><strong>Respon:</strong> Kotak Hasil (kanan) menjadi kebiruan dan AI mengetik kode JSON secara otomatis.</li>
                                 <li>Tunggu hingga Pop-up Hijau muncul.</li>
                             </ol>
                         </div>
-                        <div class="border border-gray-200 p-3 rounded-xl bg-gray-50">
-                            <p class="font-bold text-indigo-700 mb-2"><i class="fas fa-external-link-alt mr-1"></i> Jika Pakai Manual Tab:</p>
-                            <ol class="list-decimal list-inside text-gray-600 space-y-1">
+                        <div class="border border-gray-200 p-5 rounded-xl bg-gray-50">
+                            <p class="font-bold text-indigo-700 text-lg mb-3"><i class="fas fa-external-link-alt mr-2"></i> Jika Pakai Manual Tab:</p>
+                            <ol class="list-decimal list-inside text-gray-600 space-y-2">
                                 <li>Klik <strong>Manual Tab</strong> (membuka Gemini).</li>
                                 <li><em>Copy-Paste</em> Prompt Hitam + Teks Jurnal ke Gemini.</li>
                                 <li><em>Copy</em> balasan JSON dari Gemini.</li>
@@ -97,48 +107,97 @@
                             </ol>
                         </div>
                     </div>
-                    <p class="font-bold text-gray-800 mb-1"><i class="fas fa-save text-indigo-500 mr-2"></i>Aksi Terakhir:</p>
-                    <p class="text-gray-600 ml-6">Klik tombol <strong>Parse & Simpan Otomatis</strong>. Aplikasi akan mengubah kode JSON menjadi tabel rapi di bagian bawah layar.</p>
+
+                    <p class="font-bold text-gray-800 mb-2"><i class="fas fa-save text-indigo-500 mr-2"></i>Aksi Terakhir:</p>
+                    <p class="text-gray-600 ml-8">Klik tombol <strong>Parse & Simpan Otomatis</strong>. Aplikasi akan mengubah kode JSON menjadi tabel rapi di bagian bawah layar.</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden border-l-4 border-l-indigo-500">
-                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center">
-                    <div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold mr-3 shadow-inner">5</div>
-                    <h3 class="text-lg font-bold text-gray-800">Penyusunan Dokumen (Auto-Memory)</h3>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden border-l-8 border-l-indigo-500">
+                <div class="bg-gray-50 px-8 py-5 border-b border-gray-200 flex items-center">
+                    <div class="w-10 h-10 bg-indigo-600 text-white text-lg rounded-full flex items-center justify-center font-bold mr-4 shadow-inner">5</div>
+                    <h3 class="text-xl md:text-2xl font-bold text-gray-800">Penyusunan Dokumen (Auto-Memory)</h3>
                 </div>
-                <div class="p-6 text-sm text-gray-600">
-                    <p class="mb-4">Ini adalah fitur paling ajaib. Aplikasi memiliki ingatan otomatis (Auto-Memory) yang saling menyambungkan antar bab. Pastikan Anda mengerjakannya secara berurutan (dari kiri ke kanan).</p>
+                <div class="p-8 text-base md:text-lg text-gray-600">
+                    <p class="mb-6">Ini adalah fitur paling ajaib. Aplikasi memiliki ingatan otomatis (Auto-Memory) yang saling menyambungkan antar bab. Pastikan Anda mengerjakannya secara berurutan (dari kiri ke kanan).</p>
 
-                    <h4 class="font-bold text-gray-800 mb-2">A. Memilih Jenis Dokumen</h4>
-                    <p class="mb-4">Gunakan sidebar (kiri) untuk mengganti tipe form (Proposal, Makalah, Skripsi, dll). <strong>Respon Aplikasi:</strong> Tombol menu bab akan langsung berubah menyesuaikan format kampus.</p>
+                    <h4 class="font-bold text-gray-800 text-lg mb-3">A. Memilih Jenis Dokumen</h4>
+                    <p class="mb-6">Gunakan sidebar (kiri) untuk mengganti tipe form (Proposal, Makalah, Skripsi, dll). <strong>Respon Aplikasi:</strong> Tombol menu bab akan langsung berubah menyesuaikan format kampus.</p>
 
-                    <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl mb-4 text-indigo-900">
-                        <h4 class="font-bold text-indigo-800 mb-2 flex items-center"><i class="fas fa-magic mr-2"></i>Fitur Tongkat Ajaib (Micro-Editing)</h4>
-                        <p class="mb-2 text-xs font-semibold text-indigo-600">Digunakan jika Anda hanya ingin merevisi satu/dua kalimat tanpa mengulang seluruh bab.</p>
-                        <ol class="list-decimal list-inside ml-2 font-medium space-y-2">
+                    <div class="bg-indigo-50 border border-indigo-200 p-6 rounded-xl mb-6 text-indigo-900">
+                        <h4 class="font-bold text-indigo-800 text-lg mb-3 flex items-center"><i class="fas fa-magic mr-3"></i>Fitur Tongkat Ajaib (Micro-Editing)</h4>
+                        <p class="mb-4 font-semibold text-indigo-600">Digunakan jika Anda hanya ingin merevisi satu/dua kalimat tanpa mengulang seluruh bab.</p>
+                        <ol class="list-decimal list-inside ml-2 font-medium space-y-3">
                             <li><strong>Aksi:</strong> Blok (Highlight) kalimat di dalam Editor Visual menggunakan mouse Anda.</li>
                             <li><strong>Aksi:</strong> Klik tombol <i class="fas fa-sync-alt mx-1"></i><strong>Parafrase</strong> atau <i class="fas fa-expand-alt mx-1"></i><strong>Perpanjang</strong> di bawah editor.</li>
                             <li><strong>Respon Aplikasi:</strong> Teks yang Anda blok akan diganti sementara dengan penanda loading <code>[⏳]</code>, lalu segera tergantikan dengan ketikan hasil perbaikan AI secara real-time.</li>
                         </ol>
                     </div>
 
-                    <h4 class="font-bold text-gray-800 mb-2">D. Menyimpan & Ekspor</h4>
-                    <p class="mb-1"><strong>Wajib Klik Tombol Simpan</strong> setiap selesai 1 bab agar bisa dibaca oleh bab selanjutnya.</p>
+                    <h4 class="font-bold text-gray-800 text-lg mb-3">D. Menyimpan & Ekspor</h4>
+                    <p class="mb-2"><strong>Wajib Klik Tombol Simpan</strong> setiap selesai 1 bab agar bisa dibaca oleh bab selanjutnya.</p>
                     <p>Setelah selesai, klik tab paling ujung (<strong>Setup & Export</strong>). Atur margin kertas, dan klik Download. File Microsoft Word (.docx) akan langsung terunduh.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mt-10">
+                <div class="bg-gray-800 px-8 py-5 border-b border-gray-700 flex items-center">
+                    <div class="w-10 h-10 bg-yellow-500 text-gray-900 text-xl rounded-full flex items-center justify-center font-bold mr-4 shadow-inner"><i class="fas fa-sitemap"></i></div>
+                    <h3 class="text-xl md:text-2xl font-bold text-white">Tabel Perbandingan Struktur Dokumen AI</h3>
+                </div>
+                <div class="p-8">
+                    <p class="text-base md:text-lg text-gray-600 mb-6">Berikut adalah panduan bagian/kerangka mana saja yang akan di-<em>generate</em> oleh AI berdasarkan tombol Mode Dokumen yang Anda pilih di menu sebelah kiri:</p>
+                    
+                    <div class="overflow-x-auto rounded-xl border border-gray-200">
+                        <table class="min-w-full text-left text-base md:text-lg border-collapse whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-indigo-50 text-indigo-900 border-b-2 border-indigo-200">
+                                    <th class="p-4 font-extrabold border-r border-indigo-100">Kerangka Dokumen</th>
+                                    <th class="p-4 font-bold text-center border-r border-indigo-100 text-indigo-700">Proposal</th>
+                                    <th class="p-4 font-bold text-center border-r border-indigo-100 text-yellow-700">Skripsi <br><span class="text-sm font-normal block mt-1">(Bab 4 & 5)</span></th>
+                                    <th class="p-4 font-bold text-center border-r border-indigo-100 text-emerald-700">Makalah <br><span class="text-sm font-normal block mt-1">(Standar)</span></th>
+                                    <th class="p-4 font-bold text-center border-r border-indigo-100 text-teal-700">Jurnal <br><span class="text-sm font-normal block mt-1">(IMRaD)</span></th>
+                                    <th class="p-4 font-bold text-center text-purple-700">Review SLR <br><span class="text-sm font-normal block mt-1">(PRISMA)</span></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 text-gray-700">
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Abstrak</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center text-green-600"><i class="fas fa-check-circle text-xl"></i></td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Latar Belakang / Pendahuluan</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Bab I</span></td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Intro</span></td><td class="p-4 text-center text-green-600"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Intro</span></td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Rumusan Masalah & Tujuan</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Di Bab I</span></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-gray-300">-</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Manfaat Penelitian</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-gray-300">-</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Landasan Teori / Tinjauan</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-gray-300">-</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Hipotesis</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-gray-300">-</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Metode Penelitian</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center text-green-600"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">PRISMA</span></td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Jadwal & Anggaran (RAB)</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-gray-300">-</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Deskripsi Data / Hasil Observasi</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Bab IV</span></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Results</span></td><td class="p-4 text-center text-green-600"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Matriks</span></td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Analisis & Pembahasan</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Bab IV</span></td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Bab II</span></td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Discuss</span></td><td class="p-4 text-center text-green-600"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Discuss</span></td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Kesimpulan</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Bab V</span></td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Bab III</span></td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center text-green-600"><i class="fas fa-check-circle text-xl"></i></td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Saran / Rekomendasi</td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Bab V</span></td><td class="p-4 text-center text-green-600 border-r border-gray-100"><span class="text-sm font-bold bg-green-100 px-2 py-1 rounded">Di Bab III</span></td><td class="p-4 text-center border-r border-gray-100 text-gray-300">-</td><td class="p-4 text-center text-gray-300">-</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="p-4 font-semibold border-r border-gray-100">Daftar Pustaka (APA 7th)</td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center text-green-600 border-r border-gray-100"><i class="fas fa-check-circle text-xl"></i></td><td class="p-4 text-center text-green-600"><i class="fas fa-check-circle text-xl"></i></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-6 bg-yellow-50 border-l-4 border-yellow-500 p-5 rounded-lg text-yellow-800 text-sm md:text-base">
+                        <p class="font-bold mb-2"><i class="fas fa-info-circle mr-2"></i>Catatan Penting:</p>
+                        <ul class="list-disc list-inside space-y-2 ml-2">
+                            <li><strong>Mode Skripsi:</strong> Dirancang khusus untuk mengeksekusi Bab 4 & 5. Asumsinya, Bab 1 hingga 3 sudah Anda selesaikan menggunakan mode Proposal.</li>
+                            <li><strong>Jurnal & SLR:</strong> Menggunakan struktur padat berstandar <strong>IMRaD</strong> (<em>Introduction, Methods, Results, and Discussion</em>) tanpa memisahkan teori/rumusan masalah menjadi bab tersendiri.</li>
+                        </ul>
+                    </div>
+
                 </div>
             </div>
 
         </div>
 
-        <div class="text-center mt-12 text-gray-500 text-sm font-medium">
+        <div class="text-center mt-16 mb-8 text-gray-500 text-sm md:text-base font-medium">
             <p>Dikembangkan secara khusus untuk menunjang produktivitas akademik Anda.</p>
         </div>
     </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Cek pengaturan Dark Mode dari memori aplikasi utama
             const isDark = localStorage.getItem('scientificDocDarkMode') === 'true';
             if (isDark) {
                 document.body.classList.add('dark-mode');
@@ -146,5 +205,4 @@
         });
     </script>
 </body>
-
 </html>

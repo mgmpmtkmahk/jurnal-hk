@@ -47,7 +47,8 @@ function setDocumentType(type) {
 
     Object.keys(btnStyles).forEach(key => {
         const btn = document.getElementById(btnStyles[key].id);
-        if(btn) btn.className = `w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-sm border ${btnStyles[key].inactive}`;
+        // PERBAIKAN: Masukkan kembali class responsif layar kecil (w-10 h-10 dll)
+        if(btn) btn.className = `w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border ${btnStyles[key].inactive}`;
     });
 
     ['proposal', 'makalah', 'jurnal', 'skripsi', 'slr'].forEach(nav => {
@@ -56,7 +57,8 @@ function setDocumentType(type) {
     });
     
     const activeBtn = document.getElementById(btnStyles[type].id);
-    if(activeBtn) activeBtn.className = `w-12 h-12 rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-offset-1 border-transparent ${btnStyles[type].active}`;
+    // PERBAIKAN: Masukkan kembali class responsif layar kecil
+    if(activeBtn) activeBtn.className = `w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-offset-1 border-transparent ${btnStyles[type].active}`;
 
     if (type === 'proposal') {
         const nav = document.getElementById('proposal-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
