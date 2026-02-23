@@ -25,7 +25,7 @@ function searchJournals() {
             },
             { 
                 name: 'ScienceDirect', 
-                url: 'https://www.sciencedirect.com/, 
+                url: 'https://www.sciencedirect.com/', 
                 icon: 'fa-atom', 
                 color: 'orange' 
             },
@@ -1153,4 +1153,5 @@ async function handleMicroEdit(sectionId, action) {
     }
 
 }
+
 
