@@ -37,13 +37,13 @@ function searchJournals() {
             },
             // --- Penyesuaian Baru ---
             { 
-                name: 'Scopus', 
+                name: 'Scopus (login required)', 
                 url: 'https://www.scopus.com/results/results.uri?src=s&st1=' + encodeURIComponent(keyword), 
                 icon: 'fa-search', 
                 color: 'orange' // Agar muncul lingkaran warna oranye seperti ScienceDirect
             },
             { 
-                name: 'Web of Science', 
+                name: 'Web of Science (login required)', 
                 url: 'https://www.webofscience.com/wos/woscc/basic-search?query=' + encodeURIComponent(keyword), 
                 icon: 'fa-network-wired', 
                 color: 'yellow' // Warna khas WoS (kuning/emas)
@@ -1151,4 +1151,5 @@ async function handleMicroEdit(sectionId, action) {
         cm.setOption("readOnly", false); // Buka kunci editor
         document.getElementById(`output-${sectionId}`).value = cm.getValue(); // Sinkronisasi state
     }
+
 }
