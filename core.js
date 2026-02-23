@@ -30,23 +30,22 @@ function searchJournals() {
                 color: 'orange' 
             },
             { 
-                name: 'DOAJ (Open Access)', 
+                name: 'DOAJ', 
                 url: 'https://doaj.org/search/articles?ref=homepage-box&source=' + encodeURIComponent('{"query":{"query_string":{"query":"' + keyword + '"}}}'), 
                 icon: 'fa-unlock-alt', 
                 color: 'teal' 
             },
-            // --- Penyesuaian Baru ---
             { 
-                name: 'Scopus (login required)', 
-                url: 'https://www.scopus.com/results/results.uri?src=s&st1=' + encodeURIComponent(keyword), 
+                name: 'Scopus', 
+                url: 'https://www.scopus.com/sources', 
                 icon: 'fa-search', 
-                color: 'orange' // Agar muncul lingkaran warna oranye seperti ScienceDirect
+                color: 'orange'
             },
             { 
-                name: 'Web of Science (login required)', 
-                url: 'https://www.webofscience.com/wos/woscc/basic-search?query=' + encodeURIComponent(keyword), 
+                name: 'Web of Science', 
+                url: 'https://mjl.clarivate.com/home', 
                 icon: 'fa-network-wired', 
-                color: 'yellow' // Warna khas WoS (kuning/emas)
+                color: 'yellow'
             }
         ];
         
@@ -1153,5 +1152,6 @@ async function handleMicroEdit(sectionId, action) {
     }
 
 }
+
 
 
