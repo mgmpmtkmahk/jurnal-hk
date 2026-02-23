@@ -11,10 +11,43 @@ function searchJournals() {
 
     setTimeout(() => {
         const intlSources = [
-            { name: 'Google Scholar', url: 'https://scholar.google.com/scholar?q=filetype:pdf ' + encodeURIComponent(keyword), icon: 'fa-graduation-cap', color: 'blue' },
-            { name: 'IEEE Xplore', url: 'https://ieeexplore.ieee.org/search/searchresult.jsp?queryText=' + encodeURIComponent(keyword), icon: 'fa-microchip', color: 'purple' },
-            { name: 'ScienceDirect', url: 'https://www.sciencedirect.com/search?qs=' + encodeURIComponent(keyword), icon: 'fa-atom', color: 'orange' },
-            { name: 'DOAJ (Open Access)', url: 'https://doaj.org/', icon: 'fa-unlock-alt', color: 'teal' }
+            { 
+                name: 'Google Scholar', 
+                url: 'https://scholar.google.com/scholar?q=filetype:pdf ' + encodeURIComponent(keyword), 
+                icon: 'fa-graduation-cap', 
+                color: 'blue' 
+            },
+            { 
+                name: 'IEEE Xplore', 
+                url: 'https://ieeexplore.ieee.org/search/searchresult.jsp?queryText=' + encodeURIComponent(keyword), 
+                icon: 'fa-microchip', 
+                color: 'purple' 
+            },
+            { 
+                name: 'ScienceDirect', 
+                url: 'https://www.sciencedirect.com/search?qs=' + encodeURIComponent(keyword), 
+                icon: 'fa-atom', 
+                color: 'orange' 
+            },
+            { 
+                name: 'DOAJ (Open Access)', 
+                url: 'https://doaj.org/search/articles?ref=homepage-box&source=' + encodeURIComponent('{"query":{"query_string":{"query":"' + keyword + '"}}}'), 
+                icon: 'fa-unlock-alt', 
+                color: 'teal' 
+            },
+            // --- Penyesuaian Baru ---
+            { 
+                name: 'Scopus', 
+                url: 'https://www.scopus.com/results/results.uri?src=s&st1=' + encodeURIComponent(keyword), 
+                icon: 'fa-search', 
+                color: 'orange' // Agar muncul lingkaran warna oranye seperti ScienceDirect
+            },
+            { 
+                name: 'Web of Science', 
+                url: 'https://www.webofscience.com/wos/woscc/basic-search?query=' + encodeURIComponent(keyword), 
+                icon: 'fa-network-wired', 
+                color: 'yellow' // Warna khas WoS (kuning/emas)
+            }
         ];
         
         const indoSources = [
