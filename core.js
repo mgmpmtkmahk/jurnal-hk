@@ -1666,7 +1666,7 @@ function updatePlagiarismStatus(sectionId, status, detail) {
 }
 
 /**
- * Highlight similar text di editor (SUPPORT HTML MARK)
+ * Highlight similar text di editor (SUPER REGEX)
  */
 function highlightSimilarText(sectionId) {
     const result = AppState.plagiarismConfig.lastScanResults[sectionId];
@@ -1679,19 +1679,20 @@ function highlightSimilarText(sectionId) {
     let text = editor.value();
     let matchCount = 0;
 
-    // Bersihkan highlight lama jika user klik tombol berkali-kali
-    text = text.replace(/<mark style="background-color: #fecaca; color: #991b1b; padding: 0 2px; border-radius: 4px;">(.*?)<\/mark>/gi, '$1');
+    // Bersihkan highlight mark HTML lama jika ada
+    text = text.replace(/<mark[^>]*>(.*?)<\/mark>/gi, '$1');
 
     result.sources.forEach(src => {
         if (src.matchedPhrases) {
             src.matchedPhrases.forEach(phrase => {
                 if (phrase.length > 15) {
-                    // Cerdas: Ubah spasi biasa menjadi Regex agar kebal terhadap Enter (\n) di editor
-                    const safePhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
-                    const regex = new RegExp(`(${safePhrase})`, 'gi');
+                    // SUPER REGEX: Memecah kata dan membuatnya kebal terhadap spasi, enter, dan simbol markdown (*, _, #)
+                    const words = phrase.trim().split(/\s+/);
+                    const safeWords = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+                    const superRegexStr = safeWords.join('[\\s\\n\\*\\_\\#]+');
+                    const regex = new RegExp(`(${superRegexStr})`, 'gi');
                     
                     if (regex.test(text)) {
-                        // Gunakan tag HTML <mark> agar dirender visual oleh EasyMDE
                         text = text.replace(regex, '<mark style="background-color: #fecaca; color: #991b1b; padding: 0 2px; border-radius: 4px;">$1</mark>');
                         matchCount++;
                     }
@@ -1702,14 +1703,14 @@ function highlightSimilarText(sectionId) {
 
     if (matchCount > 0) {
         editor.value(text);
-        showCustomAlert('success', 'Berhasil', `Menandai ${matchCount} blok kalimat plagiat dengan warna merah. Silakan perbaiki.`);
+        showCustomAlert('success', 'Berhasil', `Menandai ${matchCount} blok kalimat plagiat dengan warna merah.`);
     } else {
-        showCustomAlert('warning', 'Gagal Menandai', 'Sistem tidak dapat menemukan posisi kalimat. Teks mungkin sudah berubah.');
+        showCustomAlert('warning', 'Gagal Menandai', 'Sistem tidak dapat menemukan posisi kalimat karena terhalang format rumit. Coba cek paragraf secara manual.');
     }
 }
 
 /**
- * Auto-paraphrase bagian bermasalah (SUPPORT MULTI-PROVIDER & REGEX)
+ * Auto-paraphrase bagian bermasalah (SUPER REGEX)
  */
 async function autoParaphraseProblematic(sectionId) {
     const result = AppState.plagiarismConfig.lastScanResults[sectionId];
@@ -1732,7 +1733,7 @@ async function autoParaphraseProblematic(sectionId) {
         return;
     }
 
-    // Ekstrak frasa (bersihkan tag <mark> jika user klik 'Tandai di Teks' sebelumnya)
+    // Kumpulkan frasa (bersihkan dari tag mark jika sudah di-highlight sebelumnya)
     const problematicPhrases = result.sources
         .flatMap(s => s.matchedPhrases || [])
         .filter(p => p.length > 15)
@@ -1750,19 +1751,25 @@ async function autoParaphraseProblematic(sectionId) {
     for (const phrase of problematicPhrases.slice(0, 5)) {
         const textContent = cm.getValue();
         
-        // PENCARIAN CERDAS DENGAN REGEX (Kebal Spasi/Enter)
-        const safePhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
-        const regex = new RegExp(safePhrase, 'i');
+        // SUPER REGEX UNTUK AUTO-BLOCK: Kebal Spasi, Enter, dan Markdown
+        const words = phrase.trim().split(/\s+/);
+        const safeWords = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        const superRegexStr = safeWords.join('[\\s\\n\\*\\_\\#]+');
+        const regex = new RegExp(superRegexStr, 'i');
+        
         const match = regex.exec(textContent);
         
         if (match) {
             const index = match.index;
-            const matchLength = match[0].length; // Ambil panjang asli teks yang mengandung enter
+            const matchLength = match[0].length; // Membaca panjang TEKS ASLI (beserta enternya/simbolnya)
             
             const startPos = cm.posFromIndex(index);
             const endPos = cm.posFromIndex(index + matchLength);
             
+            // Blok otomatis
             cm.setSelection(startPos, endPos);
+            
+            // Panggil AI
             await handleMicroEdit(sectionId, 'parafrase');
             successCount++;
             
@@ -1774,6 +1781,6 @@ async function autoParaphraseProblematic(sectionId) {
         showCustomAlert('success', 'Selesai', `Berhasil memparafrase ${successCount} bagian. Mengecek ulang originalitas...`);
         setTimeout(() => runPlagiarismCheck(sectionId, 'local'), 3000);
     } else {
-        showCustomAlert('warning', 'Gagal Menandai', 'Sistem kehilangan jejak teks. Cobalah perbaiki kalimat secara manual.');
+        showCustomAlert('warning', 'Gagal Menandai', 'Sistem kehilangan jejak teks akibat format. Cobalah blok kalimat dengan mouse secara manual.');
     }
 }
