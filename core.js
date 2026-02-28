@@ -348,7 +348,7 @@ async function generateWithAPI(promptId, targetTextareaId) {
                 messages: [{ role: 'user', content: promptText }],
                 temperature: 0.7,
                 max_tokens: 4096, // WAJIB untuk AI21 agar tidak error
-                stream: true
+                stream: false
             };
             // CATATAN: DILARANG menggunakan response_format = json_object untuk AI21 karena API akan menolaknya.
             options = { 
