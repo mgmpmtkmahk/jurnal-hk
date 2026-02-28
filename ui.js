@@ -728,10 +728,52 @@ function initDarkMode() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // 1. Inisiasi Tema Gelap
     initDarkMode();
-    loadStateFromLocal(); 
+    
+    // 2. WAJIB TUNGGU DATA DIMUAT DARI DATABASE SEBELUM MENGGAMBAR UI (ASYNC FIX)
+    await loadStateFromLocal(); 
+    
+    // 3. RENDER ULANG DATA KE LAYAR
     if(typeof updateSavedJournalsList === 'function') updateSavedJournalsList();
+    
+    if(AppState.analysisData && AppState.analysisData.raw && typeof renderAnalysisSummaryPreview === 'function') {
+        renderAnalysisSummaryPreview();
+    }
+    
+    if(AppState.generatedTitles && AppState.generatedTitles.length > 0 && typeof displayTitleSelection === 'function') {
+        displayTitleSelection();
+    }
+
+    // 4. KEMBALIKAN USER KE STEP & MODE DOKUMEN TERAKHIR
+    if (AppState.documentType) {
+        setDocumentType(AppState.documentType);
+    }
+    if (AppState.currentStep) {
+        goToStep(AppState.currentStep);
+    }
+
+    // 5. KEMBALIKAN ISI TEKS EDITOR DI STEP 5
+    // Beri jeda sejenak (500ms) agar file step5-ui.js selesai membangun kotak EasyMDE terlebih dahulu
+    setTimeout(() => {
+        if (window.mdeEditors) {
+            Object.keys(AppState.proposalData).forEach(key => {
+                if (AppState.proposalData[key] && window.mdeEditors[`output-${key}`]) {
+                    // Masukkan kembali teks ke dalam editor
+                    window.mdeEditors[`output-${key}`].value(AppState.proposalData[key]);
+                }
+            });
+        }
+        
+        // Tampilkan kembali judul terpilih di layar Langkah 5
+        const titleDisplay = document.getElementById('selectedTitleDisplayStep5'); 
+        if (titleDisplay && AppState.selectedTitle) {
+            titleDisplay.textContent = AppState.selectedTitle; 
+        }
+    }, 500);
+
+    // 6. EVENT LISTENER BAWAAN APLIKASI
     const searchInput = document.getElementById('searchKeyword');
     if(searchInput) {
         searchInput.addEventListener('keypress', function(e) {
