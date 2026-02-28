@@ -1666,7 +1666,7 @@ function updatePlagiarismStatus(sectionId, status, detail) {
 }
 
 /**
- * Highlight similar text di editor
+ * Highlight similar text di editor (SUPPORT HTML MARK)
  */
 function highlightSimilarText(sectionId) {
     const result = AppState.plagiarismConfig.lastScanResults[sectionId];
@@ -1677,21 +1677,35 @@ function highlightSimilarText(sectionId) {
 
     const editor = window.mdeEditors[`output-${sectionId}`];
     let text = editor.value();
+    let matchCount = 0;
 
-    // Highlight phrases dari sources
+    // Bersihkan highlight lama jika user klik tombol berkali-kali
+    text = text.replace(/<mark style="background-color: #fecaca; color: #991b1b; padding: 0 2px; border-radius: 4px;">(.*?)<\/mark>/gi, '$1');
+
     result.sources.forEach(src => {
         if (src.matchedPhrases) {
             src.matchedPhrases.forEach(phrase => {
-                if (phrase.length > 10) {
-                    const regex = new RegExp(`(${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-                    text = text.replace(regex, '**==$1==**'); // Markdown highlight
+                if (phrase.length > 15) {
+                    // Cerdas: Ubah spasi biasa menjadi Regex agar kebal terhadap Enter (\n) di editor
+                    const safePhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+                    const regex = new RegExp(`(${safePhrase})`, 'gi');
+                    
+                    if (regex.test(text)) {
+                        // Gunakan tag HTML <mark> agar dirender visual oleh EasyMDE
+                        text = text.replace(regex, '<mark style="background-color: #fecaca; color: #991b1b; padding: 0 2px; border-radius: 4px;">$1</mark>');
+                        matchCount++;
+                    }
                 }
             });
         }
     });
 
-    editor.value(text);
-    showCustomAlert('success', 'Text Ditandai', 'Bagian similar telah ditandai dengan **==highlight==**. Silakan parafrase manual.');
+    if (matchCount > 0) {
+        editor.value(text);
+        showCustomAlert('success', 'Berhasil', `Menandai ${matchCount} blok kalimat plagiat dengan warna merah. Silakan perbaiki.`);
+    } else {
+        showCustomAlert('warning', 'Gagal Menandai', 'Sistem tidak dapat menemukan posisi kalimat. Teks mungkin sudah berubah.');
+    }
 }
 
 /**
