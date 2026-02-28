@@ -932,6 +932,83 @@ function showFinalReview() {
     }
 }
 
+// ==========================================
+// FITUR EKSPOR DAFTAR PUSTAKA FINAL KE MENDELEY (.RIS)
+// ==========================================
+function exportFinalRISToMendeley(sectionId) {
+    const editor = window.mdeEditors[`output-${sectionId}`];
+    if (!editor) return;
+
+    const text = editor.value();
+    if (!text || text.trim() === '') {
+        showCustomAlert('warning', 'Teks Kosong', 'Daftar pustaka masih kosong. Generate dan simpan teks dari AI terlebih dahulu.');
+        return;
+    }
+
+    // Pisahkan per baris/paragraf, dan bersihkan teks kosong
+    const lines = text.split('\n').filter(line => line.trim().length > 10);
+    let risContent = "";
+
+    lines.forEach(line => {
+        // Hapus penomoran atau bullet jika ada
+        let cleanLine = line.trim().replace(/^-\s*/, '').replace(/^\d+\.\s*/, ''); 
+        // Hapus syntax bold/italic dari Markdown
+        cleanLine = cleanLine.replace(/\*\*/g, '').replace(/\*/g, ''); 
+        
+        // 1. Ekstrak Tahun (Cari angka 4 digit di dalam kurung)
+        let yearMatch = cleanLine.match(/\((\d{4})\)/);
+        let year = yearMatch ? yearMatch[1] : '';
+        
+        // 2. Pisahkan Author dan sisanya menggunakan patokan (Tahun).
+        let partsByYear = cleanLine.split(/\(\d{4}\)\./);
+        
+        let authors = partsByYear[0] ? partsByYear[0].trim() : 'Unknown Author';
+        let restOfLine = partsByYear[1] ? partsByYear[1].trim() : cleanLine;
+        
+        // 3. Pisahkan Judul dan Nama Jurnal berdasarkan titik setelah judul
+        let titleParts = restOfLine.split(/\.\s/);
+        let title = titleParts[0] ? titleParts[0].trim() : 'Unknown Title';
+        let journal = titleParts[1] ? titleParts[1].trim() : '';
+
+        // 4. Ekstrak URL/DOI (Mendukung link biasa atau format markdown [link](url))
+        let urlMatch = line.match(/https?:\/\/[^\s)]+/);
+        let url = urlMatch ? urlMatch[0] : '';
+
+        // Mulai merakit format RIS
+        risContent += "TY  - JOUR\r\n";
+        risContent += `TI  - ${title}\r\n`;
+        
+        // Pisahkan multiple authors dan bersihkan
+        let authorList = authors.split(/,|&/).map(a => a.trim()).filter(a => a.length > 2);
+        authorList.forEach(auth => {
+            risContent += `AU  - ${auth}\r\n`;
+        });
+
+        if (year) risContent += `PY  - ${year}\r\n`;
+        if (journal) risContent += `T2  - ${journal}\r\n`;
+        if (url) risContent += `UR  - ${url.replace(']', '')}\r\n`;
+        risContent += "ER  - \r\n\r\n";
+    });
+
+    if (!risContent) {
+        showCustomAlert('error', 'Gagal Parsing', 'Tidak dapat mengenali format referensi APA. Pastikan AI menggunakan format yang benar.');
+        return;
+    }
+
+    // Unduh File
+    const blob = new Blob([risContent], { type: 'application/x-research-info-systems' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); 
+    a.href = url;
+    a.download = `Daftar_Pustaka_Final_${new Date().getFullYear()}.ris`;
+    document.body.appendChild(a); 
+    a.click(); 
+    document.body.removeChild(a); 
+    URL.revokeObjectURL(url);
+    
+    showCustomAlert('success', 'Export Berhasil', 'Daftar pustaka final berhasil diunduh sebagai .RIS! Silakan import ke Mendeley/Zotero.');
+}
+
 function downloadDOCX() {
     const formatChoice = document.getElementById('proposalFormat') ? document.getElementById('proposalFormat').value : 'bab';
     const paperSize = document.getElementById('settingPaper').value;
