@@ -195,7 +195,7 @@ window.openApiSettings = function() {
     setVal('geminiModelSelect', AppState.geminiModel || 'gemini-2.5-flash');
     setVal('mistralModelSelect', AppState.mistralModel || 'mistral-large-latest');
     setVal('groqModelSelect', AppState.groqModel || 'llama-3.3-70b-versatile');
-    setVal('ai21ModelSelect', AppState.ai21Model || 'jamba-1.5-large');
+    setVal('ai21ModelSelect', AppState.ai21Model || 'jamba-large');
     setVal('githubModelSelect', AppState.githubModel || 'gpt-4o');
     setVal('apiPinInput', '');
     
@@ -311,7 +311,7 @@ async function generateWithAPI(promptId, targetTextareaId) {
         } else if (provider === 'ai21') {
             // FIX AI21: Gunakan layanan Proxy Bypass, batasi max_tokens, dan matikan stream
             endpoint = `https://corsproxy.io/?https://api.ai21.com/studio/v1/chat/completions`;
-            const reqBody = { model: AppState.ai21Model || 'jamba-1.5-large', messages: [{ role: 'user', content: promptText }], temperature: 0.7, max_tokens: 2048, stream: false };
+            const reqBody = { model: AppState.ai21Model || 'jamba-large', messages: [{ role: 'user', content: promptText }], temperature: 0.7, max_tokens: 2048, stream: false };
             options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         }
 
@@ -1381,7 +1381,7 @@ async function handleMicroEdit(sectionId, action) {
         } else if (provider === 'ai21') {
             // FIX AI21
             endpoint = `https://corsproxy.io/?https://api.ai21.com/studio/v1/chat/completions`;
-            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify({ model: AppState.ai21Model || 'jamba-1.5-large', messages: [{ role: 'user', content: promptText }], max_tokens: 2048, stream: false }) };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify({ model: AppState.ai21Model || 'jamba-large', messages: [{ role: 'user', content: promptText }], max_tokens: 2048, stream: false }) };
         }
 
         const response = await fetch(endpoint, options);

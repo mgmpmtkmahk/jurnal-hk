@@ -195,7 +195,7 @@ async function loadStateFromLocal() {
                 geminiModel: parsed.geminiModel || 'gemini-2.5-flash',
                 mistralModel: parsed.mistralModel || 'mistral-large-latest',
                 groqModel: parsed.groqModel || 'llama-3.3-70b-versatile',
-                ai21Model: parsed.ai21Model || 'jamba-1.5-large',
+                ai21Model: parsed.ai21Model || 'jamba-large',
                 githubModel: parsed.githubModel || 'gpt-4o',
                 tone: parsed.tone || 'akademis',
                 journals: parsed.journals || [],
