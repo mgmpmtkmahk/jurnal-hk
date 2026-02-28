@@ -1709,10 +1709,7 @@ function highlightSimilarText(sectionId) {
 }
 
 /**
- * Auto-paraphrase bagian bermasalah (SUPPORT MULTI-PROVIDER)
- */
-/**
- * Auto-paraphrase bagian bermasalah (SUPPORT MULTI-PROVIDER)
+ * Auto-paraphrase bagian bermasalah (SUPPORT MULTI-PROVIDER & REGEX)
  */
 async function autoParaphraseProblematic(sectionId) {
     const result = AppState.plagiarismConfig.lastScanResults[sectionId];
@@ -1723,7 +1720,6 @@ async function autoParaphraseProblematic(sectionId) {
 
     const editor = window.mdeEditors[`output-${sectionId}`];
     const cm = editor.codemirror;
-    
     const provider = AppState.aiProvider || 'gemini';
     const apiKey = AppState.getActiveApiKey(); 
     
@@ -1731,54 +1727,53 @@ async function autoParaphraseProblematic(sectionId) {
         if (provider === 'gemini' && AppState._encryptedGeminiKey) { showUnlockModal(); return; }
         if (provider === 'mistral' && AppState._encryptedMistralKey) { showUnlockModal(); return; }
         if (provider === 'groq' && AppState._encryptedGroqKey) { showUnlockModal(); return; }
-        
         showCustomAlert('warning', 'API Key Diperlukan', `Fitur ini membutuhkan API Key ${provider.toUpperCase()}.`);
         openApiSettings();
         return;
     }
 
-    // 1. Kumpulkan semua frasa yang bermasalah dari hasil scan
+    // Ekstrak frasa (bersihkan tag <mark> jika user klik 'Tandai di Teks' sebelumnya)
     const problematicPhrases = result.sources
         .flatMap(s => s.matchedPhrases || [])
-        .filter(p => p.length > 15);
+        .filter(p => p.length > 15)
+        .map(p => p.replace(/<[^>]*>?/gm, '')); 
 
     if (problematicPhrases.length === 0) {
-        showCustomAlert('warning', 'Tidak Terdeteksi', 'Sistem gagal menemukan kalimat spesifik untuk diblok otomatis. Silakan klik tombol "Tandai di Teks" lalu gunakan menu Edit Blok manual.');
+        showCustomAlert('warning', 'Tidak Terdeteksi', 'Gagal menemukan kalimat spesifik untuk diparafrase otomatis.');
         return;
     }
 
-    showCustomAlert('info', 'Memproses...', `AI (${provider.toUpperCase()}) akan memparafrase ${Math.min(problematicPhrases.length, 5)} bagian bermasalah secara bertahap.`);
+    showCustomAlert('info', 'Memproses...', `AI (${provider.toUpperCase()}) akan memparafrase ${Math.min(problematicPhrases.length, 5)} bagian bermasalah.`);
 
-    // 2. Loop dan blok teks secara otomatis (Programmatic Selection)
     let successCount = 0;
-    const textContent = cm.getValue();
 
     for (const phrase of problematicPhrases.slice(0, 5)) {
-        // Cari posisi persis kalimat tersebut di dalam teks
-        const index = textContent.indexOf(phrase);
+        const textContent = cm.getValue();
         
-        if (index !== -1) {
-            // Konversi index string biasa menjadi posisi baris & kolom untuk CodeMirror
+        // PENCARIAN CERDAS DENGAN REGEX (Kebal Spasi/Enter)
+        const safePhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+        const regex = new RegExp(safePhrase, 'i');
+        const match = regex.exec(textContent);
+        
+        if (match) {
+            const index = match.index;
+            const matchLength = match[0].length; // Ambil panjang asli teks yang mengandung enter
+            
             const startPos = cm.posFromIndex(index);
-            const endPos = cm.posFromIndex(index + phrase.length);
+            const endPos = cm.posFromIndex(index + matchLength);
             
-            // Blok teks secara otomatis layaknya kursor mouse user
             cm.setSelection(startPos, endPos);
-            
-            // Panggil fungsi micro-edit
             await handleMicroEdit(sectionId, 'parafrase');
             successCount++;
             
-            // Delay 2.5 detik antar request agar API tidak marah (Rate Limit)
             await new Promise(r => setTimeout(r, 2500));
         }
     }
 
     if (successCount > 0) {
-        // Re-check originalitas setelah AI selesai memparafrase
         showCustomAlert('success', 'Selesai', `Berhasil memparafrase ${successCount} bagian. Mengecek ulang originalitas...`);
         setTimeout(() => runPlagiarismCheck(sectionId, 'local'), 3000);
     } else {
-        showCustomAlert('warning', 'Gagal Menandai', 'Kalimat mungkin sudah berubah secara manual sebelum tombol ditekan.');
+        showCustomAlert('warning', 'Gagal Menandai', 'Sistem kehilangan jejak teks. Cobalah perbaiki kalimat secara manual.');
     }
 }
