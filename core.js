@@ -778,10 +778,11 @@ function parseStep4Output() {
             throw new Error("Data JSON bukan berupa Array Judul");
         }
         
-        // Mapping langsung ke State Array kita
+        // Mapping langsung ke State Array kita (+ PENAMBAHAN ALASAN)
         const titles = jsonArray.map((item, index) => ({
             no: item.no || (index + 1),
-            title: item.judul || item.title || "Judul Tidak Diketahui"
+            title: item.judul || item.title || "Judul Tidak Diketahui",
+            alasan: item.alasan || item.reason || "Direkomendasikan berdasarkan research gap dari literatur sebelumnya."
         }));
         
         AppState.generatedTitles = titles; 
@@ -789,7 +790,7 @@ function parseStep4Output() {
         displayTitleSelection();
         
         document.getElementById('geminiOutputStep4').value = '';
-        showCustomAlert('success', 'Berhasil', 'Daftar judul berhasil diekstrak!');
+        showCustomAlert('success', 'Berhasil', 'Daftar judul beserta alasannya berhasil diekstrak!');
     } catch (error) { 
         console.error("JSON Parse Error:", error);
         showCustomAlert('error', 'Error Format', 'Gagal memproses JSON daftar judul.'); 
@@ -800,9 +801,31 @@ function displayTitleSelection() {
     const container = document.getElementById('titleSelectionList');
     if(!container) return;
     if (AppState.generatedTitles.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada judul</p>'; return; }
+    
     container.innerHTML = AppState.generatedTitles.map((item, index) => {
-        const cleanT = cleanMarkdown(item.title); const escT = cleanT.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-        return `<div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-yellow-500 cursor-pointer transition-all card-hover title-card" data-title="${escT}" data-index="${index}"><div class="flex items-start"><div class="bg-yellow-100 text-yellow-700 w-10 h-10 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0 text-lg">${item.no}</div><div class="flex-1"><h4 class="text-gray-800 text-lg mb-2 leading-snug">${cleanT}</h4></div></div></div>`;
+        const cleanT = cleanMarkdown(item.title); 
+        const escT = cleanT.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+        const alasanText = item.alasan ? cleanMarkdown(item.alasan) : '';
+        
+        return `
+        <div class="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-yellow-500 cursor-pointer transition-all card-hover title-card group" data-title="${escT}" data-index="${index}">
+            <div class="flex items-start">
+                <div class="bg-yellow-100 text-yellow-700 w-10 h-10 rounded-full flex items-center justify-center font-bold mr-4 flex-shrink-0 text-lg shadow-sm group-hover:bg-yellow-500 group-hover:text-white transition-colors">
+                    ${item.no}
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-gray-800 font-bold text-lg mb-2 leading-snug group-hover:text-yellow-700 transition-colors">${cleanT}</h4>
+                    
+                    <div class="mt-3 bg-yellow-50/50 p-3 rounded-lg border border-yellow-100/50">
+                        <p class="text-sm text-gray-600 leading-relaxed"><i class="fas fa-lightbulb text-yellow-500 mr-2"></i><strong>Alasan:</strong> ${alasanText}</p>
+                    </div>
+                </div>
+                
+                <div class="ml-4 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-center h-full pt-2">
+                    <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-yellow-200 shadow-sm">Pilih <i class="fas fa-check ml-1"></i></span>
+                </div>
+            </div>
+        </div>`;
     }).join('');
     
     document.querySelectorAll('.title-card').forEach(card => card.addEventListener('click', function() {
