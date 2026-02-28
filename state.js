@@ -102,12 +102,33 @@ AppState.decryptKeys = async function(pin) {
     const salt = CryptoService.getDeviceFingerprint();
     const strongPin = pin + salt;
     let unlocked = false;
+    let hasErrors = false;
 
-    if (this._encryptedGeminiKey) { this._tempGeminiKey = await CryptoService.decrypt(this._encryptedGeminiKey, strongPin); unlocked = true; }
-    if (this._encryptedMistralKey) { this._tempMistralKey = await CryptoService.decrypt(this._encryptedMistralKey, strongPin); unlocked = true; }
-    if (this._encryptedGroqKey) { this._tempGroqKey = await CryptoService.decrypt(this._encryptedGroqKey, strongPin); unlocked = true; } // Tambahkan ini
+    if (this._encryptedGeminiKey) {
+        try {
+            this._tempGeminiKey = await CryptoService.decrypt(this._encryptedGeminiKey, strongPin);
+            unlocked = true;
+        } catch(e) { console.warn("Sisa kunci Gemini lama terabaikan."); hasErrors = true; }
+    }
     
+    if (this._encryptedMistralKey) {
+        try {
+            this._tempMistralKey = await CryptoService.decrypt(this._encryptedMistralKey, strongPin);
+            unlocked = true;
+        } catch(e) { console.warn("Sisa kunci Mistral lama terabaikan."); hasErrors = true; }
+    }
+    
+    if (this._encryptedGroqKey) {
+        try {
+            this._tempGroqKey = await CryptoService.decrypt(this._encryptedGroqKey, strongPin);
+            unlocked = true;
+        } catch(e) { console.warn("Sisa kunci Groq lama terabaikan."); hasErrors = true; }
+    }
+    
+    // Jika tidak ada satu pun yang berhasil terbuka, berarti PIN memang salah
+    if (!unlocked && hasErrors) throw new Error("PIN Salah atau Data Korup.");
     if (!unlocked) throw new Error("Tidak ada kunci tersimpan.");
+    
     this._startTempKeysTimer();
     return true;
 };

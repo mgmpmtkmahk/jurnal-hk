@@ -217,21 +217,24 @@ function closeApiSettings() {
 async function saveApiKey() {
     const gemini = document.getElementById('geminiApiKeyInput').value.trim();
     const mistral = document.getElementById('mistralApiKeyInput').value.trim();
+    const groqEl = document.getElementById('groqApiKeyInput');
+    const groq = groqEl ? groqEl.value.trim() : '';
     const pin = document.getElementById('apiPinInput').value.trim();
     
-    // Wajibkan PIN jika user mengisi salah satu API Key
-    if ((gemini || mistral) && !pin) {
+    if ((gemini || mistral || groq) && !pin) {
         showCustomAlert('warning', 'PIN Diperlukan', 'Harap buat PIN keamanan (wajib) untuk mengenkripsi API Key Anda.');
         return;
     }
 
     AppState.tone = document.getElementById('aiToneSelect').value;
     AppState.aiProvider = document.getElementById('aiProviderSelect').value;
-    AppState.geminiModel = document.getElementById('geminiModelSelect').value;
-    AppState.mistralModel = document.getElementById('mistralModelSelect').value;
     
-    // Gunakan fungsi enkripsi ganda yang baru dari state.js
-    await AppState.setAndEncryptKeys(gemini, mistral, pin);
+    if(document.getElementById('geminiModelSelect')) AppState.geminiModel = document.getElementById('geminiModelSelect').value;
+    if(document.getElementById('mistralModelSelect')) AppState.mistralModel = document.getElementById('mistralModelSelect').value;
+    if(document.getElementById('groqModelSelect')) AppState.groqModel = document.getElementById('groqModelSelect').value;
+    
+    // PERBAIKAN URUTAN: (gemini, mistral, groq, pin)
+    await AppState.setAndEncryptKeys(gemini, mistral, groq, pin);
     await saveStateToLocal();
     
     closeApiSettings();
@@ -239,17 +242,17 @@ async function saveApiKey() {
 }
 
 async function removeApiKey() {
-    // Kosongkan dan timpa enkripsi lama di memori
-    await AppState.setAndEncryptKeys('', '', ''); 
+    // PERBAIKAN URUTAN: 4 Parameter Kosong
+    await AppState.setAndEncryptKeys('', '', '', ''); 
     
     document.getElementById('geminiApiKeyInput').value = '';
     document.getElementById('mistralApiKeyInput').value = '';
+    if(document.getElementById('groqApiKeyInput')) document.getElementById('groqApiKeyInput').value = '';
     document.getElementById('apiPinInput').value = '';
     
     await saveStateToLocal();
     closeApiSettings();
     
-    // Tutup modal unlock jika aksi hapus dipanggil dari sana
     const unlockModal = document.getElementById('unlockModal');
     if (unlockModal) unlockModal.remove();
     
