@@ -154,7 +154,7 @@ window.toggleApiProvider = function() {
     const provider = document.getElementById('aiProviderSelect').value;
     const pSelect = document.getElementById('aiProviderSelect');
     
-    ['geminiInputGroup', 'mistralInputGroup', 'groqInputGroup', 'ai21InputGroup', 'githubInputGroup'].forEach(id => {
+    ['geminiInputGroup', 'mistralInputGroup', 'groqInputGroup', 'githubInputGroup'].forEach(id => {
         const el = document.getElementById(id); if (el) el.classList.add('hidden');
     });
 
@@ -164,9 +164,6 @@ window.toggleApiProvider = function() {
     } else if (provider === 'groq') {
         document.getElementById('groqInputGroup').classList.remove('hidden');
         pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 outline-none text-sm font-bold text-red-700 bg-red-50";
-    } else if (provider === 'ai21') {
-        document.getElementById('ai21InputGroup').classList.remove('hidden');
-        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 outline-none text-sm font-bold text-emerald-700 bg-emerald-50";
     } else if (provider === 'github') {
         document.getElementById('githubInputGroup').classList.remove('hidden');
         pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-gray-800 outline-none text-sm font-bold text-gray-800 bg-gray-100";
@@ -177,8 +174,8 @@ window.toggleApiProvider = function() {
 };
 
 window.openApiSettings = function() {
-    if ((AppState._encryptedGeminiKey || AppState._encryptedMistralKey || AppState._encryptedGroqKey || AppState._encryptedAi21Key || AppState._encryptedGithubKey) && 
-        (!AppState._tempGeminiKey && !AppState._tempMistralKey && !AppState._tempGroqKey && !AppState._tempAi21Key && !AppState._tempGithubKey)) {
+    if ((AppState._encryptedGeminiKey || AppState._encryptedMistralKey || AppState._encryptedGroqKey || AppState._encryptedGithubKey) && 
+        (!AppState._tempGeminiKey && !AppState._tempMistralKey && !AppState._tempGroqKey && !AppState._tempGithubKey)) {
         if (typeof showUnlockModal === 'function') { showUnlockModal(); return; }
     }
 
@@ -187,7 +184,6 @@ window.openApiSettings = function() {
     setVal('geminiApiKeyInput', AppState._tempGeminiKey || '');
     setVal('mistralApiKeyInput', AppState._tempMistralKey || '');
     setVal('groqApiKeyInput', AppState._tempGroqKey || '');
-    setVal('ai21ApiKeyInput', AppState._tempAi21Key || '');
     setVal('githubApiKeyInput', AppState._tempGithubKey || '');
     
     setVal('aiToneSelect', AppState.tone || 'akademis');
@@ -195,7 +191,6 @@ window.openApiSettings = function() {
     setVal('geminiModelSelect', AppState.geminiModel || 'gemini-2.5-flash');
     setVal('mistralModelSelect', AppState.mistralModel || 'mistral-large-latest');
     setVal('groqModelSelect', AppState.groqModel || 'llama-3.3-70b-versatile');
-    setVal('ai21ModelSelect', AppState.ai21Model || 'jamba-large');
     setVal('githubModelSelect', AppState.githubModel || 'gpt-4o');
     setVal('apiPinInput', '');
     
@@ -210,9 +205,9 @@ function closeApiSettings() {
 async function saveApiKey() {
     const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
     const gemini = getVal('geminiApiKeyInput'), mistral = getVal('mistralApiKeyInput'), groq = getVal('groqApiKeyInput');
-    const ai21 = getVal('ai21ApiKeyInput'), github = getVal('githubApiKeyInput'), pin = getVal('apiPinInput');
+    const github = getVal('githubApiKeyInput'), pin = getVal('apiPinInput');
     
-    if ((gemini || mistral || groq || ai21 || github) && !pin) {
+    if ((gemini || mistral || groq || github) && !pin) {
         showCustomAlert('warning', 'PIN Diperlukan', 'Harap buat PIN keamanan (wajib) untuk mengenkripsi API Key Anda.');
         return;
     }
@@ -223,17 +218,16 @@ async function saveApiKey() {
     if(document.getElementById('geminiModelSelect')) AppState.geminiModel = getVal('geminiModelSelect');
     if(document.getElementById('mistralModelSelect')) AppState.mistralModel = getVal('mistralModelSelect');
     if(document.getElementById('groqModelSelect')) AppState.groqModel = getVal('groqModelSelect');
-    if(document.getElementById('ai21ModelSelect')) AppState.ai21Model = getVal('ai21ModelSelect');
     if(document.getElementById('githubModelSelect')) AppState.githubModel = getVal('githubModelSelect');
     
-    await AppState.setAndEncryptKeys(gemini, mistral, groq, ai21, github, pin);
+    await AppState.setAndEncryptKeys(gemini, mistral, groq, github, pin);
     await saveStateToLocal();
     closeApiSettings(); showCustomAlert('success', 'Tersimpan', `Pengaturan AI diperbarui.`);
 }
 
 async function removeApiKey() {
     await AppState.setAndEncryptKeys('', '', '', '', '', ''); 
-    const ids = ['geminiApiKeyInput', 'mistralApiKeyInput', 'groqApiKeyInput', 'ai21ApiKeyInput', 'githubApiKeyInput', 'apiPinInput'];
+    const ids = ['geminiApiKeyInput', 'mistralApiKeyInput', 'groqApiKeyInput', 'githubApiKeyInput', 'apiPinInput'];
     ids.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
     await saveStateToLocal(); closeApiSettings();
     const unlockModal = document.getElementById('unlockModal'); if (unlockModal) unlockModal.remove();
@@ -251,7 +245,6 @@ async function generateWithAPI(promptId, targetTextareaId) {
         if (provider === 'gemini' && AppState._encryptedGeminiKey) { showUnlockModal(); return; }
         if (provider === 'mistral' && AppState._encryptedMistralKey) { showUnlockModal(); return; }
         if (provider === 'groq' && AppState._encryptedGroqKey) { showUnlockModal(); return; }
-        if (provider === 'ai21' && AppState._encryptedAi21Key) { showUnlockModal(); return; }
         if (provider === 'github' && AppState._encryptedGithubKey) { showUnlockModal(); return; }
         
         showCustomAlert('warning', 'API Key Dibutuhkan', `Harap masukkan API Key ${provider.toUpperCase()} Anda di pengaturan (Ikon Kunci).`);
@@ -308,11 +301,6 @@ async function generateWithAPI(promptId, targetTextareaId) {
             const reqBody = { model: AppState.githubModel || 'gpt-4o', messages: [{ role: 'user', content: promptText }], temperature: 0.7, max_tokens: 4096, stream: true };
             if (isJsonExpected) reqBody.response_format = { type: "json_object" };
             options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
-        } else if (provider === 'ai21') {
-            // FIX AI21: Gunakan layanan Proxy Bypass, batasi max_tokens, dan matikan stream
-            endpoint = `https://corsproxy.io/?https://api.ai21.com/studio/v1/chat/completions`;
-            const reqBody = { model: AppState.ai21Model || 'jamba-large', messages: [{ role: 'user', content: promptText }], temperature: 0.7, max_tokens: 2048, stream: false };
-            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         }
 
         const response = await fetch(endpoint, options);
@@ -327,30 +315,6 @@ async function generateWithAPI(promptId, targetTextareaId) {
                 errMsg = response.statusText || await response.text();
             }
             throw new Error(`Pesan Server: ${errMsg}`);
-        }
-
-        // 🚀 PENANGANAN KHUSUS AI21 (NON-STREAMING JALUR CEPAT)
-        if (provider === 'ai21') {
-            const dataObj = await response.json();
-            const newText = dataObj.choices?.[0]?.message?.content || "";
-            
-            targetEl.value = ""; 
-            if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
-                window.mdeEditors[targetTextareaId].value(newText);
-            } else {
-                targetEl.value = newText;
-            }
-            
-            const event = new Event('input', { bubbles: true });
-            targetEl.dispatchEvent(event);
-            showCustomAlert('success', 'Generate Selesai!', `AI21 Labs berhasil menyusun teks.`);
-            
-            targetEl.disabled = false;
-            targetEl.classList.remove('bg-indigo-50', 'border-indigo-400');
-            if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
-                window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", false);
-            }
-            return; // Berhenti di sini, keluar dari fungsi!
         }
 
         targetEl.value = ""; 
@@ -1334,7 +1298,6 @@ async function handleMicroEdit(sectionId, action) {
         if (provider === 'gemini' && AppState._encryptedGeminiKey) { showUnlockModal(); return; }
         if (provider === 'mistral' && AppState._encryptedMistralKey) { showUnlockModal(); return; }
         if (provider === 'groq' && AppState._encryptedGroqKey) { showUnlockModal(); return; }
-        if (provider === 'ai21' && AppState._encryptedAi21Key) { showUnlockModal(); return; }
         if (provider === 'github' && AppState._encryptedGithubKey) { showUnlockModal(); return; }
         
         showCustomAlert('warning', 'API Key Dibutuhkan', `Harap masukkan API Key ${provider.toUpperCase()} Anda di pengaturan.`);
@@ -1378,10 +1341,6 @@ async function handleMicroEdit(sectionId, action) {
         } else if (provider === 'github') {
             endpoint = `https://models.inference.ai.azure.com/chat/completions`;
             options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify({ model: AppState.githubModel || 'gpt-4o', messages: [{ role: 'user', content: promptText }], max_tokens: 2048, stream: true }) };
-        } else if (provider === 'ai21') {
-            // FIX AI21
-            endpoint = `https://corsproxy.io/?https://api.ai21.com/studio/v1/chat/completions`;
-            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify({ model: AppState.ai21Model || 'jamba-large', messages: [{ role: 'user', content: promptText }], max_tokens: 2048, stream: false }) };
         }
 
         const response = await fetch(endpoint, options);
@@ -1392,17 +1351,6 @@ async function handleMicroEdit(sectionId, action) {
         }
 
         cm.replaceSelection(""); 
-
-        // 🚀 JALUR CEPAT KHUSUS AI21
-        if (provider === 'ai21') {
-            const dataObj = await response.json();
-            const newText = dataObj.choices?.[0]?.message?.content || "";
-            if (newText) cm.replaceSelection(newText);
-            showCustomAlert('success', 'Berhasil', `Teks berhasil diedit oleh AI21.`);
-            cm.setOption("readOnly", false); 
-            document.getElementById(`output-${sectionId}`).value = cm.getValue(); 
-            return;
-        }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
