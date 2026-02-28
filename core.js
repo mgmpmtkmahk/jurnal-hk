@@ -385,6 +385,29 @@ async function generateWithAPI(promptId, targetTextareaId) {
             window.mdeEditors[targetTextareaId].value("");
             window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", true);
         } 
+
+        if (provider === 'ai21') {
+            const dataObj = await response.json();
+            const newText = dataObj.choices[0].message?.content || "";
+            
+            targetEl.value = ""; 
+            if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
+                window.mdeEditors[targetTextareaId].value(newText);
+            } else {
+                targetEl.value = newText;
+            }
+            
+            const event = new Event('input', { bubbles: true });
+            targetEl.dispatchEvent(event);
+            showCustomAlert('success', 'Generate Selesai!', `AI AI21 Labs berhasil menyusun teks.`);
+            
+            targetEl.disabled = false;
+            targetEl.classList.remove('bg-indigo-50', 'border-indigo-400');
+            if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
+                window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", false);
+            }
+            return; // Berhenti di sini, jangan lanjutkan ke mesin streaming di bawah!
+        }
         
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
