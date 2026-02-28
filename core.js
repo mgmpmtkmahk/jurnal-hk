@@ -154,9 +154,9 @@ window.toggleApiProvider = function() {
     const provider = document.getElementById('aiProviderSelect').value;
     const pSelect = document.getElementById('aiProviderSelect');
     
-    document.getElementById('geminiInputGroup').classList.add('hidden');
-    document.getElementById('mistralInputGroup').classList.add('hidden');
-    document.getElementById('groqInputGroup').classList.add('hidden');
+    ['geminiInputGroup', 'mistralInputGroup', 'groqInputGroup', 'ai21InputGroup', 'githubInputGroup'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.classList.add('hidden');
+    });
 
     if (provider === 'mistral') {
         document.getElementById('mistralInputGroup').classList.remove('hidden');
@@ -164,6 +164,12 @@ window.toggleApiProvider = function() {
     } else if (provider === 'groq') {
         document.getElementById('groqInputGroup').classList.remove('hidden');
         pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 outline-none text-sm font-bold text-red-700 bg-red-50";
+    } else if (provider === 'ai21') {
+        document.getElementById('ai21InputGroup').classList.remove('hidden');
+        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-emerald-500 outline-none text-sm font-bold text-emerald-700 bg-emerald-50";
+    } else if (provider === 'github') {
+        document.getElementById('githubInputGroup').classList.remove('hidden');
+        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-gray-800 outline-none text-sm font-bold text-gray-800 bg-gray-100";
     } else {
         document.getElementById('geminiInputGroup').classList.remove('hidden');
         pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-bold text-indigo-700 bg-indigo-50";
@@ -171,97 +177,69 @@ window.toggleApiProvider = function() {
 };
 
 window.openApiSettings = function() {
-    // 1. Cek apakah ada key terenkripsi, TAPI memori sementaranya kosong (Berarti terkunci)
-    if ((AppState._encryptedGeminiKey || AppState._encryptedMistralKey) && 
-        (!AppState._tempGeminiKey && !AppState._tempMistralKey)) {
-        
-        if (typeof showUnlockModal === 'function') {
-            showUnlockModal(); // Minta PIN dulu
-            return; // Berhenti di sini, jangan buka modal pengaturan
-        }
+    if ((AppState._encryptedGeminiKey || AppState._encryptedMistralKey || AppState._encryptedGroqKey || AppState._encryptedAi21Key || AppState._encryptedGithubKey) && 
+        (!AppState._tempGeminiKey && !AppState._tempMistralKey && !AppState._tempGroqKey && !AppState._tempAi21Key && !AppState._tempGithubKey)) {
+        if (typeof showUnlockModal === 'function') { showUnlockModal(); return; }
     }
 
-    // 2. Jika tidak terkunci, buka modal pengaturan dan isi datanya
-    const geminiInput = document.getElementById('geminiApiKeyInput');
-    if (geminiInput) geminiInput.value = AppState._tempGeminiKey || '';
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
     
-    const mistralInput = document.getElementById('mistralApiKeyInput');
-    if (mistralInput) mistralInput.value = AppState._tempMistralKey || '';
+    setVal('geminiApiKeyInput', AppState._tempGeminiKey || '');
+    setVal('mistralApiKeyInput', AppState._tempMistralKey || '');
+    setVal('groqApiKeyInput', AppState._tempGroqKey || '');
+    setVal('ai21ApiKeyInput', AppState._tempAi21Key || '');
+    setVal('githubApiKeyInput', AppState._tempGithubKey || '');
     
-    const toneSelect = document.getElementById('aiToneSelect');
-    if (toneSelect) toneSelect.value = AppState.tone || 'akademis';
-    
-    const providerSelect = document.getElementById('aiProviderSelect');
-    if (providerSelect) providerSelect.value = AppState.aiProvider || 'gemini';
-    
-    const geminiModelSelect = document.getElementById('geminiModelSelect');
-    if (geminiModelSelect) geminiModelSelect.value = AppState.geminiModel || 'gemini-2.5-flash';
-
-    const mistralModel = document.getElementById('mistralModelSelect');
-    if (mistralModel) mistralModel.value = AppState.mistralModel || 'mistral-large-latest';
-    
-    // Pastikan input PIN dikosongkan agar user tidak bingung
-    const pinInput = document.getElementById('apiPinInput');
-    if (pinInput) pinInput.value = '';
+    setVal('aiToneSelect', AppState.tone || 'akademis');
+    setVal('aiProviderSelect', AppState.aiProvider || 'gemini');
+    setVal('geminiModelSelect', AppState.geminiModel || 'gemini-2.5-flash');
+    setVal('mistralModelSelect', AppState.mistralModel || 'mistral-large-latest');
+    setVal('groqModelSelect', AppState.groqModel || 'llama-3.3-70b-versatile');
+    setVal('ai21ModelSelect', AppState.ai21Model || 'jamba-1.5-large');
+    setVal('githubModelSelect', AppState.githubModel || 'gpt-4o');
+    setVal('apiPinInput', '');
     
     if (typeof toggleApiProvider === 'function') toggleApiProvider(); 
-    
-    const modal = document.getElementById('apiSettingsModal');
-    if (modal) modal.classList.remove('hidden');
+    const modal = document.getElementById('apiSettingsModal'); if (modal) modal.classList.remove('hidden');
 };
 
-function closeApiSettings() {
-    document.getElementById('apiSettingsModal').classList.add('hidden');
-}
-
 async function saveApiKey() {
-    const gemini = document.getElementById('geminiApiKeyInput').value.trim();
-    const mistral = document.getElementById('mistralApiKeyInput').value.trim();
-    const groqEl = document.getElementById('groqApiKeyInput');
-    const groq = groqEl ? groqEl.value.trim() : '';
-    const pin = document.getElementById('apiPinInput').value.trim();
+    const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    const gemini = getVal('geminiApiKeyInput'), mistral = getVal('mistralApiKeyInput'), groq = getVal('groqApiKeyInput');
+    const ai21 = getVal('ai21ApiKeyInput'), github = getVal('githubApiKeyInput'), pin = getVal('apiPinInput');
     
-    if ((gemini || mistral || groq) && !pin) {
+    if ((gemini || mistral || groq || ai21 || github) && !pin) {
         showCustomAlert('warning', 'PIN Diperlukan', 'Harap buat PIN keamanan (wajib) untuk mengenkripsi API Key Anda.');
         return;
     }
 
-    AppState.tone = document.getElementById('aiToneSelect').value;
-    AppState.aiProvider = document.getElementById('aiProviderSelect').value;
+    AppState.tone = getVal('aiToneSelect') || 'akademis';
+    AppState.aiProvider = getVal('aiProviderSelect') || 'gemini';
     
-    if(document.getElementById('geminiModelSelect')) AppState.geminiModel = document.getElementById('geminiModelSelect').value;
-    if(document.getElementById('mistralModelSelect')) AppState.mistralModel = document.getElementById('mistralModelSelect').value;
-    if(document.getElementById('groqModelSelect')) AppState.groqModel = document.getElementById('groqModelSelect').value;
+    if(document.getElementById('geminiModelSelect')) AppState.geminiModel = getVal('geminiModelSelect');
+    if(document.getElementById('mistralModelSelect')) AppState.mistralModel = getVal('mistralModelSelect');
+    if(document.getElementById('groqModelSelect')) AppState.groqModel = getVal('groqModelSelect');
+    if(document.getElementById('ai21ModelSelect')) AppState.ai21Model = getVal('ai21ModelSelect');
+    if(document.getElementById('githubModelSelect')) AppState.githubModel = getVal('githubModelSelect');
     
-    // PERBAIKAN URUTAN: (gemini, mistral, groq, pin)
-    await AppState.setAndEncryptKeys(gemini, mistral, groq, pin);
+    await AppState.setAndEncryptKeys(gemini, mistral, groq, ai21, github, pin);
     await saveStateToLocal();
-    
-    closeApiSettings();
-    showCustomAlert('success', 'Tersimpan', `Pengaturan AI diperbarui. Provider saat ini: ${AppState.aiProvider.toUpperCase()}`);
+    closeApiSettings(); showCustomAlert('success', 'Tersimpan', `Pengaturan AI diperbarui.`);
 }
 
 async function removeApiKey() {
-    // PERBAIKAN URUTAN: 4 Parameter Kosong
-    await AppState.setAndEncryptKeys('', '', '', ''); 
-    
-    document.getElementById('geminiApiKeyInput').value = '';
-    document.getElementById('mistralApiKeyInput').value = '';
-    if(document.getElementById('groqApiKeyInput')) document.getElementById('groqApiKeyInput').value = '';
-    document.getElementById('apiPinInput').value = '';
-    
-    await saveStateToLocal();
-    closeApiSettings();
-    
-    const unlockModal = document.getElementById('unlockModal');
-    if (unlockModal) unlockModal.remove();
-    
-    showCustomAlert('success', 'Terhapus', 'Semua API Key telah dihapus dari sistem dengan aman.');
+    await AppState.setAndEncryptKeys('', '', '', '', '', ''); 
+    const ids = ['geminiApiKeyInput', 'mistralApiKeyInput', 'groqApiKeyInput', 'ai21ApiKeyInput', 'githubApiKeyInput', 'apiPinInput'];
+    ids.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    await saveStateToLocal(); closeApiSettings();
+    const unlockModal = document.getElementById('unlockModal'); if (unlockModal) unlockModal.remove();
+    showCustomAlert('success', 'Terhapus', 'Semua API Key telah dihapus.');
 }
 
 // ==========================================
 // 🌟 FUNGSI GENERATE MULTI-PROVIDER (GEMINI, MISTRAL, GROQ)
 // ==========================================
+
 async function generateWithAPI(promptId, targetTextareaId) {
     const provider = AppState.aiProvider || 'gemini';
     
@@ -359,6 +337,24 @@ async function generateWithAPI(promptId, targetTextareaId) {
                 },
                 body: JSON.stringify(reqBody)
             };
+        } else if (provider === 'ai21') {
+            endpoint = `https://api.ai21.com/studio/v1/chat/completions`;
+            const reqBody = {
+                model: AppState.ai21Model || 'jamba-1.5-large',
+                messages: [{ role: 'user', content: promptText }],
+                temperature: 0.7, stream: true
+            };
+            if (isJsonExpected) reqBody.response_format = { type: "json_object" };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
+        } else if (provider === 'github') {
+            endpoint = `https://models.inference.ai.azure.com/chat/completions`;
+            const reqBody = {
+                model: AppState.githubModel || 'gpt-4o',
+                messages: [{ role: 'user', content: promptText }],
+                temperature: 0.7, stream: true
+            };
+            if (isJsonExpected) reqBody.response_format = { type: "json_object" };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         }
 
         const response = await fetch(endpoint, options);
@@ -395,10 +391,10 @@ async function generateWithAPI(promptId, targetTextareaId) {
                         const dataObj = JSON.parse(jsonStr);
                         let newText = "";
 
-                        // 🔍 PARSING STREAMING GEMINI VS MISTRAL VS GROQ
+                        // 🔍 PARSING STREAMING GEMINI VS STANDAR OPENAI (Mistral, Groq, AI21, Github)
                         if (provider === 'gemini' && dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
                             newText = dataObj.candidates[0].content.parts[0].text;
-                        } else if ((provider === 'mistral' || provider === 'groq') && dataObj.choices && dataObj.choices[0].delta?.content) {
+                        } else if (['mistral', 'groq', 'ai21', 'github'].includes(provider) && dataObj.choices && dataObj.choices[0].delta?.content) {
                             newText = dataObj.choices[0].delta.content;
                         }
 
@@ -1408,6 +1404,24 @@ async function handleMicroEdit(sectionId, action) {
                     stream: true
                 })
             };
+        } else if (provider === 'ai21') {
+            endpoint = `https://api.ai21.com/studio/v1/chat/completions`;
+            const reqBody = {
+                model: AppState.ai21Model || 'jamba-1.5-large',
+                messages: [{ role: 'user', content: promptText }],
+                temperature: 0.7, stream: true
+            };
+            if (isJsonExpected) reqBody.response_format = { type: "json_object" };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
+        } else if (provider === 'github') {
+            endpoint = `https://models.inference.ai.azure.com/chat/completions`;
+            const reqBody = {
+                model: AppState.githubModel || 'gpt-4o',
+                messages: [{ role: 'user', content: promptText }],
+                temperature: 0.7, stream: true
+            };
+            if (isJsonExpected) reqBody.response_format = { type: "json_object" };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         }
 
         const response = await fetch(endpoint, options);
@@ -1435,9 +1449,10 @@ async function handleMicroEdit(sectionId, action) {
                         const dataObj = JSON.parse(jsonStr);
                         let newText = "";
                         
+                        // 🔍 PARSING STREAMING GEMINI VS STANDAR OPENAI (Mistral, Groq, AI21, Github)
                         if (provider === 'gemini' && dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
                             newText = dataObj.candidates[0].content.parts[0].text;
-                        } else if ((provider === 'mistral' || provider === 'groq') && dataObj.choices && dataObj.choices[0].delta?.content) {
+                        } else if (['mistral', 'groq', 'ai21', 'github'].includes(provider) && dataObj.choices && dataObj.choices[0].delta?.content) {
                             newText = dataObj.choices[0].delta.content;
                         }
                         
