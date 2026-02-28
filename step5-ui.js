@@ -6,60 +6,73 @@ document.addEventListener('DOMContentLoaded', function() {
     const step5Container = document.getElementById('step5-container');
     
     // 1. FUNGSI TEMPLATE BUILDER UNTUK SECTION PROMPT
-    const buildSectionHTML = (id, title, promptText, customInfo = null, hasCheckbox = false) => `
-        <div id="section-${id}" class="proposal-section hidden mb-6">
-            <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">${title}</h3>
-            <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+    const buildSectionHTML = (id, title, defaultPromptText, customInfo = null, hasCheckbox = false) => {
+    const finalPromptText = (AppState.customPrompts && AppState.customPrompts[id]) 
+        ? AppState.customPrompts[id] 
+        : defaultPromptText;
+
+    // PLACEHOLDER untuk plagiarism panel - akan di-inject setelah render
+    const plagiarismPlaceholder = `<div id="plagiarism-panel-${id}" class="mt-4"></div>`;
+
+    return `
+    <div id="section-${id}" class="proposal-section hidden mb-6">
+        <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">${title}</h3>
+        <div class="grid lg:grid-cols-2 gap-8 items-stretch">
+            
+            <!-- LEFT COLUMN: Prompt -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                <!-- ... existing prompt UI ... -->
+            </div>
+
+            <!-- RIGHT COLUMN: Editor + Plagiarism -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                <h4 class="text-lg font-bold mb-4 flex items-center text-green-600">
+                    <i class="fas fa-paste mr-3"></i>Paste Hasil Gemini
+                </h4>
                 
-                <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
-                    <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600"><i class="fas fa-magic mr-3"></i>Prompt ${title.split(' (')[0]}</h4>
-                    <div class="flex-grow flex flex-col mb-4">
-                        <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px]">
-                            <button onclick="copyPromptText('prompt-${id}')" class="copy-btn absolute top-2 right-2 bg-indigo-600 text-white px-3 py-1 rounded text-xs hover:bg-indigo-700 z-10" data-prompt-id="prompt-${id}">
-                                <i class="fas fa-copy mr-1"></i>Copy
-                            </button>
-                            <div class="absolute inset-0 p-4 overflow-y-auto mt-8 custom-scrollbar">
-                                <pre id="prompt-${id}" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0">${promptText}</pre>
-                            </div>
-                        </div>
-                    </div>
-                    ${customInfo ? `<div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4"><p class="text-xs text-yellow-800 flex items-start"><i class="fas fa-info-circle mr-2 mt-0.5"></i><span>${customInfo}</span></p></div>` : ''}
-                    
-                    <div class="mt-auto flex gap-3 flex-shrink-0">
-                        <button onclick="openGeminiWithPrompt('prompt-${id}')" class="flex-1 bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 shadow-sm flex items-center justify-center transition-all">
-                            <i class="fas fa-external-link-alt mr-2"></i>Manual Tab
-                        </button>
-                        <button onclick="generateWithAPI('prompt-${id}', 'output-${id}')" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] border border-purple-500 flex items-center justify-center transition-all">
-                            <i class="fas fa-robot mr-2"></i>Auto API
-                        </button>
-                    </div>
+                ${hasCheckbox ? `
+                <div class="flex items-center mb-4 bg-yellow-50 p-3 rounded-xl border border-yellow-100">
+                    <input type="checkbox" id="skip-${id}" class="mr-3 w-5 h-5 text-indigo-600" onchange="toggleHipotesis()">
+                    <label for="skip-${id}" class="text-sm font-medium text-yellow-800">Centang jika Kualitatif murni</label>
+                </div>` : ''}
+                
+                <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                    <textarea id="output-${id}" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil dari Gemini di sini..."></textarea>
+                </div>
+                
+                <!-- MICRO EDITING TOOLS -->
+                <div class="flex flex-wrap gap-2 mb-4 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100 shadow-inner">
+                    <span class="text-xs font-bold text-indigo-500 flex items-center mr-1">
+                        <i class="fas fa-magic mr-1"></i> Edit Blok:
+                    </span>
+                    <button onclick="handleMicroEdit('${id}', 'perpanjang')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
+                        <i class="fas fa-expand-alt mr-1"></i>Perpanjang
+                    </button>
+                    <button onclick="handleMicroEdit('${id}', 'perbaiki')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
+                        <i class="fas fa-spell-check mr-1"></i>Perbaiki
+                    </button>
+                    <button onclick="handleMicroEdit('${id}', 'parafrase')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
+                        <i class="fas fa-sync-alt mr-1"></i>Parafrase
+                    </button>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
-                    <h4 class="text-lg font-bold mb-4 flex items-center text-green-600"><i class="fas fa-paste mr-3"></i>Paste Hasil Gemini</h4>
-                    ${hasCheckbox ? `
-                    <div class="flex items-center mb-4 bg-yellow-50 p-3 rounded-xl border border-yellow-100">
-                        <input type="checkbox" id="skip-${id}" class="mr-3 w-5 h-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer" onchange="toggleHipotesis()">
-                        <label for="skip-${id}" class="text-sm font-medium text-yellow-800 cursor-pointer">Centang jika Kualitatif murni (Lewati Hipotesis)</label>
-                    </div>` : ''}
-                    <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
-                        <textarea id="output-${id}" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil dari Gemini di sini..."></textarea>
-                    </div>
-                    <div class="flex flex-wrap gap-2 mb-4 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100 shadow-inner">
-                        <span class="text-xs font-bold text-indigo-500 flex items-center mr-1"><i class="fas fa-magic mr-1"></i> Edit Blok Teks:</span>
-                        <button onclick="handleMicroEdit('${id}', 'perpanjang')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm"><i class="fas fa-expand-alt mr-1"></i>Perpanjang</button>
-                        <button onclick="handleMicroEdit('${id}', 'perbaiki')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm"><i class="fas fa-spell-check mr-1"></i>Perbaiki Tata Bahasa</button>
-                        <button onclick="handleMicroEdit('${id}', 'parafrase')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm"><i class="fas fa-sync-alt mr-1"></i>Parafrase</button>
-                    </div>
-                    <div class="mt-auto flex gap-3 flex-shrink-0">
-                        <button onclick="prevProposalSection('${id}')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
-                        <button onclick="saveProposalSection('${id}')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all"><i class="fas fa-save mr-2"></i>Simpan</button>
-                    </div>
-                </div>
+                <!-- PLAGIARISM PANEL (INJECTED DYNAMICALLY) -->
+                ${plagiarismPlaceholder}
 
+                <!-- NAVIGATION BUTTONS -->
+                <div class="mt-auto flex gap-3 flex-shrink-0">
+                    <button onclick="prevProposalSection('${id}')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all">
+                        <i class="fas fa-arrow-left mr-2"></i>Kembali
+                    </button>
+                    <button onclick="saveProposalSection('${id}')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all">
+                        <i class="fas fa-save mr-2"></i>Simpan
+                    </button>
+                </div>
             </div>
         </div>
+    </div>
     `;
+};
 
     // 2. DATA KONFIGURASI NAVIGASI TOMBOL (DYNAMIC NAV)
     const navConfig = {
@@ -73,6 +86,14 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'hipotesis', icon: 'fa-balance-scale', label: '7. Hipotesis' },
             { id: 'jadwal', icon: 'fa-calendar-alt', label: '8. Jadwal & Biaya' },
             { id: 'daftar', icon: 'fa-list-ol', label: '9. Pustaka' },
+            { id: 'final', icon: 'fa-file-export', label: 'Setup & Export', isFinal: true }
+        ],
+        robotik: [
+            { id: 'rpendahuluan', icon: 'fa-flag', label: '1. Pendahuluan' },
+            { id: 'rspesifikasi', icon: 'fa-microchip', label: '2. Spesifikasi Teknis' },
+            { id: 'rmetode', icon: 'fa-cogs', label: '3. Metode Pelaksanaan' },
+            { id: 'rtarget', icon: 'fa-bullseye', label: '4. Target Luaran' },
+            { id: 'rjadwal', icon: 'fa-calendar-alt', label: '5. Jadwal & RAB' },
             { id: 'final', icon: 'fa-file-export', label: 'Setup & Export', isFinal: true }
         ],
         skripsi: [
@@ -159,6 +180,13 @@ CONTOH FORMAT YG DIWAJIBKAN:
         { id: 'jadwal', title: '5.8 Jadwal & Anggaran (Proposal)', promptText: `JADWAL & ANGGARAN - WAJIB FORMAT TABEL\n\nATURAN OUTPUT MUTLAK:\n- TANPA BASA-BASI. DILARANG menulis ulang judul bab.\n- HANYA output 2 Tabel ini saja secara berurutan:\n\n**1. Jadwal Penelitian**\n| No | Tahapan Kegiatan | B1 | B2 | B3 | B4 | B5 | B6 |\n|----|------------------|----|----|----|----|----|----|\n| 1 | Pengajuan Judul & Izin | ██ | | | | | |\n| 2 | Penyusunan Instrumen | | ██ | | | | |\n| 3 | Pengumpulan Data Lapangan | | | ██ | ██ | | |\n| 4 | Analisis & Validasi Data | | | | | ██ | |\n| 5 | Penyusunan Laporan & Sidang | | | | | | ██ |\n\n**2. Rencana Anggaran Biaya (RAB)**\n| No | Kategori Komponen Biaya | Rincian Kebutuhan | Estimasi Alokasi (%) |\n|----|-------------------------|-------------------|----------------------|\n| 1 | Bahan Habis Pakai / ATK | [kertas, print, internet] | 15% |\n| 2 | Operasional Lapangan | [transportasi, izin] | 40% |\n| 3 | Pengolahan Data | [lisensi software, jilid] | 20% |\n| 4 | Publikasi & Pelaporan | [APC Jurnal SINTA] | 25% |\n| | | TOTAL | 100% |` },
         { id: 'daftar', title: '5.9 Daftar Pustaka (Proposal)', promptText: `DAFTAR PUSTAKA - OUTPUT MUTLAK APA 7TH\n\nDRAF TULISAN SAYA:\n[DRAF_TULISAN]\n\nSUMBER DATA UTAMA:\n[DATA JURNAL YANG DIKAJI]\n\nATURAN MUTLAK (BACA DENGAN TELITI):\n1. DILARANG KERAS memberikan komentar, analisis konsistensi, sapaan, atau penolakan. HANYA KELUARKAN DAFTAR PUSTAKA.\n2. Susun daftar pustaka dari Sumber Data Utama. Jika ada sitasi di Draf yang tidak ada di Sumber Data, buatkan referensi yang logis.\n3. Format WAJIB: APA 7th Edition, urut abjad (A-Z).\n4. WAJIB sertakan URL web/DOI di setiap akhir referensi dengan format Markdown persis seperti ini: [https://linkjurnal.com](https://linkjurnal.com)` },
         
+        // --- PROYEK ROBOTIK / IT ---
+        { id: 'rpendahuluan', title: '1. Latar Belakang & Urgensi', promptText: `BAB I: PENDAHULUAN (PROYEK ROBOTIK/IT)\n\nJudul Proyek: [JUDUL]\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Bab 1".\n- Buatkan 4 paragraf berisi:\n  1. Latar belakang masalah di lapangan.\n  2. Solusi konvensional yang ada saat ini dan kelemahannya.\n  3. Usulan proyek robotika/sistem ini sebagai solusi.\n  4. Rumusan masalah dan Tujuan pembuatan alat (Gunakan format poin angka untuk tujuan).\n- Gunakan bahasa semi-formal khas proposal teknologi.` },
+        { id: 'rspesifikasi', title: '2. Spesifikasi & Desain Sistem', promptText: `BAB II: SPESIFIKASI DAN DESAIN SISTEM\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Bab 2".\n- Rancang spesifikasi teknis tingkat tinggi untuk robot/sistem: [JUDUL].\n- Buat menggunakan list/poin tebal. Wajib mencakup:\n  **A. Spesifikasi Hardware (Perangkat Keras):** (Sebutkan jenis mikrokontroler, sensor, aktuator/motor, modul daya yang logis dipakai).\n  **B. Spesifikasi Software (Perangkat Lunak):** (Bahasa pemrograman, IDE, framework, atau protokol komunikasi seperti MQTT/HTTP jika pakai IoT).\n  **C. Gambaran Fungsionalitas:** (Jelaskan cara kerja alat ini secara singkat).` },
+        { id: 'rmetode', title: '3. Metode Pelaksanaan', promptText: `BAB III: METODE PELAKSANAAN PROYEK\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Bab 3".\n- Uraikan langkah-langkah *engineering design process* atau metode pelaksanaan proyek secara naratif dan terstruktur.\n- Wajib mencakup sub-bagian:\n  **A. Tahap Studi Literatur dan Perancangan Desain**\n  **B. Tahap Pengadaan Komponen dan Perakitan (Assembly)**\n  **C. Tahap Pemrograman dan Integrasi Sistem**\n  **D. Tahap Pengujian (Testing) dan Kalibrasi**` },
+        { id: 'rtarget', title: '4. Target Luaran & Manfaat', promptText: `BAB IV: TARGET LUARAN DAN MANFAAT PROYEK\n\nATURAN OUTPUT MUTLAK:\n- DILARANG menulis ulang kata "Bab 4".\n- Buat penjabaran mengenai target dan manfaat dari selesainya proyek [JUDUL].\n- Wajib mencakup:\n  **A. Target Luaran Produk:** (Bentuk fisik alat, dokumentasi manual book, atau jurnal hak cipta jika ada).\n  **B. Manfaat Praktis:** (Bagi pengguna/masyarakat, efisiensi waktu, atau keamanan).\n  **C. Manfaat Edukatif:** (Bagi tim pembuat dalam mengasah skill STEM/Robotik).` },
+        { id: 'rjadwal', title: '5. Jadwal & Rencana Anggaran Biaya (RAB)', promptText: `BAB V: JADWAL DAN RAB (FORMAT TABEL MUTLAK)\n\nATURAN OUTPUT MUTLAK:\n- HANYA output 2 Tabel ini saja secara berurutan tanpa kata pengantar apapun:\n\n**A. Jadwal Pelaksanaan Proyek**\n| No | Tahapan Kegiatan | B1 | B2 | B3 | B4 |\n|----|------------------|----|----|----|----|\n| 1 | Riset & Desain 3D | ██ | | | |\n| 2 | Pembelian Komponen | ██ | | | |\n| 3 | Perakitan Hardware | | ██ | ██ | |\n| 4 | Koding & Integrasi | | | ██ | |\n| 5 | Uji Coba & Evaluasi | | | | ██ |\n\n**B. Rencana Anggaran Biaya (RAB)**\n| No | Kategori Komponen | Contoh Rincian Kebutuhan Dasar | Estimasi Alokasi (%) |\n|----|-------------------|--------------------------------|----------------------|\n| 1 | Modul Komputasi Utama | [Misal: Arduino/ESP32/Raspberry] | 25% |\n| 2 | Sensor & Aktuator | [Motor servo, sensor jarak/suhu] | 30% |\n| 3 | Sasis & Mekanik | [Akrilik, baut, part 3D print] | 20% |\n| 4 | Power Supply | [Baterai LiPo, Step-down] | 15% |\n| 5 | Habis Pakai / Lainnya | [Timah, kabel jumper, lem] | 10% |\n| | | TOTAL | 100% |` },
+
         // --- SKRIPSI (BAB 4 & 5) ---
         { id: 'sdeskripsi', title: '1. Deskripsi Data (Bab IV)', promptText: `BAB 4 - DESKRIPSI DATA PENELITIAN\n\nTopik Skripsi: [JUDUL]\n\nATURAN KHUSUS UNTUK USER:\n(Isi/Paste ringkasan data mentah responden, demografi, atau hasil survei awal Anda di bawah ini sebelum dikirim ke AI)\nDATA PROFIL/DESKRIPTIF SAYA:\n...\n\nATURAN OUTPUT MUTLAK (UNTUK AI):\n- DILARANG menulis ulang kata "Bab 4".\n- Buat narasi akademik (minimal 3 paragraf) yang menjelaskan profil data di atas secara profesional dan kaitkan dengan topik Skripsi.\n- Gunakan bahasa baku skripsi/tesis.\n- TANPA BASA-BASI AI.`, customInfo: 'Paste data responden/statistik deskriptif di Gemini sebelum Enter!' },
         { id: 'sanalisis', title: '2. Analisis Data / Hasil Pengujian (Bab IV)', promptText: `BAB 4 - ANALISIS DATA & PENGUJIAN\n\nTopik Skripsi: [JUDUL]\n\nATURAN KHUSUS UNTUK USER:\n(Paste output tabel SPSS / hasil uji lab / kutipan wawancara Anda di bawah ini)\nHASIL UJI SAYA:\n...\n\nATURAN OUTPUT MUTLAK (UNTUK AI):\n- DILARANG menulis ulang kata "Bab 4".\n- Tafsirkan hasil uji tersebut ke dalam paragraf naratif sesuai dengan topik skripsi.\n- Jika ada angka statistik (t-hitung, p-value), sebutkan apakah itu signifikan atau tidak.\n- Jika kualitatif, narasikan temanya.\n- TANPA BASA-BASI AI.`, customInfo: 'Paste output tabel SPSS / hasil uji lab / kutipan wawancara Anda!' },
@@ -315,9 +343,56 @@ CONTOH FORMAT YG DIWAJIBKAN:
                     minHeight: "250px"
                 });
                 
-                // Sinkronisasi: Saat user mengetik di Editor, simpan ke textarea asli agar bisa di-Save
+                // 🌟 FITUR BARU: AUTO-SAVE DENGAN DEBOUNCE & VISUAL FEEDBACK
+                if (!window.autoSaveTimers) window.autoSaveTimers = {};
+
                 window.mdeEditors[`output-${sec.id}`].codemirror.on("change", () => {
-                    ta.value = window.mdeEditors[`output-${sec.id}`].value();
+                    const content = window.mdeEditors[`output-${sec.id}`].value();
+                    ta.value = content; // Sinkronisasi ke textarea asli
+                    
+                    // Hapus timer sebelumnya jika pengguna masih mengetik
+                    clearTimeout(window.autoSaveTimers[sec.id]);
+                    
+                    // Tangkap tombol Simpan untuk memberikan efek visual
+                    const saveBtn = document.querySelector(`button[onclick="saveProposalSection('${sec.id}')"]`);
+                    if (saveBtn) {
+                        // Ubah tombol jadi kuning saat sedang mengetik
+                        saveBtn.innerHTML = '<i class="fas fa-pen mr-2 animate-pulse"></i>Mengetik...';
+                        saveBtn.classList.remove('bg-green-600');
+                        saveBtn.classList.add('bg-yellow-500');
+                    }
+
+                    // Setel timer baru (Tunggu 1.5 detik setelah pengguna berhenti mengetik)
+                    window.autoSaveTimers[sec.id] = setTimeout(() => {
+                        // 1. Simpan ke Memori Aplikasi & LocalStorage
+                        AppState.proposalData[sec.id] = content;
+                        saveStateToLocal();
+                        
+                        // 2. Tandai Navigasi Atas menjadi Hijau (Sudah terisi)
+                        const sectionsList = typeof getActiveSections === 'function' ? getActiveSections() : [];
+                        const index = sectionsList.indexOf(sec.id);
+                        if (index !== -1) {
+                            let cid = AppState.documentType === 'makalah' ? 'makalah-nav-buttons' : AppState.documentType === 'jurnal' ? 'jurnal-nav-buttons' : AppState.documentType === 'skripsi' ? 'skripsi-nav-buttons' : AppState.documentType === 'slr' ? 'slr-nav-buttons' : AppState.documentType === 'robotik' ? 'robotik-nav-buttons' : 'proposal-nav-buttons';
+                            const navBtn = document.querySelectorAll(`#${cid} .proposal-nav-btn`)[index]; 
+                            if (navBtn) navBtn.classList.add('bg-green-50', 'border-green-500');
+                        }
+                        
+                        // 3. Kembalikan Visual Tombol menjadi "Tersimpan"
+                        if (saveBtn) {
+                            saveBtn.innerHTML = '<i class="fas fa-check-double mr-2"></i>Tersimpan Auto';
+                            saveBtn.classList.remove('bg-yellow-500');
+                            saveBtn.classList.add('bg-green-600');
+                            
+                            // Kembalikan ke tulisan "Simpan" standar setelah 2 detik
+                            setTimeout(() => {
+                                if (saveBtn.innerHTML.includes('Tersimpan Auto')) {
+                                    saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Simpan & Lanjut';
+                                }
+                            }, 2000);
+                        }
+                        
+                        console.log(`[Auto-Save] Bagian ${sec.id} berhasil diamankan.`);
+                    }, 1500); // Waktu tunggu 1.5 detik (1500 ms)
                 });
             }
         });
@@ -338,5 +413,109 @@ CONTOH FORMAT YG DIWAJIBKAN:
                 });
             });
         }
+    }
+    // Di dalam DOMContentLoaded, setelah render sectionsData:
+    sectionsData.forEach(sec => {
+        injectPlagiarismPanel(sec.id);
+    });
+
+    function injectPlagiarismPanel(sectionId) {
+        const container = document.getElementById(`plagiarism-panel-${sectionId}`);
+        if (!container) return;
+
+        const isCopyleaksConfigured = !!AppState.plagiarismConfig.copyleaksApiKey;
+
+        container.innerHTML = `
+            <div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl overflow-hidden shadow-sm">
+                <!-- HEADER -->
+                <div class="px-4 py-3 bg-orange-100/50 border-b border-orange-200 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-shield-virus text-orange-600"></i>
+                        <span class="font-bold text-orange-800 text-sm">Cek Originalitas</span>
+                    </div>
+                    <span id="plagiarism-badge-${sectionId}" class="hidden px-2.5 py-1 rounded-full text-xs font-bold">
+                        --%
+                    </span>
+                </div>
+
+                <!-- BODY -->
+                <div class="p-4">
+                    <!-- Provider Selection -->
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="runPlagiarismCheck('${sectionId}', 'local')" 
+                            class="flex-1 bg-white border-2 border-orange-200 text-orange-700 py-2.5 rounded-lg text-sm font-semibold hover:bg-orange-50 hover:border-orange-300 transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-bolt text-amber-500"></i>
+                            <span>Cepat (Gratis)</span>
+                        </button>
+                        
+                        <button onclick="runPlagiarismCheck('${sectionId}', 'copyleaks')" 
+                            class="flex-1 ${isCopyleaksConfigured ? 'bg-orange-600 text-white border-orange-600' : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'} py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-all flex items-center justify-center gap-2"
+                            ${!isCopyleaksConfigured ? 'disabled' : ''}>
+                            <i class="fas fa-cloud"></i>
+                            <span>Akurat ${isCopyleaksConfigured ? '' : '(Atur API)'}</span>
+                        </button>
+                    </div>
+
+                    <!-- Quick Mode Info -->
+                    <div class="flex items-start gap-2 text-xs text-orange-700/80 mb-3">
+                        <i class="fas fa-info-circle mt-0.5"></i>
+                        <p><strong>Mode Cepat:</strong> Bandingkan dengan ${AppState.journals.length} jurnal yang sudah dikaji. 
+                        <strong>Mode Akurat:</strong> Scan ke database internet + academic papers via Copyleaks.</p>
+                    </div>
+
+                    <!-- RESULTS AREA (Hidden by default) -->
+                    <div id="plagiarism-result-${sectionId}" class="hidden space-y-3">
+                        
+                        <!-- Score Card -->
+                        <div class="bg-white rounded-lg p-4 border border-orange-100 shadow-sm">
+                            <div class="flex justify-between items-end mb-2">
+                                <span class="text-sm text-gray-600">Similarity Score</span>
+                                <span id="similarity-score-${sectionId}" class="text-3xl font-bold text-gray-400">--%</span>
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div class="h-3 bg-gray-100 rounded-full overflow-hidden mb-3">
+                                <div id="similarity-bar-${sectionId}" 
+                                    class="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-green-400 via-yellow-400 to-red-500"
+                                    style="width: 0%"></div>
+                            </div>
+
+                            <!-- Interpretation -->
+                            <p id="similarity-interpretation-${sectionId}" class="text-sm text-gray-600 italic">
+                                Klik tombol di atas untuk memulai scan...
+                            </p>
+                        </div>
+
+                        <!-- Sources List -->
+                        <div id="similarity-sources-${sectionId}" class="max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                            <!-- Sources injected here -->
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-2 pt-2 border-t border-orange-100">
+                            <button onclick="highlightSimilarText('${sectionId}')" 
+                                class="flex-1 bg-indigo-50 text-indigo-700 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-100 transition-all">
+                                <i class="fas fa-highlighter mr-1"></i>Tandai di Teks
+                            </button>
+                            <button onclick="autoParaphraseProblematic('${sectionId}')" 
+                                class="flex-1 bg-purple-50 text-purple-700 py-2 rounded-lg text-sm font-semibold hover:bg-purple-100 transition-all">
+                                <i class="fas fa-magic mr-1"></i>Auto-Perbaiki
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- LOADING STATE -->
+                    <div id="plagiarism-loading-${sectionId}" class="hidden py-8 text-center">
+                        <div class="inline-flex items-center gap-3">
+                            <div class="w-8 h-8 border-3 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+                            <div class="text-left">
+                                <p class="text-sm font-semibold text-orange-800" id="plagiarism-status-${sectionId}">Memindai...</p>
+                                <p class="text-xs text-orange-600" id="plagiarism-detail-${sectionId}">Menganalisis struktur teks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 });

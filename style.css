@@ -135,23 +135,19 @@ textarea:focus {
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-/* Responsive Adjustments */
+/* FIX MOBILE UX: Membuat Sidebar transparan & tidak mengganggu saat tidak di-hover di HP */
 @media (max-width: 768px) {
-    .container {
-        padding-left: 1rem;
-        padding-right: 1rem;
+    .fixed.left-1, .fixed.right-1 {
+        opacity: 0.25; /* Buat buram saat tidak disentuh */
+        transform: translateY(-50%) scale(0.85); /* Perkecil sedikit ukurannya */
+        transition: all 0.3s ease;
     }
     
-    .proposal-nav-btn {
-        padding: 0.75rem;
-    }
-    
-    .proposal-nav-btn i {
-        font-size: 1.25rem;
-    }
-    
-    .proposal-nav-btn p {
-        font-size: 0.75rem;
+    /* Saat area sidebar disentuh/di-scroll di atasnya, kembalikan ke warna asli */
+    .fixed.left-1:hover, .fixed.right-1:hover,
+    .fixed.left-1:active, .fixed.right-1:active {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
     }
 }
 
@@ -305,7 +301,7 @@ body.dark-mode .bg-white\/80 {
 }
 
 /* 10. FIX KHUSUS: KARTU JUDUL (STEP 4) SAAT HOVER/SELECTED */
-   Solusi: Paksa teks h4 di dalam kartu yang aktif menjadi putih mutlak. */
+/* Solusi: Paksa teks h4 di dalam kartu yang aktif menjadi putih mutlak. */
 body.dark-mode .title-card:hover h4,
 body.dark-mode .title-card.bg-yellow-50 h4 {
     color: #ffffff !important; /* Putih bersih */
@@ -347,4 +343,53 @@ body.dark-mode .hover\:bg-orange-50:hover {
 }
 body.dark-mode .hover\:bg-indigo-50:hover { 
     background-color: rgba(49, 46, 129, 0.4) !important; 
+}
+
+/* ========================================= */
+/* PLAGIARISM CHECKER STYLES (Diperbaiki)    */
+/* ========================================= */
+
+.plagiarism-panel {
+    background: linear-gradient(to right, #fff7ed, #fffbeb);
+    border: 1px solid #fed7aa;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.plagiarism-score-high { 
+    background-color: #fee2e2; 
+    color: #991b1b; 
+}
+.plagiarism-score-medium { 
+    background-color: #fef9c3; 
+    color: #854d0e; 
+}
+.plagiarism-score-low { 
+    background-color: #d1fae5; 
+    color: #065f46; 
+}
+.plagiarism-score-safe { 
+    background-color: #dbeafe; 
+    color: #1e40af; 
+}
+
+/* Highlight di editor */
+.cm-highlight-plagiarism {
+    background-color: rgba(239, 68, 68, 0.2);
+    border-bottom: 2px wavy #ef4444;
+}
+
+/* Progress bar animation */
+@keyframes pulse-orange {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+.plagiarism-scanning {
+    animation: pulse-orange 2s infinite;
+}
+
+/* Provider selection */
+.provider-btn.selected {
+    border-color: #f97316;
+    background-color: #fff7ed;
 }

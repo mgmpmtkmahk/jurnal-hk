@@ -1,134 +1,175 @@
 // ==========================================
-// FILE 1: state.js (REFACTORED)
-// Fungsi: Centralized State Management, Auto-Save, Backup & Restore
+// FILE: state.js (REFACTORED ENCRYPTION - FIXED)
 // ==========================================
 
-// 1. Bungkus semua variabel ke dalam satu Object "Store"
 const AppState = {
     documentType: 'proposal',
     currentStep: 1,
-    geminiApiKey: '', // <-- TAMBAHKAN INI UNTUK API KEY
+    aiProvider: 'gemini',
+    geminiModel: 'gemini-2.5-flash',          
+    mistralModel: 'mistral-large-latest', 
+    groqModel: 'llama-3.3-70b-versatile',
+    _encryptedGroqKey: null,
+    _tempGroqKey: null,
+    tone: 'akademis',
+    
+    // Kunci tersimpan secara aman (Ter-enkripsi)
+    _encryptedGeminiKey: null,
+    _encryptedMistralKey: null,
+    
+    // Memori sementara saat runtime (Plaintext tapi hilang saat reload/expired)
+    _tempGeminiKey: null,
+    _tempMistralKey: null,
+    
     journals: [],
     analysisData: {},
     generatedTitles: [],
     selectedTitle: '',
-    proposalData: {
-        latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '',
-        mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '',
-        jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '',
-        sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '',
-        slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrabstrak: '', slrdaftar: ''
+    proposalData: {},
+    customPrompts: {},
+    plagiarismConfig: { provider: 'local', copyleaksApiKey: null, similarityThreshold: 15, lastScanResults: {} },
+
+    // Method untuk Copyleaks key
+    async setCopyleaksKey(apiKey, pin) {
+        if (!apiKey) {
+            this.plagiarismConfig.copyleaksApiKey = null;
+            return;
+        }
+        const salt = CryptoService.getDeviceFingerprint();
+        const encrypted = await CryptoService.encrypt(apiKey, pin + salt);
+        this.plagiarismConfig.copyleaksApiKey = encrypted;
+    },
+
+    async getCopyleaksKey(pin) {
+        if (!this.plagiarismConfig.copyleaksApiKey) return null;
+        const salt = CryptoService.getDeviceFingerprint();
+        return await CryptoService.decrypt(this.plagiarismConfig.copyleaksApiKey, pin + salt);
     }
 };
 
 // ==========================================
-// MESIN PENYIMPANAN BARU MENGGUNAKAN LOCALFORAGE (INDEXEDDB)
+// MANAJEMEN KUNCI API MULTI-PROVIDER
 // ==========================================
 
-function saveStateToLocal() {
-    // localforage otomatis menyimpan object/array tanpa perlu JSON.stringify
-    localforage.setItem('scientificDocGenState', AppState).catch(function (err) {
-        console.error("Gagal menyimpan ke database lokal:", err);
-    });
+// Mengambil Key yang Sedang Aktif berdasarkan Provider terpilih
+AppState.getActiveApiKey = function() {
+    if (this.aiProvider === 'mistral') return this._tempMistralKey;
+    if (this.aiProvider === 'groq') return this._tempGroqKey;
+    return this._tempGeminiKey;
+};
+
+// Backward compatibility: Menjaga core.js yang spesifik memanggil getApiKeySync() untuk Gemini
+AppState.getApiKeySync = function() {
+    return this._tempGeminiKey; 
+};
+
+// Timer untuk auto-expire memori kunci sementara (Keamanan Ekstra)
+AppState._clearTempKeysTimeout = null;
+AppState._startTempKeysTimer = function() {
+    if (this._clearTempKeysTimeout) clearTimeout(this._clearTempKeysTimeout);
+    this._clearTempKeysTimeout = setTimeout(() => {
+        this._tempGeminiKey = null;
+        this._tempMistralKey = null;
+        this._tempGroqKey = null; // Tambahkan ini
+        console.log("Sesi API Key berakhir. Kunci dihapus dari memori untuk keamanan.");
+    }, 60 * 60 * 1000); 
+};
+
+// Mengamankan (Enkripsi) Kedua Key sekaligus
+AppState.setAndEncryptKeys = async function(gemini, mistral, groq, pin) {
+    const salt = CryptoService.getDeviceFingerprint();
+    const strongPin = pin + salt;
+
+    this._tempGeminiKey = gemini || null;
+    this._tempMistralKey = mistral || null;
+    this._tempGroqKey = groq || null; // Tambahkan ini
+
+    if (gemini) this._encryptedGeminiKey = await CryptoService.encrypt(gemini, strongPin);
+    else this._encryptedGeminiKey = null;
+
+    if (mistral) this._encryptedMistralKey = await CryptoService.encrypt(mistral, strongPin);
+    else this._encryptedMistralKey = null;
+    
+    // Tambahkan ini
+    if (groq) this._encryptedGroqKey = await CryptoService.encrypt(groq, strongPin);
+    else this._encryptedGroqKey = null;
+
+    this._startTempKeysTimer();
+};
+
+// Membuka Kunci (Dekripsi) dari storage ke memori
+AppState.decryptKeys = async function(pin) {
+    const salt = CryptoService.getDeviceFingerprint();
+    const strongPin = pin + salt;
+    let unlocked = false;
+
+    if (this._encryptedGeminiKey) { this._tempGeminiKey = await CryptoService.decrypt(this._encryptedGeminiKey, strongPin); unlocked = true; }
+    if (this._encryptedMistralKey) { this._tempMistralKey = await CryptoService.decrypt(this._encryptedMistralKey, strongPin); unlocked = true; }
+    if (this._encryptedGroqKey) { this._tempGroqKey = await CryptoService.decrypt(this._encryptedGroqKey, strongPin); unlocked = true; } // Tambahkan ini
+    
+    if (!unlocked) throw new Error("Tidak ada kunci tersimpan.");
+    this._startTempKeysTimer();
+    return true;
+};
+
+// ==========================================
+// FUNGSI SIMPAN & MUAT STATE (LOCALSTORAGE)
+// ==========================================
+
+async function saveStateToLocal() {
+    const stateToSave = {
+        documentType: AppState.documentType,
+        currentStep: AppState.currentStep,
+        aiProvider: AppState.aiProvider,
+        geminiModel: AppState.geminiModel,
+        mistralModel: AppState.mistralModel,
+        groqModel: AppState.groqModel,
+        tone: AppState.tone,
+        
+        // Simpan versi terenkripsi dari kedua provider
+        encryptedGeminiKey: AppState._encryptedGeminiKey, 
+        encryptedMistralKey: AppState._encryptedMistralKey,
+        encryptedGroqKey: AppState._encryptedGroqKey,
+        
+        journals: AppState.journals,
+        analysisData: AppState.analysisData,
+        generatedTitles: AppState.generatedTitles,
+        selectedTitle: AppState.selectedTitle,
+        proposalData: AppState.proposalData,
+        customPrompts: AppState.customPrompts,
+        plagiarismConfig: AppState.plagiarismConfig,
+        lastSaved: new Date().toISOString()
+    };
+    await localforage.setItem('scientificDocGenState', stateToSave);
 }
 
 async function loadStateFromLocal() {
     try {
         const parsed = await localforage.getItem('scientificDocGenState');
-        
         if (parsed) {
-            // Rehidrasi state
-            if (parsed.geminiApiKey) AppState.geminiApiKey = parsed.geminiApiKey;
-            if (parsed.documentType) AppState.documentType = parsed.documentType;
-            if (parsed.currentStep) AppState.currentStep = parsed.currentStep;
-            if (parsed.journals) AppState.journals = parsed.journals;
-            if (parsed.analysisData) AppState.analysisData = parsed.analysisData;
-            if (parsed.generatedTitles) AppState.generatedTitles = parsed.generatedTitles;
-            if (parsed.selectedTitle) AppState.selectedTitle = parsed.selectedTitle;
-            if (parsed.proposalData) AppState.proposalData = Object.assign(AppState.proposalData, parsed.proposalData);
-            
-            // Trigger UI Updates
-            if (typeof setDocumentType === "function") setDocumentType(AppState.documentType); 
-            if (typeof updateSavedJournalsList === "function") updateSavedJournalsList();
-            if (typeof renderAnalysisSummaryPreview === "function") renderAnalysisSummaryPreview();
-            if (AppState.generatedTitles.length > 0 && typeof displayTitleSelection === "function") displayTitleSelection();
-            
-            Object.keys(AppState.proposalData).forEach(key => {
-                const el = document.getElementById('output-' + key);
-                if (el && AppState.proposalData[key]) {
-                    el.value = AppState.proposalData[key];
-                    // 🌟 Masukkan teks ke Visual Editor
-                    if (window.mdeEditors && window.mdeEditors['output-' + key]) {
-                        window.mdeEditors['output-' + key].value(AppState.proposalData[key]);
-                    }
-                }
+            // Muat kembali kunci terenkripsi ke state
+            if (parsed.encryptedGeminiKey) AppState._encryptedGeminiKey = parsed.encryptedGeminiKey;
+            if (parsed.encryptedMistralKey) AppState._encryptedMistralKey = parsed.encryptedMistralKey;
+
+            Object.assign(AppState, {
+                documentType: parsed.documentType || 'proposal',
+                currentStep: parsed.currentStep || 1,
+                aiProvider: parsed.aiProvider || 'gemini',
+                geminiModel: parsed.geminiModel || 'gemini-2.5-flash',
+                mistralModel: parsed.mistralModel || 'mistral-large-latest',
+                groqModel: AppState.groqModel,
+                encryptedGroqKey: AppState._encryptedGroqKey,
+                tone: parsed.tone || 'akademis',
+                journals: parsed.journals || [],
+                analysisData: parsed.analysisData || {},
+                generatedTitles: parsed.generatedTitles || [],
+                selectedTitle: parsed.selectedTitle || '',
+                customPrompts: parsed.customPrompts || {}, 
+                proposalData: Object.assign(AppState.proposalData, parsed.proposalData || {}),
+                plagiarismConfig: Object.assign(AppState.plagiarismConfig, parsed.plagiarismConfig || {})
             });
-            
-            const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
-            if (titleDisplay) titleDisplay.textContent = AppState.selectedTitle || '-';
-            if (typeof goToStep === "function") goToStep(AppState.currentStep);
         }
-    } catch (e) { 
-        console.error("Gagal memuat data dari database lokal:", e); 
+    } catch (e) {
+        console.error("Failed to load state:", e);
     }
-}
-
-function executeReset() { 
-    // Bersihkan IndexedDB lalu reload halaman
-    localforage.removeItem('scientificDocGenState').then(function() {
-        location.reload(); 
-    });
-}
-
-function downloadBackup() {
-    const blob = new Blob([JSON.stringify(AppState, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url;
-    a.download = `Backup_${AppState.documentType}_${new Date().toISOString().slice(0,10)}.json`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-    if (typeof showCustomAlert === "function") showCustomAlert('success', 'Backup Berhasil', 'Data pekerjaan Anda berhasil di-download!');
-}
-
-function triggerRestore() { document.getElementById('file-restore-input').click(); }
-
-function processRestoreFile(event) {
-    const file = event.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const parsed = JSON.parse(e.target.result);
-            if (parsed.documentType && typeof setDocumentType === "function") setDocumentType(parsed.documentType);
-            AppState.journals = parsed.journals || []; 
-            AppState.analysisData = parsed.analysisData || {}; 
-            AppState.generatedTitles = parsed.generatedTitles || [];
-            AppState.selectedTitle = parsed.selectedTitle || ''; 
-            AppState.proposalData = Object.assign(AppState.proposalData, parsed.proposalData || {});
-            AppState.currentStep = parsed.currentStep || 1;
-            
-            saveStateToLocal();
-            
-            if (typeof updateSavedJournalsList === "function") updateSavedJournalsList();
-            if (typeof renderAnalysisSummaryPreview === "function") renderAnalysisSummaryPreview();
-            if (AppState.generatedTitles.length > 0 && typeof displayTitleSelection === "function") displayTitleSelection();
-            
-            Object.keys(AppState.proposalData).forEach(key => {
-                const el = document.getElementById('output-' + key);
-                if (el && AppState.proposalData[key]) {
-                    el.value = AppState.proposalData[key];
-                    // 🌟 Masukkan teks ke Visual Editor
-                    if (window.mdeEditors && window.mdeEditors['output-' + key]) {
-                        window.mdeEditors['output-' + key].value(AppState.proposalData[key]);
-                    }
-                }
-            });
-            
-            const titleDisplay = document.getElementById('selectedTitleDisplayStep5');
-            if (titleDisplay) titleDisplay.textContent = AppState.selectedTitle || '-';
-            if (typeof goToStep === "function") goToStep(AppState.currentStep);
-            if (typeof showCustomAlert === "function") showCustomAlert('success', 'Berhasil Restore', 'Data Anda dipulihkan!');
-        } catch (err) { 
-            if (typeof showCustomAlert === "function") showCustomAlert('error', 'Gagal Restore', 'Format JSON tidak valid.'); 
-        }
-    };
-    reader.readAsText(file); event.target.value = '';
 }

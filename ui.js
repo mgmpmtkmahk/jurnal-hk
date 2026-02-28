@@ -30,8 +30,11 @@ function goToStep(step) {
 
 function updateSidebarLock(step) {
     const sidebar = document.getElementById('btn-mode-proposal').parentElement;
-    if (step >= 4) sidebar.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
-    else sidebar.classList.remove('opacity-50', 'pointer-events-none', 'grayscale');
+    if (step < 5) {
+        sidebar.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
+    } else {
+        sidebar.classList.remove('opacity-50', 'pointer-events-none', 'grayscale');
+    }
 }
 
 function setDocumentType(type) {
@@ -39,6 +42,7 @@ function setDocumentType(type) {
     const titleStep5 = document.getElementById('step5-title');
     const btnStyles = {
         proposal: { id: 'btn-mode-proposal', active: "ring-indigo-300 bg-indigo-600 text-white", inactive: "bg-indigo-50 text-indigo-600" },
+        robotik: { id: 'btn-mode-robotik', active: "ring-blue-300 bg-blue-600 text-white", inactive: "bg-blue-50 text-blue-600" },
         skripsi: { id: 'btn-mode-skripsi', active: "ring-yellow-300 bg-yellow-600 text-white", inactive: "bg-yellow-50 text-yellow-600" },
         makalah: { id: 'btn-mode-makalah', active: "ring-emerald-300 bg-emerald-600 text-white", inactive: "bg-emerald-50 text-emerald-600" },
         jurnal: { id: 'btn-mode-jurnal', active: "ring-teal-300 bg-teal-600 text-white", inactive: "bg-teal-50 text-teal-600" },
@@ -51,7 +55,7 @@ function setDocumentType(type) {
         if(btn) btn.className = `w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border ${btnStyles[key].inactive}`;
     });
 
-    ['proposal', 'makalah', 'jurnal', 'skripsi', 'slr'].forEach(nav => {
+    ['proposal', 'makalah', 'jurnal', 'skripsi', 'slr', 'robotik'].forEach(nav => {
         const el = document.getElementById(`${nav}-nav-buttons`);
         if(el) { el.classList.add('hidden'); el.classList.remove('grid'); }
     });
@@ -64,6 +68,10 @@ function setDocumentType(type) {
         const nav = document.getElementById('proposal-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
         if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Proposal (Bab 1-3)";
         if(typeof showProposalSection === 'function') showProposalSection('latar');
+    } else if (type === 'robotik') {
+        const nav = document.getElementById('robotik-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
+        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Proposal Proyek Robotik/IT";
+        if(typeof showProposalSection === 'function') showProposalSection('rpendahuluan');
     } else if (type === 'makalah') {
         const nav = document.getElementById('makalah-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
         if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Makalah (Standar Akademik)";
@@ -87,6 +95,7 @@ function setDocumentType(type) {
 
 function getActiveSections() {
     if (AppState.documentType === 'proposal') return ['latar', 'rumusan', 'tujuan', 'manfaat', 'metode', 'landasan', 'hipotesis', 'jadwal', 'daftar', 'final'];
+    if (AppState.documentType === 'robotik') return ['rpendahuluan', 'rspesifikasi', 'rmetode', 'rtarget', 'rjadwal', 'final'];
     if (AppState.documentType === 'makalah') return ['mpendahuluan', 'mpembahasan', 'mpenutup', 'mdaftar', 'final'];
     if (AppState.documentType === 'jurnal') return ['jpendahuluan', 'jmetode', 'jhasil', 'jkesimpulan', 'jabstrak', 'jdaftar', 'final'];
     if (AppState.documentType === 'skripsi') return ['sdeskripsi', 'sanalisis', 'spembahasan', 'skesimpulan', 'ssaran', 'sdaftar', 'final'];
@@ -143,6 +152,17 @@ function cleanMarkdown(str) {
     return str.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>').replace(/\*(.*?)\*/g, '<em class="italic">$1</em>'); 
 }
 
+// HELPER FUNCTION: Mengontrol state EasyMDE Editor
+function setEditorState(editorId, isReadOnly, textValue = null) {
+    if (window.mdeEditors && window.mdeEditors[editorId]) {
+        const editor = window.mdeEditors[editorId];
+        editor.codemirror.setOption("readOnly", isReadOnly);
+        if (textValue !== null) {
+            editor.value(textValue);
+        }
+    }
+}
+
 function renderMarkdownTable(mdText) {
     if (!mdText) return '<p class="text-gray-500 text-sm italic">Tidak ada data.</p>';
     const lines = mdText.replace(/\r\n/g, '\n').split('\n');
@@ -174,6 +194,507 @@ function renderMarkdownTable(mdText) {
     html += '</table></div></div>';
     return hasTable ? html : `<div class="p-4 mt-2 bg-gray-50 rounded-lg text-sm text-gray-700 whitespace-pre-wrap border border-gray-200 shadow-inner">${cleanMarkdown(mdText)}</div>`;
 }
+
+// ==========================================
+// UI Updates untuk Keamanan API Key (REFACTORED)
+// ==========================================
+
+// Tambahkan di openApiSettings atau buat modal terpisah
+function openPlagiarismSettings() {
+    // Hapus modal lama jika ada
+    const oldModal = document.getElementById('plagiarismSettingsModal');
+    if (oldModal) oldModal.remove();
+
+    const isConfigured = !!AppState.plagiarismConfig.copyleaksApiKey;
+    const currentProvider = AppState.plagiarismConfig.provider || 'local';
+
+    const modal = document.createElement('div');
+    modal.id = 'plagiarismSettingsModal';
+    modal.className = 'fixed inset-0 z-[135] flex items-center justify-center';
+    modal.innerHTML = `
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closePlagiarismSettings()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-lg p-6 relative z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-shield-virus text-orange-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Pengaturan Plagiarism Checker</h3>
+                    <p class="text-sm text-gray-500">Konfigurasi Copyleaks API & threshold</p>
+                </div>
+            </div>
+
+            <!-- Provider Selection -->
+            <div class="mb-5">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Provider Default</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="selectPlagiarismProvider('local')" 
+                        class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'local' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center"
+                        data-provider="local">
+                        <i class="fas fa-bolt text-amber-500 text-lg mb-1"></i>
+                        <div class="text-sm font-semibold">Lokal</div>
+                        <div class="text-xs text-gray-500">Gratis</div>
+                    </button>
+                    <button onclick="selectPlagiarismProvider('copyleaks')" 
+                        class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'copyleaks' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center"
+                        data-provider="copyleaks">
+                        <i class="fas fa-cloud text-orange-500 text-lg mb-1"></i>
+                        <div class="text-sm font-semibold">Copyleaks</div>
+                        <div class="text-xs text-gray-500">Freemium</div>
+                    </button>
+                    <button onclick="selectPlagiarismProvider('quick')" 
+                        class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'quick' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center"
+                        data-provider="quick">
+                        <i class="fas fa-rocket text-purple-500 text-lg mb-1"></i>
+                        <div class="text-sm font-semibold">Hybrid</div>
+                        <div class="text-xs text-gray-500">Cepat→Akurat</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Copyleaks Configuration -->
+            <div id="copyleaks-config-section" class="${currentProvider === 'copyleaks' || currentProvider === 'quick' ? '' : 'hidden'} mb-5 p-4 bg-orange-50 rounded-xl border border-orange-200">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-sm font-bold text-orange-800">Copyleaks API Key</label>
+                    <span class="text-xs ${isConfigured ? 'text-green-600' : 'text-orange-600'} font-semibold">
+                        ${isConfigured ? '<i class="fas fa-check-circle mr-1"></i>Tersimpan' : '<i class="fas fa-exclamation-circle mr-1"></i>Belum diatur'}
+                    </span>
+                </div>
+                
+                <div class="space-y-3">
+                    <input type="password" id="copyleaksKeyInput" 
+                        class="w-full p-3 border-2 border-orange-200 rounded-xl focus:border-orange-500 outline-none text-sm font-mono"
+                        placeholder="Paste API Key dari dashboard.copyleaks.com">
+                    
+                    <div class="p-3 bg-white rounded-lg border border-orange-100">
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            <i class="fas fa-info-circle text-orange-500 mr-1"></i>
+                            Daftar gratis di <a href="https://copyleaks.com" target="_blank" class="text-orange-600 font-bold underline">copyleaks.com</a> 
+                            untuk mendapatkan 100 scan/bulan. Key akan dienkripsi dengan PIN keamanan.
+                        </p>
+                    </div>
+
+                    <div class="${isConfigured ? '' : 'hidden'}">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">PIN Keamanan (untuk dekripsi)</label>
+                        <input type="password" id="copyleaksPinInput" 
+                            class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none text-sm"
+                            placeholder="Masukkan PIN yang sama saat menyimpan API Key">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Threshold Setting -->
+            <div class="mb-5">
+                <label class="block text-sm font-bold text-gray-700 mb-2">Threshold Peringatan (%)</label>
+                <div class="flex items-center gap-4">
+                    <input type="range" id="similarityThreshold" min="5" max="50" 
+                        value="${AppState.plagiarismConfig.similarityThreshold || 15}" 
+                        class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                        oninput="document.getElementById('thresholdValue').textContent = this.value + '%'">
+                    <span id="thresholdValue" class="w-16 text-center font-mono font-bold text-lg text-orange-600">
+                        ${AppState.plagiarismConfig.similarityThreshold || 15}%
+                    </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Aplikasi akan memperingatkan jika similarity melebihi nilai ini.</p>
+            </div>
+
+            <!-- Usage Stats -->
+            ${isConfigured ? `
+            <div class="mb-5 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <h4 class="text-sm font-bold text-gray-700 mb-2">Status Akun Copyleaks</h4>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Sisa Scan Bulan Ini:</span>
+                    <span class="font-semibold text-gray-800" id="copyleaks-quota">Memuat...</span>
+                </div>
+                <button onclick="checkCopyleaksQuota()" class="mt-2 text-xs text-orange-600 hover:underline">
+                    <i class="fas fa-sync-alt mr-1"></i>Refresh Status
+                </button>
+            </div>
+            ` : ''}
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3 pt-4 border-t border-gray-100">
+                <button onclick="closePlagiarismSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200 transition-all">
+                    Batal
+                </button>
+                ${isConfigured ? `
+                <button onclick="removeCopyleaksKey()" class="flex-1 bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold hover:bg-red-100 transition-all">
+                    <i class="fas fa-trash-alt mr-1"></i>Hapus
+                </button>
+                ` : ''}
+                <button onclick="savePlagiarismSettings()" class="flex-1 bg-orange-600 py-3 rounded-xl text-white font-bold hover:bg-orange-700 shadow-lg transition-all">
+                    <i class="fas fa-save mr-1"></i>Simpan
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Pre-fill jika ada
+    if (isConfigured) {
+        // Tidak bisa pre-fill karena encrypted, user harus masukkan ulang atau pakai PIN
+    }
+}
+
+function selectPlagiarismProvider(provider) {
+    document.querySelectorAll('.provider-btn').forEach(btn => {
+        const isSelected = btn.dataset.provider === provider;
+        btn.className = `provider-btn p-3 rounded-xl border-2 ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center`;
+    });
+    
+    document.getElementById('copyleaks-config-section').classList.toggle('hidden', provider === 'local');
+}
+
+function closePlagiarismSettings() {
+    const modal = document.getElementById('plagiarismSettingsModal');
+    if (modal) modal.remove();
+}
+
+async function savePlagiarismSettings() {
+    const provider = document.querySelector('.provider-btn.border-orange-500')?.dataset.provider || 'local';
+    const threshold = parseInt(document.getElementById('similarityThreshold').value);
+    const apiKey = document.getElementById('copyleaksKeyInput').value.trim();
+    const pin = document.getElementById('copyleaksPinInput')?.value.trim();
+
+    // Validasi
+    if ((provider === 'copyleaks' || provider === 'quick') && apiKey && !pin) {
+        showCustomAlert('warning', 'PIN Diperlukan', 'Buat PIN keamanan untuk mengenkripsi API Key Copyleaks.');
+        return;
+    }
+
+    try {
+        // Test API key kalau baru diinput
+        if (apiKey) {
+            updatePlagiarismButtonState('Memvalidasi API Key...');
+            await testCopyleaksKey(apiKey);
+        }
+
+        // Simpan ke state
+        AppState.plagiarismConfig.provider = provider;
+        AppState.plagiarismConfig.similarityThreshold = threshold;
+        
+        if (apiKey && pin) {
+            await AppState.setCopyleaksKey(apiKey, pin);
+        }
+
+        await saveStateToLocal();
+        
+        closePlagiarismSettings();
+        showCustomAlert('success', 'Tersimpan', 'Pengaturan plagiarism checker berhasil diperbarui.');
+        
+        // Refresh UI di semua section
+        document.querySelectorAll('[id^="plagiarism-panel-"]').forEach(el => {
+            const sectionId = el.id.replace('plagiarism-panel-', '');
+            injectPlagiarismPanel(sectionId);
+        });
+
+    } catch (error) {
+        showCustomAlert('error', 'Validasi Gagal', error.message);
+    }
+}
+
+async function testCopyleaksKey(key) {
+    const response = await fetch('https://api.copyleaks.com/v3/scans/credits', {
+        headers: { 'Authorization': `Bearer ${key}` }
+    });
+    
+    if (!response.ok) {
+        throw new Error('API Key Copyleaks tidak valid atau expired.');
+    }
+    
+    const data = await response.json();
+    return data;
+}
+
+async function checkCopyleaksQuota() {
+    try {
+        const key = await getCopyleaksKeyWithUnlock();
+        if (!key) {
+            document.getElementById('copyleaks-quota').textContent = 'Error: Key tidak tersedia';
+            return;
+        }
+        
+        const data = await testCopyleaksKey(key);
+        document.getElementById('copyleaks-quota').textContent = `${data.credits} scan tersisa`;
+    } catch (error) {
+        document.getElementById('copyleaks-quota').textContent = 'Error: ' + error.message;
+    }
+}
+
+async function removeCopyleaksKey() {
+    if (!confirm('Yakin ingin menghapus API Key Copyleaks?')) return;
+    
+    AppState.plagiarismConfig.copyleaksApiKey = null;
+    AppState._tempCopyleaksKey = null;
+    await saveStateToLocal();
+    
+    closePlagiarismSettings();
+    showCustomAlert('success', 'Terhapus', 'API Key Copyleaks telah dihapus.');
+}
+
+// Modal unlock untuk Copyleaks (mirip Gemini tapi terpisah)
+function showUnlockModalForCopyleaks(callback) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-[140] flex items-center justify-center';
+    modal.innerHTML = `
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 relative z-10 animate-fade-in-up">
+            <div class="w-16 h-16 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-2xl mb-4 mx-auto">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Buka Kunci Copyleaks</h3>
+            <p class="text-gray-600 text-center text-sm mb-6">Masukkan PIN keamanan untuk mengakses API Key Copyleaks.</p>
+            
+            <input type="password" id="unlockCopyleaksPin" 
+                class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none text-center text-lg tracking-widest font-mono mb-4"
+                placeholder="PIN Anda">
+            
+            <div class="flex gap-3">
+                <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold">Batal</button>
+                <button onclick="confirmCopyleaksUnlock(${callback.toString()})" class="flex-1 bg-orange-600 py-3 rounded-xl text-white font-bold hover:bg-orange-700">
+                    Buka
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function confirmCopyleaksUnlock(callback) {
+    const pin = document.getElementById('unlockCopyleaksPin').value;
+    if (!pin) return;
+    
+    try {
+        const key = await AppState.getCopyleaksKey(pin);
+        document.querySelector('[class*="fixed inset-0 z-[140]"]').remove();
+        callback(key);
+    } catch (e) {
+        showCustomAlert('error', 'PIN Salah', 'Gagal membuka kunci Copyleaks.');
+    }
+}
+
+function showUnlockModal() {
+    // Hapus modal lama jika ada
+    const oldModal = document.getElementById('unlockModal');
+    if (oldModal) oldModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'unlockModal';
+    modal.className = 'fixed inset-0 z-[140] flex items-center justify-center';
+    modal.innerHTML = `
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 relative z-10 animate-fade-in-up">
+            <div class="w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl mb-4 mx-auto shadow-sm">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Buka Kunci API</h3>
+            <p class="text-gray-600 text-center text-sm mb-6">
+                API Key Anda tersimpan aman. Masukkan PIN Keamanan yang Anda buat sebelumnya untuk membuka akses AI.
+            </p>
+            
+            <div class="mb-4">
+                <input type="password" id="unlockPassword" 
+                    class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-center text-lg tracking-widest font-mono"
+                    placeholder="Masukkan PIN Anda" maxlength="20">
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="closeUnlockModal()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200 transition-all">
+                    Batal
+                </button>
+                <button onclick="unlockApiKey()" class="flex-1 bg-indigo-600 py-3 rounded-xl text-white font-bold hover:bg-indigo-700 shadow-lg transition-all">
+                    Buka Kunci
+                </button>
+            </div>
+            
+            <button onclick="removeApiKey()" class="w-full mt-5 text-red-500 text-sm font-semibold hover:underline">
+                <i class="fas fa-trash-alt mr-1"></i>Lupa PIN? Hapus Data API
+            </button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => document.getElementById('unlockPassword').focus(), 100);
+}
+
+function closeUnlockModal() {
+    const modal = document.getElementById('unlockModal');
+    if (modal) modal.remove();
+}
+
+window.unlockApiKey = async function() {
+    const pin = document.getElementById('unlockPassword').value;
+    if (!pin) {
+        showCustomAlert('warning', 'PIN Kosong', 'Harap masukkan PIN Anda.');
+        return;
+    }
+    
+    try {
+        await AppState.decryptKeys(pin);
+        closeUnlockModal();
+        showCustomAlert('success', 'Akses Terbuka', 'Kunci berhasil dibuka. Mesin AI siap digunakan!');
+        
+        // Panggil fungsi pembuka modal yang baru di core.js
+        setTimeout(() => window.openApiSettings(), 500);
+        
+    } catch (e) {
+        showCustomAlert('error', 'PIN Salah', 'Gagal membuka kunci. PIN yang Anda masukkan salah.');
+    }
+};
+
+async function testApiKey(key) {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error?.message || 'API Key tidak valid atau telah kedaluwarsa.');
+    }
+    return true;
+}
+
+// FUNGSI BARU: Edit & Save Prompt Kustom (Power User)
+window.toggleEditPrompt = function(id) {
+    const preEl = document.getElementById(`prompt-${id}`);
+    const btn = document.getElementById(`btn-edit-${id}`);
+    
+    if (preEl.contentEditable === "true") {
+        // SIMPAN (Mode Baca)
+        preEl.contentEditable = "false";
+        preEl.classList.remove('bg-white', 'text-gray-900', 'p-4', 'border-2', 'border-indigo-500', 'rounded-xl');
+        preEl.classList.add('text-green-400'); // Kembalikan warna teks terminal
+        btn.innerHTML = '<i class="fas fa-edit mr-1"></i>Edit Prompt';
+        btn.classList.replace('bg-green-600', 'bg-gray-600');
+        
+        // Simpan ke State
+        if (!AppState.customPrompts) AppState.customPrompts = {};
+        AppState.customPrompts[id] = preEl.innerText;
+        saveStateToLocal();
+        showCustomAlert('success', 'Prompt Disimpan', 'Instruksi kustom Anda berhasil disimpan dan akan terus digunakan untuk dokumen ini.');
+    } else {
+        // EDIT (Mode Tulis)
+        preEl.contentEditable = "true";
+        preEl.classList.remove('text-green-400');
+        preEl.classList.add('bg-white', 'text-gray-900', 'p-4', 'border-2', 'border-indigo-500', 'rounded-xl');
+        btn.innerHTML = '<i class="fas fa-save mr-1"></i>Simpan';
+        btn.classList.replace('bg-gray-600', 'bg-green-600');
+        preEl.focus();
+        showCustomAlert('warning', 'Mode Edit Aktif', 'Hati-hati, mengubah tag seperti [JUDUL] atau [GAP] dapat membuat AI kehilangan konteks. Klik Simpan setelah selesai.');
+    }
+};
+
+// ==========================================
+// FITUR BACKUP, RESTORE & RESET DATA
+// ==========================================
+
+// 1. Fungsi Download Backup (JSON)
+window.downloadBackup = async function() {
+    try {
+        // Ambil data terbaru dari LocalStorage
+        const data = await localforage.getItem('scientificDocGenState');
+        if (!data) {
+            showCustomAlert('warning', 'Data Kosong', 'Belum ada data yang bisa di-backup.');
+            return;
+        }
+
+        // Buat file JSON
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        // Buat nama file dinamis berdasarkan judul atau tanggal
+        const dateStr = new Date().toISOString().split('T')[0];
+        let fileName = AppState.selectedTitle ? AppState.selectedTitle.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '_') : 'Draft';
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Backup_SciDocGen_${fileName}_${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showCustomAlert('success', 'Backup Berhasil', 'File backup (.json) berhasil diunduh. Simpan di tempat yang aman.');
+    } catch (error) {
+        console.error("Backup Error:", error);
+        showCustomAlert('error', 'Gagal Backup', 'Terjadi kesalahan saat mengekspor data.');
+    }
+};
+
+// 2. Fungsi Trigger Restore (Membuka dialog pilih file)
+window.triggerRestore = function() {
+    const fileInput = document.getElementById('file-restore-input');
+    if (fileInput) {
+        fileInput.click();
+    } else {
+        showCustomAlert('error', 'Error UI', 'Input file restore tidak ditemukan di HTML.');
+    }
+};
+
+// 3. Fungsi Proses File Restore
+window.processRestoreFile = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const parsedData = JSON.parse(e.target.result);
+            
+            // Validasi sederhana memastikan ini file backup yang benar
+            if (parsedData.documentType === undefined || parsedData.currentStep === undefined) {
+                throw new Error("Format file JSON tidak sesuai.");
+            }
+
+            // Timpa data di LocalStorage
+            await localforage.setItem('scientificDocGenState', parsedData);
+            
+            showCustomAlert('success', 'Restore Berhasil', 'Data berhasil dipulihkan! Aplikasi akan dimuat ulang dalam 3 detik...');
+            
+            // Reload halaman agar state dan UI tersinkronisasi kembali
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+
+        } catch (error) {
+            console.error("Restore Error:", error);
+            showCustomAlert('error', 'File Rusak', 'Gagal membaca file backup. Pastikan file JSON tersebut berasal dari aplikasi ini.');
+        } finally {
+            // Reset input agar bisa dipakai memilih file yang sama lagi
+            event.target.value = ''; 
+        }
+    };
+    reader.readAsText(file);
+};
+
+// 4. Fungsi Reset Total Aplikasi
+window.executeReset = async function() {
+    try {
+        // Hapus seluruh database LocalForage
+        await localforage.clear();
+        
+        // Bersihkan LocalStorage bawaan (jika ada sisa seperti tema dark mode)
+        // localStorage.removeItem('scientificDocDarkMode'); // Opsional jika ingin reset tema juga
+        
+        closeConfirmModal();
+        
+        // Tampilkan pesan dan reload
+        document.body.innerHTML = `
+            <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+                <i class="fas fa-trash-alt text-red-500 text-6xl mb-4 animate-bounce"></i>
+                <h2 class="text-2xl font-bold text-gray-800">Mereset Aplikasi...</h2>
+                <p class="text-gray-500 mt-2">Menghapus semua memori dan menyegarkan sistem.</p>
+            </div>
+        `;
+        
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+
+    } catch (error) {
+        console.error("Reset Error:", error);
+        showCustomAlert('error', 'Gagal Reset', 'Terjadi kesalahan saat menghapus database.');
+    }
+};
 
 // ==========================================
 // FITUR DARK MODE
@@ -217,4 +738,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.key === 'Enter') { e.preventDefault(); if(typeof searchJournals === 'function') searchJournals(); }
         });
     }
+
+    // FITUR A11Y: Keyboard Shortcut (Ctrl + S) untuk Auto-Save Manual
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault(); // Mencegah browser memunculkan dialog 'Save Page As'
+            
+            // Cari bab (section) mana yang sedang aktif / terbuka di layar
+            const activeSection = document.querySelector('.proposal-section:not(.hidden)');
+            if (activeSection) {
+                const sectionId = activeSection.id.replace('section-', '');
+                if (sectionId !== 'final' && typeof saveProposalSection === 'function') {
+                    saveProposalSection(sectionId);
+                }
+            }
+        }
+    });
 });

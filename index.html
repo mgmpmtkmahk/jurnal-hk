@@ -93,7 +93,7 @@
                         <li class="flex items-start"><i class="fas fa-check-circle mt-1 mr-2 text-blue-500"></i> <span><strong>Scopus (Q1 & Q2):</strong> Reputasi global tertinggi, berdampak besar pada ilmu pengetahuan.</span></li>
                         <li class="flex items-start"><i class="fas fa-check-circle mt-1 mr-2 text-blue-500"></i> <span><strong>Scopus (Q3 & Q4):</strong> Reputasi standar internasional yang diakui secara global.</span></li>
                         <li class="flex items-start"><i class="fas fa-check-circle mt-1 mr-2 text-blue-500"></i> <span><strong>WoS (Web of Science):</strong> Standar indeksasi yang sangat ketat dan prestisius.</span></li>
-                        <li class="flex items-start"><i class="fas fa-check-circle mt-1 mr-2 text-blue-500"></i> <span><strong>DOAJ:</strong> Direktori jurnal (Open Access) berkualitas yang melewati tahapan review.</span></li>
+                        <li class="flex items-start"><i class="fas fa-check-circle mt-1 mr-2 text-blue-500"></i> <span><strong>DOAJ:</strong> Direktori jurnal *Open Access* berkualitas yang melewati tahapan review.</span></li>
                     </ul>
                 </div>
 
@@ -315,6 +315,11 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
             <span class="absolute left-12 md:left-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">📝 Proposal (Bab 1-3)</span>
         </button>
 
+        <button onclick="setDocumentType('robotik')" id="btn-mode-robotik" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-blue-50 text-blue-600">
+            <i class="fas fa-robot text-base md:text-xl"></i>
+            <span class="absolute left-12 md:left-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">🤖 Proposal Robotik</span>
+        </button>
+
         <button onclick="setDocumentType('skripsi')" id="btn-mode-skripsi" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-yellow-50 text-yellow-600">
             <i class="fas fa-graduation-cap text-base md:text-xl"></i>
             <span class="absolute left-12 md:left-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">🎓 Skripsi (Bab 4-5)</span>
@@ -350,6 +355,11 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
             <span class="absolute right-12 md:right-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">Set API Key</span>
         </button>
 
+        <button onclick="openPlagiarismSettings()" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white shadow-sm border border-orange-100">
+            <i class="fas fa-shield-virus text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
+            <span class="absolute right-12 md:right-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">🛡️ Plagiarism Check</span>
+        </button>
+
         <button onclick="downloadBackup()" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm border border-blue-100">
             <i class="fas fa-download text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
             <span class="absolute right-12 md:right-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">💾 Download Backup</span>
@@ -360,12 +370,10 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
             <span class="absolute right-12 md:right-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">📂 Restore Data</span>
         </button>
         
-        <div class="pt-2 md:pt-3 border-t border-gray-200">
-            <button onclick="showConfirmModal()" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-red-50 text-red-600 hover:bg-red-600 hover:text-white shadow-sm border border-red-100">
+        <button onclick="showConfirmModal()" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-red-50 text-red-600 hover:bg-red-600 hover:text-white shadow-sm border border-red-100">
                 <i class="fas fa-power-off text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
                 <span class="absolute right-12 md:right-16 bg-red-600 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">Reset Aplikasi</span>
-            </button>
-        </div>
+        </button>
     </div>
     
     <div id="customWarningModal" class="fixed inset-0 z-[120] hidden flex items-center justify-center">
@@ -419,13 +427,65 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
                 </select>
             </div>
 
-            <div class="mb-5">
-                <label class="block text-sm font-bold text-gray-700 mb-2">2. API Key Google Gemini</label>
-                <input type="password" id="geminiApiKeyInput" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-2 focus:border-indigo-500 outline-none text-sm" placeholder="Paste API Key di sini (AIzaSy...)">
-                <p class="text-xs text-gray-500 leading-relaxed"><i class="fas fa-info-circle mr-1"></i>Dapatkan gratis di <a href="https://aistudio.google.com/api-keys" target="_blank" class="text-blue-600 underline font-bold">Google AI Studio</a>.</p>
+            <div class="mb-4">
+                <label class="block text-sm font-bold text-gray-700 mb-2">2. Pilih Mesin AI (Provider)</label>
+                <select id="aiProviderSelect" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-bold text-indigo-700 bg-indigo-50" onchange="toggleApiProvider()">
+                    <option value="gemini">Google Gemini (Default)</option>
+                    <option value="mistral">Mistral AI (Alternatif)</option>
+                    <option value="groq">Groq (Super Cepat)</option>
+                </select>
             </div>
 
-            <div class="flex gap-2 pt-2 border-t border-gray-100">
+            <div id="geminiInputGroup" class="mb-5 block">
+                <label class="block text-sm font-bold text-gray-700 mb-2">3. API Key Google Gemini</label>
+                <input type="password" id="geminiApiKeyInput" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-3 focus:border-indigo-500 outline-none text-sm" placeholder="Paste API Key di sini (AIzaSy...)">
+                
+                <label class="block text-sm font-bold text-gray-700 mb-2">4. Pilih Model Gemini</label>
+                <select id="geminiModelSelect" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-medium text-gray-700">
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Cerdas & Seimbang)</option>
+                    <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite (Lebih Ringan & Cepat)</option>
+                </select>
+                <p class="text-xs text-gray-500 leading-relaxed mt-2"><i class="fas fa-info-circle mr-1"></i>Dapatkan gratis di <a href="https://aistudio.google.com/api-keys" target="_blank" class="text-blue-600 underline font-bold">Google AI Studio</a>.</p>
+            </div>
+
+            <div id="mistralInputGroup" class="mb-5 hidden">
+                <label class="block text-sm font-bold text-gray-700 mb-2">3. API Key Mistral AI</label>
+                <input type="password" id="mistralApiKeyInput" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-3 focus:border-purple-500 outline-none text-sm" placeholder="Paste API Key Mistral di sini...">
+                
+                <label class="block text-sm font-bold text-gray-700 mb-2">4. Pilih Model Mistral</label>
+                <select id="mistralModelSelect" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 outline-none text-sm font-medium text-gray-700">
+                    <option value="mistral-large-latest">Mistral Large (Akurat & Powerfull)</option>
+                    <option value="mistral-small-latest">Mistral Small (Cepat & Ringan)</option>
+                    <option value="codestral-latest">Codestral (Fokus Logika Teknis)</option>
+                    <option value="pixtral-large-latest">Pixtral Large (Vision)</option>
+                    <option value="mistral-saba-latest">Mistral Saba</option>
+                </select>
+                <p class="text-xs text-gray-500 leading-relaxed mt-2"><i class="fas fa-info-circle mr-1"></i>Dapatkan gratis di <a href="https://console.mistral.ai/api-keys/" target="_blank" class="text-purple-600 underline font-bold">Mistral La Plateforme</a>.</p>
+            </div>
+
+            <div id="groqInputGroup" class="mb-5 hidden">
+                <label class="block text-sm font-bold text-gray-700 mb-2">3. API Key Groq</label>
+                <input type="password" id="groqApiKeyInput" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-3 focus:border-red-500 outline-none text-sm" placeholder="Paste API Key Groq (gsk_...) di sini...">
+                
+                <label class="block text-sm font-bold text-gray-700 mb-2">4. Pilih Model Groq</label>
+                <select id="groqModelSelect" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 outline-none text-sm font-medium text-gray-700">
+                    <option value="llama-3.3-70b-versatile">Llama 3.3 70B</option>
+                    <option value="llama-3.1-8b-instant">Llama 3.1 8B</option>
+                    <option value="qwen-3-32b">Qwen 3 32B</option>
+                    <option value="gpt-oss-120b">GPT-OSS 120B</option>
+                    <option value="gpt-oss-20b">GPT-OSS 20B</option>
+                    <option value="kimi-k2">Kimi K2</option>
+                </select>
+                <p class="text-xs text-gray-500 leading-relaxed mt-2"><i class="fas fa-info-circle mr-1"></i>Dapatkan gratis di <a href="https://console.groq.com/keys" target="_blank" class="text-red-600 underline font-bold">Groq Console</a>.</p>
+            </div>
+
+            <div class="mb-5 p-4 bg-green-50 border border-green-200 rounded-xl mt-4">
+                <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fas fa-shield-alt text-green-600 mr-2"></i>5. PIN Keamanan (Wajib)</label>
+                <input type="password" id="apiPinInput" class="w-full p-3 border-2 border-green-200 rounded-xl focus:border-green-500 outline-none text-sm font-mono tracking-widest text-center" placeholder="Buat / Masukkan PIN" maxlength="20">
+                <p class="text-xs text-green-700 mt-2 font-medium">PIN ini akan mengenkripsi/mengunci kunci API Anda di browser ini.</p>
+            </div>
+
+            <div class="flex gap-2 pt-2 border-t border-gray-100 mt-4">
                 <button onclick="closeApiSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200 text-sm transition-all">Batal</button>
                 <button onclick="removeApiKey()" class="flex-1 bg-red-50 border border-red-200 py-3 rounded-xl text-red-600 font-bold hover:bg-red-100 text-sm transition-all">Hapus Key</button>
                 <button onclick="saveApiKey()" class="flex-[1.5] bg-indigo-600 py-3 rounded-xl text-white font-bold hover:bg-indigo-700 shadow-lg text-sm transition-all">Simpan Aturan</button>
@@ -441,10 +501,12 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
 
-    <script src="step5-ui.js"></script>
+    <script src="crypto-service.js"></script>
     <script src="state.js"></script>
-    <script src="ui.js"></script>
+    <script src="plagiarism-service.js"></script>
+    <script src="error-handler.js"></script>
     <script src="core.js"></script>
+    <script src="ui.js"></script>
+    <script src="step5-ui.js"></script>
 </body>
-
 </html>

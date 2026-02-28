@@ -150,36 +150,128 @@ function extractVariablesFromRumusan(rumusanText) {
 // FITUR OTOMATISASI VIA API (BYOK)
 // ==========================================
 
-function openApiSettings() {
-    document.getElementById('geminiApiKeyInput').value = AppState.geminiApiKey || '';
-    document.getElementById('aiToneSelect').value = AppState.tone || 'akademis'; // Load gaya bahasa
-    document.getElementById('apiSettingsModal').classList.remove('hidden');
-}
+window.toggleApiProvider = function() {
+    const provider = document.getElementById('aiProviderSelect').value;
+    const pSelect = document.getElementById('aiProviderSelect');
+    
+    document.getElementById('geminiInputGroup').classList.add('hidden');
+    document.getElementById('mistralInputGroup').classList.add('hidden');
+    document.getElementById('groqInputGroup').classList.add('hidden');
+
+    if (provider === 'mistral') {
+        document.getElementById('mistralInputGroup').classList.remove('hidden');
+        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 outline-none text-sm font-bold text-purple-700 bg-purple-50";
+    } else if (provider === 'groq') {
+        document.getElementById('groqInputGroup').classList.remove('hidden');
+        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 outline-none text-sm font-bold text-red-700 bg-red-50";
+    } else {
+        document.getElementById('geminiInputGroup').classList.remove('hidden');
+        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-bold text-indigo-700 bg-indigo-50";
+    }
+};
+
+window.openApiSettings = function() {
+    // 1. Cek apakah ada key terenkripsi, TAPI memori sementaranya kosong (Berarti terkunci)
+    if ((AppState._encryptedGeminiKey || AppState._encryptedMistralKey) && 
+        (!AppState._tempGeminiKey && !AppState._tempMistralKey)) {
+        
+        if (typeof showUnlockModal === 'function') {
+            showUnlockModal(); // Minta PIN dulu
+            return; // Berhenti di sini, jangan buka modal pengaturan
+        }
+    }
+
+    // 2. Jika tidak terkunci, buka modal pengaturan dan isi datanya
+    const geminiInput = document.getElementById('geminiApiKeyInput');
+    if (geminiInput) geminiInput.value = AppState._tempGeminiKey || '';
+    
+    const mistralInput = document.getElementById('mistralApiKeyInput');
+    if (mistralInput) mistralInput.value = AppState._tempMistralKey || '';
+    
+    const toneSelect = document.getElementById('aiToneSelect');
+    if (toneSelect) toneSelect.value = AppState.tone || 'akademis';
+    
+    const providerSelect = document.getElementById('aiProviderSelect');
+    if (providerSelect) providerSelect.value = AppState.aiProvider || 'gemini';
+    
+    const geminiModelSelect = document.getElementById('geminiModelSelect');
+    if (geminiModelSelect) geminiModelSelect.value = AppState.geminiModel || 'gemini-2.5-flash';
+
+    const mistralModel = document.getElementById('mistralModelSelect');
+    if (mistralModel) mistralModel.value = AppState.mistralModel || 'mistral-large-latest';
+    
+    // Pastikan input PIN dikosongkan agar user tidak bingung
+    const pinInput = document.getElementById('apiPinInput');
+    if (pinInput) pinInput.value = '';
+    
+    if (typeof toggleApiProvider === 'function') toggleApiProvider(); 
+    
+    const modal = document.getElementById('apiSettingsModal');
+    if (modal) modal.classList.remove('hidden');
+};
 
 function closeApiSettings() {
     document.getElementById('apiSettingsModal').classList.add('hidden');
 }
 
-function saveApiKey() {
-    AppState.geminiApiKey = document.getElementById('geminiApiKeyInput').value.trim();
-    AppState.tone = document.getElementById('aiToneSelect').value; // Save gaya bahasa
-    saveStateToLocal();
+async function saveApiKey() {
+    const gemini = document.getElementById('geminiApiKeyInput').value.trim();
+    const mistral = document.getElementById('mistralApiKeyInput').value.trim();
+    const pin = document.getElementById('apiPinInput').value.trim();
+    
+    // Wajibkan PIN jika user mengisi salah satu API Key
+    if ((gemini || mistral) && !pin) {
+        showCustomAlert('warning', 'PIN Diperlukan', 'Harap buat PIN keamanan (wajib) untuk mengenkripsi API Key Anda.');
+        return;
+    }
+
+    AppState.tone = document.getElementById('aiToneSelect').value;
+    AppState.aiProvider = document.getElementById('aiProviderSelect').value;
+    AppState.geminiModel = document.getElementById('geminiModelSelect').value;
+    AppState.mistralModel = document.getElementById('mistralModelSelect').value;
+    
+    // Gunakan fungsi enkripsi ganda yang baru dari state.js
+    await AppState.setAndEncryptKeys(gemini, mistral, pin);
+    await saveStateToLocal();
+    
     closeApiSettings();
-    showCustomAlert('success', 'Tersimpan', 'API Key dan Gaya Bahasa AI berhasil diperbarui!');
+    showCustomAlert('success', 'Tersimpan', `Pengaturan AI diperbarui. Provider saat ini: ${AppState.aiProvider.toUpperCase()}`);
 }
 
-function removeApiKey() {
-    AppState.geminiApiKey = '';
+async function removeApiKey() {
+    // Kosongkan dan timpa enkripsi lama di memori
+    await AppState.setAndEncryptKeys('', '', ''); 
+    
     document.getElementById('geminiApiKeyInput').value = '';
-    saveStateToLocal();
+    document.getElementById('mistralApiKeyInput').value = '';
+    document.getElementById('apiPinInput').value = '';
+    
+    await saveStateToLocal();
     closeApiSettings();
-    showCustomAlert('success', 'Terhapus', 'API Key telah dihapus dari browser ini demi keamanan.');
+    
+    // Tutup modal unlock jika aksi hapus dipanggil dari sana
+    const unlockModal = document.getElementById('unlockModal');
+    if (unlockModal) unlockModal.remove();
+    
+    showCustomAlert('success', 'Terhapus', 'Semua API Key telah dihapus dari sistem dengan aman.');
 }
 
+// ==========================================
+// 🌟 FUNGSI GENERATE MULTI-PROVIDER (GEMINI, MISTRAL, GROQ)
+// ==========================================
 async function generateWithAPI(promptId, targetTextareaId) {
-    const apiKey = AppState.geminiApiKey;
+    const provider = AppState.aiProvider || 'gemini';
+    
+    // Langsung ambil kunci yang ter-dekripsi dari memori aktif
+    let apiKey = AppState.getActiveApiKey(); 
+    
     if (!apiKey) {
-        showCustomAlert('warning', 'API Key Dibutuhkan', 'Harap masukkan API Key Gemini Anda terlebih dahulu.');
+        // Cek apakah sebenarnya ada key yang tersimpan, tapi sedang terkunci (belum masukin PIN)
+        if (provider === 'gemini' && AppState._encryptedGeminiKey) { showUnlockModal(); return; }
+        if (provider === 'mistral' && AppState._encryptedMistralKey) { showUnlockModal(); return; }
+        if (provider === 'groq' && AppState._encryptedGroqKey) { showUnlockModal(); return; }
+        
+        showCustomAlert('warning', 'API Key Dibutuhkan', `Harap masukkan API Key ${provider.toUpperCase()} Anda di pengaturan (Ikon Kunci).`);
         openApiSettings();
         return;
     }
@@ -201,60 +293,82 @@ async function generateWithAPI(promptId, targetTextareaId) {
 
     const promptText = getDynamicPromptText(promptId, true); 
     const targetEl = document.getElementById(targetTextareaId);
-    
     const originalVal = targetEl.value; 
     
-    targetEl.value = "Menghubungkan ke satelit AI... Memulai streaming teks...";
+    targetEl.value = `Menghubungkan ke satelit ${provider.toUpperCase()}... Memulai streaming teks...`;
     targetEl.disabled = true;
     targetEl.classList.add('bg-indigo-50', 'border-indigo-400');
 
     const isJsonExpected = promptId === 'step2-prompt' || promptId === 'step3-prompt' || promptId === 'step4-prompt';
-    const genConfig = { temperature: 0.7 };
-    
-    if (isJsonExpected) {
-        genConfig.responseMimeType = "application/json";
-    }
 
     try {
-        let maxRetries = 3;
-        let attempt = 0;
-        let response = null;
+        let endpoint, options;
 
-        while (attempt < maxRetries) {
-            try {
-                if (attempt > 0) targetEl.value = `Server Google sibuk. Mencoba ulang (Percobaan ${attempt + 1} dari ${maxRetries})...`;
+        // 🚀 ROUTING BERDASARKAN PROVIDER
+        if (provider === 'gemini') {
+            const gModel = AppState.geminiModel || 'gemini-2.5-flash';
+            endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+            const genConfig = { temperature: 0.7 };
+            if (isJsonExpected) genConfig.responseMimeType = "application/json";
 
-                response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: promptText }] }],
-                        generationConfig: genConfig 
-                    })
-                });
+            options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: promptText }] }],
+                    generationConfig: genConfig 
+                })
+            };
+        } else if (provider === 'mistral') {
+            endpoint = `https://api.mistral.ai/v1/chat/completions`;
+            const reqBody = {
+                model: AppState.mistralModel || 'mistral-large-latest',
+                messages: [{ role: 'user', content: promptText }],
+                temperature: 0.7,
+                stream: true
+            };
+            if (isJsonExpected) reqBody.response_format = { type: "json_object" };
 
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.error?.message || "Gagal menghubungi API Google.");
-                }
-                
-                break; 
-                
-            } catch (err) {
-                attempt++;
-                console.warn(`Percobaan API ke-${attempt} gagal:`, err.message);
-                if (attempt >= maxRetries || err.message.includes('API key') || err.message.includes('keamanan')) {
-                    throw err; 
-                }
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
+            options = {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'text/event-stream',
+                    'Authorization': `Bearer ${apiKey}` 
+                },
+                body: JSON.stringify(reqBody)
+            };
+        } else if (provider === 'groq') {
+            endpoint = `https://api.groq.com/openai/v1/chat/completions`;
+            const reqBody = {
+                model: AppState.groqModel || 'llama-3.3-70b-versatile',
+                messages: [{ role: 'user', content: promptText }],
+                temperature: 0.7,
+                stream: true
+            };
+            if (isJsonExpected) reqBody.response_format = { type: "json_object" };
+
+            options = {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}` 
+                },
+                body: JSON.stringify(reqBody)
+            };
         }
 
-        // --- 🌟 LOGIKA BARU: MEMBACA STREAMING (LEBIH AMAN & ROBUST) ---
+        const response = await fetch(endpoint, options);
+
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error?.message || errData.message || `Gagal menghubungi API ${provider}`);
+        }
+
         targetEl.value = ""; 
         if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
             window.mdeEditors[targetTextareaId].value("");
-            window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", true); // Kunci editor saat AI mengetik
+            window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", true);
         } 
         
         const reader = response.body.getReader();
@@ -266,27 +380,27 @@ async function generateWithAPI(promptId, targetTextareaId) {
             if (done) break;
             
             buffer += decoder.decode(value, { stream: true });
-            
-            // PERBAIKAN: Pisahkan buffer baris demi baris (menangani \n maupun \r\n)
             const lines = buffer.split(/\r?\n/);
-            
-            // Simpan elemen terakhir (yang mungkin belum 1 baris utuh) kembali ke buffer
             buffer = lines.pop();
             
             for (const line of lines) {
                 if (line.startsWith('data: ')) {
                     const jsonStr = line.slice(6).trim();
-                    
-                    // Lewati jika kosong atau penanda selesai
                     if (!jsonStr || jsonStr === '[DONE]') continue;
                     
                     try {
                         const dataObj = JSON.parse(jsonStr);
-                        if (dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
-                            const newText = dataObj.candidates[0].content.parts[0].text;
+                        let newText = "";
+
+                        // 🔍 PARSING STREAMING GEMINI VS MISTRAL VS GROQ
+                        if (provider === 'gemini' && dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
+                            newText = dataObj.candidates[0].content.parts[0].text;
+                        } else if ((provider === 'mistral' || provider === 'groq') && dataObj.choices && dataObj.choices[0].delta?.content) {
+                            newText = dataObj.choices[0].delta.content;
+                        }
+
+                        if (newText) {
                             targetEl.value += newText;
-                            
-                            // 🌟 Inject teks ke dalam Visual Editor secara realtime
                             if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
                                 const cm = window.mdeEditors[targetTextareaId].codemirror;
                                 const doc = cm.getDoc();
@@ -296,33 +410,27 @@ async function generateWithAPI(promptId, targetTextareaId) {
                                 targetEl.scrollTop = targetEl.scrollHeight;
                             }
                         }
-                    } catch (e) {
-                        // Abaikan jika ada potongan JSON yang tidak utuh, biarkan stream lanjut
-                    }
+                    } catch (e) {}
                 }
             }
         }
         
-        // Pemicu update word counter
         const event = new Event('input', { bubbles: true });
         targetEl.dispatchEvent(event);
-
-        showCustomAlert('success', 'Generate Selesai!', 'Proses penyusunan teks oleh AI telah selesai.');
+        showCustomAlert('success', 'Generate Selesai!', `AI ${provider.toUpperCase()} berhasil menyusun teks.`);
         
     } catch (error) {
         console.error("API Error Final:", error);
         targetEl.value = originalVal; 
         
-        if (error.message.includes('API key')) {
-            showCustomAlert('error', 'API Key Salah', 'API Key tidak valid atau kuota habis.');
-            openApiSettings();
+        if (typeof ErrorHandler !== 'undefined') {
+            ErrorHandler.show(error);
         } else {
             showCustomAlert('error', 'Gagal Generate', error.message);
         }
     } finally {
         targetEl.disabled = false;
         targetEl.classList.remove('bg-indigo-50', 'border-indigo-400');
-        // Buka kembali kunci editor
         if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
             window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", false);
         }
@@ -338,7 +446,7 @@ function getDynamicPromptText(elementId, isForAPI = false) {
     const sectionsList = typeof getActiveSections === 'function' ? getActiveSections() : [];
     const currentIndex = sectionsList.indexOf(currentKey);
     
-    const exceptions = ['latar', 'mpendahuluan', 'jpendahuluan', 'slrpendahuluan', 'sdeskripsi', 'daftar', 'mdaftar', 'jdaftar', 'sdaftar', 'slrdaftar', 'jabstrak', 'slrabstrak'];
+    const exceptions = ['latar', 'mpendahuluan', 'jpendahuluan', 'slrpendahuluan', 'rpendahuluan', 'sdeskripsi', 'daftar', 'mdaftar', 'jdaftar', 'sdaftar', 'slrdaftar', 'jabstrak', 'slrabstrak'];
 
     let memoryText = "";
     if (currentIndex > 0 && !exceptions.includes(currentKey) && !elementId.includes('step')) {
@@ -420,7 +528,6 @@ function getDynamicPromptText(elementId, isForAPI = false) {
     if(AppState.proposalData.rumusan) text = text.replace(/\[RUMUSAN\]/g, () => AppState.proposalData.rumusan);
     if(AppState.proposalData.tujuan) text = text.replace(/\[TUJUAN\]/g, () => AppState.proposalData.tujuan);
 
-    // HUMANIZER
     // HUMANIZER & TONE SETTING
     let toneInstruction = "Gunakan bahasa akademis yang sangat formal, objektif, baku, dan sesuai standar penulisan tugas akhir/jurnal ilmiah.";
     if (AppState.tone === 'populer') toneInstruction = "Gunakan bahasa semi-formal yang mengalir, mudah dipahami, dan tidak terlalu kaku, namun tetap menjaga substansi ilmiah.";
@@ -549,9 +656,41 @@ function parseStep2Output() {
     }
 }
 
+function exportToRIS() {
+    if (!AppState.journals || AppState.journals.length === 0) {
+        showCustomAlert('warning', 'Kosong', 'Belum ada data jurnal tersimpan.');
+        return;
+    }
+    let risContent = "";
+    AppState.journals.forEach(j => {
+        risContent += "TY  - JOUR\r\n";
+        risContent += `TI  - ${j.parsed?.title || 'Untitled'}\r\n`;
+        risContent += `AU  - ${j.parsed?.authors || 'Unknown'}\r\n`;
+        if (j.parsed?.year) risContent += `PY  - ${j.parsed.year}\r\n`;
+        if (j.fullJson?.nama_jurnal) risContent += `T2  - ${j.fullJson.nama_jurnal}\r\n`;
+        if (j.fullJson?.hasil_utama) risContent += `AB  - Hasil: ${j.fullJson.hasil_utama} | Gap: ${j.fullJson.research_gap || ''}\r\n`;
+        risContent += "ER  - \r\n\r\n";
+    });
+    
+    const blob = new Blob([risContent], { type: 'application/x-research-info-systems' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = `Referensi_Penelitian_${new Date().getFullYear()}.ris`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    showCustomAlert('success', 'Berhasil', 'File .RIS berhasil diunduh. Silakan import ke Mendeley atau Zotero Anda.');
+}
+
 function updateSavedJournalsList() {
     const container = document.getElementById('savedJournalsList');
     if(!container) return;
+    
+    // Injeksi tombol Export RIS di Header
+    const headerContainer = container.previousElementSibling; 
+    if (headerContainer && !document.getElementById('btn-export-ris')) {
+        headerContainer.classList.add('flex', 'justify-between', 'items-center');
+        headerContainer.innerHTML = `Data Jurnal Tersimpan <button id="btn-export-ris" onclick="exportToRIS()" class="bg-blue-100 text-blue-700 text-sm font-bold px-4 py-1.5 rounded-lg hover:bg-blue-200 transition-all shadow-sm"><i class="fas fa-file-export mr-2"></i>Export .RIS (Mendeley)</button>`;
+    }
+
     if (AppState.journals.length === 0) { container.innerHTML = '<p class="text-gray-500 text-center py-4">Belum ada jurnal</p>'; return; }
     container.innerHTML = AppState.journals.map((j, index) => `<div class="bg-white border border-green-200 shadow-sm rounded-xl p-4 mb-4"><div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-100"><h4 class="font-bold text-gray-800 text-lg">${index + 1}. ${j.parsed.title || 'Jurnal'}</h4><button onclick="removeJournal(${index})" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded"><i class="fas fa-trash"></i></button></div><div class="text-sm max-h-60 overflow-y-auto custom-scrollbar">${renderMarkdownTable(j.raw)}</div></div>`).join('');
 }
@@ -728,6 +867,7 @@ function saveProposalSection(section) {
     
     const s = getActiveSections(); const i = s.indexOf(section);
     let cid = AppState.documentType === 'makalah' ? 'makalah-nav-buttons' : AppState.documentType === 'jurnal' ? 'jurnal-nav-buttons' : AppState.documentType === 'skripsi' ? 'skripsi-nav-buttons' : AppState.documentType === 'slr' ? 'slr-nav-buttons' : 'proposal-nav-buttons';
+
     const btn = document.querySelectorAll(`#${cid} .proposal-nav-btn`)[i]; if (btn) btn.classList.add('bg-green-50', 'border-green-500');
     
     // VISUAL FEEDBACK
@@ -905,6 +1045,19 @@ function downloadDOCX() {
         }
         docContent += `</div>`;
     } 
+    else if (AppState.documentType === 'robotik') {
+        docContent += `<div class="cover-page"><h2>PROPOSAL PROYEK ROBOTIK / IT</h2><div class="cover-title">${AppState.selectedTitle || 'Judul Belum Dipilih'}</div><div class="cover-author">Disusun Oleh:<br><strong>[ TIM PENYUSUN ]</strong></div><div class="cover-inst">EKSTRAKURIKULER ROBOTIK<br>PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div></div>`;
+        docContent += `<div class="chapter-title">BAB I<br>PENDAHULUAN</div>`;
+        if(AppState.proposalData.rpendahuluan) docContent += formatTextForWord(AppState.proposalData.rpendahuluan);
+        docContent += `<div class="chapter-title page-break">BAB II<br>SPESIFIKASI DAN DESAIN SISTEM</div>`;
+        if(AppState.proposalData.rspesifikasi) docContent += formatTextForWord(AppState.proposalData.rspesifikasi);
+        docContent += `<div class="chapter-title page-break">BAB III<br>METODE PELAKSANAAN</div>`;
+        if(AppState.proposalData.rmetode) docContent += formatTextForWord(AppState.proposalData.rmetode);
+        docContent += `<div class="chapter-title page-break">BAB IV<br>TARGET LUARAN DAN MANFAAT</div>`;
+        if(AppState.proposalData.rtarget) docContent += formatTextForWord(AppState.proposalData.rtarget);
+        docContent += `<div class="chapter-title page-break">BAB V<br>JADWAL DAN RENCANA ANGGARAN</div>`;
+        if(AppState.proposalData.rjadwal) docContent += formatTextForWord(AppState.proposalData.rjadwal);
+    }
     else if (AppState.documentType === 'slr') {
         docContent += `<div class="jurnal-title">${AppState.selectedTitle || 'Review Article Title'}</div>`;
         docContent += `<div class="jurnal-author">[Nama Reviewer]<sup>1</sup><br><sup>1</sup>Pontren Husnul Khotimah, Indonesia</div>`;
@@ -1013,53 +1166,44 @@ async function extractTextFromPDF(event) {
     if (!file) return;
 
     const textarea = document.getElementById('rawJournalInput');
-    
-    // UI Feedback: Beritahu pengguna sistem sedang bekerja
-    textarea.value = "Membaca file PDF... Sedang mengekstrak teks halaman demi halaman... Mohon tunggu...";
     textarea.disabled = true;
-    textarea.classList.add('animate-pulse', 'bg-red-50/50'); // Efek kedap-kedip
+    textarea.classList.add('animate-pulse', 'bg-red-50/50'); 
     
     try {
-        // Ubah file menjadi format biner yang bisa dibaca PDF.js
         const arrayBuffer = await file.arrayBuffer();
-        
-        // Load dokumen PDF
         const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
         let fullText = "";
 
-        // Looping untuk membaca setiap halaman satu per satu
+        // Looping dengan Yielding (Anti-Freeze)
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            // Update UI secara realtime tanpa membuat browser macet
+            textarea.value = `Mengekstrak teks... (Halaman ${pageNum} dari ${pdf.numPages})\nMohon tunggu, AI sedang membaca dokumen Anda...`;
+            
+            // Memberikan jeda waktu ke Main Thread agar browser tidak hang
+            await new Promise(resolve => setTimeout(resolve, 15)); 
+
             const page = await pdf.getPage(pageNum);
             const textContent = await page.getTextContent();
-            
-            // Gabungkan setiap potongan teks di halaman tersebut
             const pageText = textContent.items.map(item => item.str).join(" ");
             
-            // Tambahkan ke string utama dengan penanda halaman
             fullText += `\n\n--- Halaman ${pageNum} ---\n${pageText}`;
         }
 
-        // Tampilkan hasilnya di dalam kotak teks
         textarea.value = fullText.trim();
-        
-        showCustomAlert('success', 'Ekstraksi Selesai', `Berhasil mengekstrak ${pdf.numPages} halaman dari file PDF. Silakan klik "Auto API" untuk mulai mengkaji.`);
-        
+        showCustomAlert('success', 'Ekstraksi Selesai', `Berhasil mengekstrak ${pdf.numPages} halaman.`);
     } catch (error) {
-        console.error("PDF Extraction Error:", error);
-        textarea.value = ""; // Kosongkan lagi jika gagal
-        showCustomAlert('error', 'Gagal Membaca PDF', 'Dokumen PDF mungkin diproteksi password, rusak, atau merupakan hasil scan (berupa gambar tanpa teks). Silakan copy-paste manual.');
+        console.error("PDF Error:", error);
+        textarea.value = ""; 
+        showCustomAlert('error', 'Gagal', 'Dokumen rusak atau berupa gambar hasil scan.');
     } finally {
-        // Kembalikan kotak teks ke kondisi normal
         textarea.disabled = false;
         textarea.classList.remove('animate-pulse', 'bg-red-50/50');
-        
-        // Reset input file agar pengguna bisa mengunggah file yang sama lagi jika perlu
         event.target.value = '';
     }
 }
 
 // ==========================================
-// 🌟 FITUR BARU: MICRO-EDITING (RTE)
+// 🌟 FITUR BARU: MICRO-EDITING MULTI-PROVIDER
 // ==========================================
 async function handleMicroEdit(sectionId, action) {
     const editor = window.mdeEditors[`output-${sectionId}`];
@@ -1073,9 +1217,15 @@ async function handleMicroEdit(sectionId, action) {
         return;
     }
 
-    const apiKey = AppState.geminiApiKey;
+    const provider = AppState.aiProvider || 'gemini';
+    let apiKey = AppState.getActiveApiKey(); 
+
     if (!apiKey) {
-        showCustomAlert('warning', 'API Key Dibutuhkan', 'Harap masukkan API Key Gemini Anda di pengaturan.');
+        if (provider === 'gemini' && AppState._encryptedGeminiKey) { showUnlockModal(); return; }
+        if (provider === 'mistral' && AppState._encryptedMistralKey) { showUnlockModal(); return; }
+        if (provider === 'groq' && AppState._encryptedGroqKey) { showUnlockModal(); return; }
+        
+        showCustomAlert('warning', 'API Key Dibutuhkan', `Harap masukkan API Key ${provider.toUpperCase()} Anda di pengaturan.`);
         openApiSettings();
         return;
     }
@@ -1093,26 +1243,50 @@ async function handleMicroEdit(sectionId, action) {
         promptText = `Lakukan parafrase tingkat tinggi pada teks berikut untuk menghindari plagiasi (Turnitin) namun tetap menjaga makna, substansi, dan sitasi aslinya.\n\nTeks Asli:\n"${selectedText}"\n\nATURAN MUTLAK: Hanya berikan teks hasil parafrase saja tanpa kata pengantar/penutup.`;
     }
 
-    cm.setOption("readOnly", true); // Kunci editor sementara
-    
-    // Beri penanda visual bahwa AI sedang bekerja di teks yang diblok
-    const marker = `[⏳ AI sedang ${actionLabel}]`;
+    cm.setOption("readOnly", true); 
+    const marker = `[⏳ ${provider.toUpperCase()} sedang ${actionLabel}]`;
     cm.replaceSelection(marker);
     
-    // Pilih kembali (highlight) teks marker tersebut agar nanti tertimpa oleh jawaban AI
     const endCursor = cm.getCursor();
     cm.setSelection({line: endCursor.line, ch: endCursor.ch - marker.length}, endCursor);
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-        });
+        let endpoint, options;
 
-        if (!response.ok) throw new Error("Gagal menghubungi API Google.");
+        if (provider === 'gemini') {
+            endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+            options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+            };
+        } else if (provider === 'mistral') {
+            endpoint = `https://api.mistral.ai/v1/chat/completions`;
+            options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream', 'Authorization': `Bearer ${apiKey}` },
+                body: JSON.stringify({
+                    model: AppState.mistralModel || 'mistral-large-latest',
+                    messages: [{ role: 'user', content: promptText }],
+                    stream: true
+                })
+            };
+        } else if (provider === 'groq') {
+            endpoint = `https://api.groq.com/openai/v1/chat/completions`;
+            options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                body: JSON.stringify({
+                    model: AppState.groqModel || 'llama-3.3-70b-versatile',
+                    messages: [{ role: 'user', content: promptText }],
+                    stream: true
+                })
+            };
+        }
 
-        // Hapus marker loading
+        const response = await fetch(endpoint, options);
+        if (!response.ok) throw new Error(`Gagal menghubungi API ${provider}.`);
+
         cm.replaceSelection(""); 
 
         const reader = response.body.getReader();
@@ -1133,25 +1307,310 @@ async function handleMicroEdit(sectionId, action) {
                     if (!jsonStr || jsonStr === '[DONE]') continue;
                     try {
                         const dataObj = JSON.parse(jsonStr);
-                        if (dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
-                            // Ketik teks baru persis di titik kursor
-                            cm.replaceSelection(dataObj.candidates[0].content.parts[0].text);
+                        let newText = "";
+                        
+                        if (provider === 'gemini' && dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
+                            newText = dataObj.candidates[0].content.parts[0].text;
+                        } else if ((provider === 'mistral' || provider === 'groq') && dataObj.choices && dataObj.choices[0].delta?.content) {
+                            newText = dataObj.choices[0].delta.content;
                         }
+                        
+                        if (newText) cm.replaceSelection(newText);
+                        
                     } catch (e) {}
                 }
             }
         }
-        showCustomAlert('success', 'Berhasil', 'Teks berhasil diedit oleh AI.');
+        showCustomAlert('success', 'Berhasil', `Teks berhasil diedit oleh ${provider.toUpperCase()}.`);
     } catch (error) {
         console.error("Micro-edit error:", error);
-        cm.replaceSelection(selectedText); // Kembalikan ke teks asli jika error
-        showCustomAlert('error', 'Gagal Edit', 'Terjadi kesalahan saat memproses API.');
+        cm.replaceSelection(selectedText); 
+        showCustomAlert('error', 'Gagal Edit', error.message);
     } finally {
-        cm.setOption("readOnly", false); // Buka kunci editor
-        document.getElementById(`output-${sectionId}`).value = cm.getValue(); // Sinkronisasi state
+        cm.setOption("readOnly", false); 
+        document.getElementById(`output-${sectionId}`).value = cm.getValue(); 
     }
-
 }
 
+// ==========================================
+// PLAGIARISM CHECKER FUNCTIONS
+// ==========================================
 
+/**
+ * Entry point untuk plagiarism check dari UI
+ */
+async function runPlagiarismCheck(sectionId, method) {
+    const editor = window.mdeEditors[`output-${sectionId}`];
+    if (!editor) {
+        showCustomAlert('error', 'Error', 'Editor tidak ditemukan.');
+        return;
+    }
 
+    const text = editor.value();
+    if (!text || text.trim().length < 50) {
+        showCustomAlert('warning', 'Teks Terlalu Pendek', 'Minimal 50 karakter untuk plagiarism check.');
+        return;
+    }
+
+    // UI State: Loading
+    setPlagiarismLoading(sectionId, true);
+    updatePlagiarismStatus(sectionId, 'Memulai scan...', 'Menyiapkan analisis');
+
+    try {
+        const options = {
+            references: AppState.journals,
+            apiKey: method === 'copyleaks' ? await getCopyleaksKeyWithUnlock() : null
+        };
+
+        // Progress callback
+        PlagiarismService.onProgress((data) => {
+            if (data.status) {
+                updatePlagiarismStatus(sectionId, data.status, data.detail);
+            }
+        });
+
+        const result = await PlagiarismService.check(text, method, options);
+        
+        // Simpan hasil
+        AppState.plagiarismConfig.lastScanResults[sectionId] = result;
+        saveStateToLocal();
+
+        // Tampilkan hasil
+        displayPlagiarismResult(sectionId, result);
+
+    } catch (error) {
+        console.error('Plagiarism check failed:', error);
+        
+        // Error handling spesifik
+        if (error.message.includes('API Key')) {
+            showCustomAlert('warning', 'API Key Diperlukan', 
+                'Masukkan Copyleaks API Key di pengaturan. Daftar gratis di copyleaks.com');
+            openPlagiarismSettings();
+        } else {
+            showCustomAlert('error', 'Scan Gagal', error.message);
+        }
+        
+        // Reset UI
+        document.getElementById(`plagiarism-result-${sectionId}`).classList.add('hidden');
+    } finally {
+        setPlagiarismLoading(sectionId, false);
+    }
+}
+
+/**
+ * Dapatkan Copyleaks key dengan unlock jika perlu
+ */
+async function getCopyleaksKeyWithUnlock() {
+    // Cek apakah sudah di-decrypt di memory
+    if (AppState._tempCopyleaksKey) return AppState._tempCopyleaksKey;
+
+    // Kalau encrypted, minta PIN
+    if (AppState.plagiarismConfig.copyleaksApiKey) {
+        return new Promise((resolve) => {
+            showUnlockModalForCopyleaks((pin) => {
+                AppState.getCopyleaksKey(pin).then(key => {
+                    AppState._tempCopyleaksKey = key;
+                    // Auto-expire setelah 1 jam
+                    setTimeout(() => AppState._tempCopyleaksKey = null, 60 * 60 * 1000);
+                    resolve(key);
+                });
+            });
+        });
+    }
+
+    return null;
+}
+
+/**
+ * Tampilkan hasil scan di UI
+ */
+function displayPlagiarismResult(sectionId, result) {
+    const resultContainer = document.getElementById(`plagiarism-result-${sectionId}`);
+    const badge = document.getElementById(`plagiarism-badge-${sectionId}`);
+    const scoreEl = document.getElementById(`similarity-score-${sectionId}`);
+    const barEl = document.getElementById(`similarity-bar-${sectionId}`);
+    const interpEl = document.getElementById(`similarity-interpretation-${sectionId}`);
+    const sourcesEl = document.getElementById(`similarity-sources-${sectionId}`);
+
+    resultContainer.classList.remove('hidden');
+    badge.classList.remove('hidden');
+
+    const score = Math.round(result.overallScore * 100);
+    scoreEl.textContent = `${score}%`;
+    barEl.style.width = `${Math.min(score, 100)}%`;
+
+    // Styling berdasarkan score
+    badge.className = 'px-2.5 py-1 rounded-full text-xs font-bold ' + getScoreColorClass(score);
+    badge.innerHTML = getScoreLabel(score);
+
+    scoreEl.className = `text-3xl font-bold ${getScoreTextColor(score)}`;
+
+    // Interpretasi
+    interpEl.textContent = getScoreInterpretation(score, result.method);
+
+    // Sources
+    if (result.sources && result.sources.length > 0) {
+        sourcesEl.innerHTML = result.sources.map((src, idx) => `
+            <div class="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-100 hover:border-orange-200 transition-all">
+                <div class="w-8 h-8 rounded-full ${getSourceScoreColor(src.similarity)} flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    ${Math.round((src.similarity || 0) * 100)}%
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-semibold text-gray-800 text-sm truncate" title="${src.title || 'Unknown'}">
+                        ${src.title || 'Unknown Source'}
+                    </div>
+                    <div class="text-xs text-gray-500 flex items-center gap-2 mt-1">
+                        <span class="px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 capitalize">${src.type || 'internet'}</span>
+                        ${src.matchedWords ? `<span>${src.matchedWords} kata cocok</span>` : ''}
+                    </div>
+                    ${src.snippet ? `<div class="mt-2 text-xs text-gray-600 italic bg-gray-50 p-2 rounded">"${src.snippet}"</div>` : ''}
+                    ${src.url ? `<a href="${src.url}" target="_blank" class="mt-1 text-xs text-blue-600 hover:underline flex items-center gap-1"><i class="fas fa-external-link-alt"></i>Lihat sumber</a>` : ''}
+                </div>
+            </div>
+        `).join('');
+    } else {
+        sourcesEl.innerHTML = `
+            <div class="text-center py-4 text-gray-500 text-sm">
+                <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
+                <p>Tidak ditemukan kecocokan signifikan!</p>
+            </div>
+        `;
+    }
+}
+
+// Helper functions untuk styling
+function getScoreColorClass(score) {
+    if (score < 10) return 'bg-green-100 text-green-800';
+    if (score < 20) return 'bg-blue-100 text-blue-800';
+    if (score < 30) return 'bg-yellow-100 text-yellow-800';
+    return 'bg-red-100 text-red-800';
+}
+
+function getScoreTextColor(score) {
+    if (score < 10) return 'text-green-600';
+    if (score < 20) return 'text-blue-600';
+    if (score < 30) return 'text-yellow-600';
+    return 'text-red-600';
+}
+
+function getScoreLabel(score) {
+    if (score < 10) return '<i class="fas fa-check-circle mr-1"></i>Aman';
+    if (score < 20) return '<i class="fas fa-info-circle mr-1"></i>Baik';
+    if (score < 30) return '<i class="fas fa-exclamation-circle mr-1"></i>Perhatian';
+    return '<i class="fas fa-times-circle mr-1"></i>Bahaya';
+}
+
+function getScoreInterpretation(score, method) {
+    const methodLabel = method === 'copyleaks' ? 'database internet & akademik' : 'jurnal referensi lokal';
+    
+    if (score < 10) return `✅ Excellent! Similarity sangat rendah terhadap ${methodLabel}. Dokumen ini sangat orisinal.`;
+    if (score < 20) return `✓ Bagus. Ada kemiripan minor dengan ${methodLabel}, masih dalam batas aman untuk publikasi.`;
+    if (score < 30) return `⚠️ Perhatian. Similaritas moderat terdeteksi. Pertimbangkan parafrase pada bagian yang ditandai.`;
+    return `🚨 Bahaya Plagiat! Similaritas tinggi (${score}%) terdeteksi. Dokumen perlu revisi besar sebelum submit.`;
+}
+
+function getSourceScoreColor(similarity) {
+    const score = (similarity || 0) * 100;
+    if (score < 15) return 'bg-green-500';
+    if (score < 30) return 'bg-yellow-500';
+    return 'bg-red-500';
+}
+
+/**
+ * UI Helpers
+ */
+function setPlagiarismLoading(sectionId, isLoading) {
+    const loadingEl = document.getElementById(`plagiarism-loading-${sectionId}`);
+    const resultEl = document.getElementById(`plagiarism-result-${sectionId}`);
+    
+    if (isLoading) {
+        loadingEl.classList.remove('hidden');
+        resultEl.classList.add('hidden');
+    } else {
+        loadingEl.classList.add('hidden');
+    }
+}
+
+function updatePlagiarismStatus(sectionId, status, detail) {
+    const statusEl = document.getElementById(`plagiarism-status-${sectionId}`);
+    const detailEl = document.getElementById(`plagiarism-detail-${sectionId}`);
+    
+    if (statusEl) statusEl.textContent = status;
+    if (detailEl) detailEl.textContent = detail;
+}
+
+/**
+ * Highlight similar text di editor
+ */
+function highlightSimilarText(sectionId) {
+    const result = AppState.plagiarismConfig.lastScanResults[sectionId];
+    if (!result || !result.sources) {
+        showCustomAlert('warning', 'Tidak Ada Data', 'Lakukan scan plagiarism terlebih dahulu.');
+        return;
+    }
+
+    const editor = window.mdeEditors[`output-${sectionId}`];
+    let text = editor.value();
+
+    // Highlight phrases dari sources
+    result.sources.forEach(src => {
+        if (src.matchedPhrases) {
+            src.matchedPhrases.forEach(phrase => {
+                if (phrase.length > 10) {
+                    const regex = new RegExp(`(${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    text = text.replace(regex, '**==$1==**'); // Markdown highlight
+                }
+            });
+        }
+    });
+
+    editor.value(text);
+    showCustomAlert('success', 'Text Ditandai', 'Bagian similar telah ditandai dengan **==highlight==**. Silakan parafrase manual.');
+}
+
+/**
+ * Auto-paraphrase bagian bermasalah (SUPPORT MULTI-PROVIDER)
+ */
+async function autoParaphraseProblematic(sectionId) {
+    const result = AppState.plagiarismConfig.lastScanResults[sectionId];
+    if (!result || result.overallScore < 0.2) {
+        showCustomAlert('info', 'Tidak Perlu', 'Similarity sudah cukup rendah, tidak perlu auto-parafrase.');
+        return;
+    }
+
+    const editor = window.mdeEditors[`output-${sectionId}`];
+    
+    // PERBAIKAN: Gunakan Provider yang sedang aktif (Gemini atau Mistral)
+    const provider = AppState.aiProvider || 'gemini';
+    const apiKey = AppState.getActiveApiKey(); 
+    
+    if (!apiKey) {
+        if (provider === 'gemini' && AppState._encryptedGeminiKey) { showUnlockModal(); return; }
+        if (provider === 'mistral' && AppState._encryptedMistralKey) { showUnlockModal(); return; }
+        
+        showCustomAlert('warning', 'API Key Diperlukan', `Fitur ini membutuhkan API Key ${provider.toUpperCase()} untuk menjalankan AI parafrase.`);
+        openApiSettings();
+        return;
+    }
+
+    // Identifikasi kalimat dengan similarity tinggi
+    const problematicPhrases = result.sources
+        .flatMap(s => s.matchedPhrases || [])
+        .filter(p => p.length > 15);
+
+    if (problematicPhrases.length === 0) {
+        showCustomAlert('warning', 'Tidak Terdeteksi', 'Tidak dapat mengidentifikasi bagian spesifik untuk diparafrase secara otomatis.');
+        return;
+    }
+
+    showCustomAlert('info', 'Memproses...', `AI (${provider.toUpperCase()}) akan memparafrase ${problematicPhrases.length} bagian bermasalah secara bertahap. Ini membutuhkan waktu beberapa saat.`);
+
+    // Proses satu per satu dengan delay untuk menghindari rate limit
+    for (const phrase of problematicPhrases.slice(0, 5)) { // Max 5 untuk hemat quota/waktu
+        await handleMicroEdit(sectionId, 'parafrase'); // Panggil engine micro-edit yang sudah multi-provider
+        await new Promise(r => setTimeout(r, 2000));
+    }
+
+    // Re-check setelah parafrase
+    setTimeout(() => runPlagiarismCheck(sectionId, 'local'), 3000);
+}
