@@ -469,6 +469,34 @@ function getDynamicPromptText(elementId, isForAPI = false) {
             }
         }
     }
+    
+    // =========================================================
+    // 1. ATURAN SITASI GLOBAL (HIBRIDA VS KETAT)
+    // =========================================================
+    let citationRule = "";
+    if (AppState.documentType === 'slr') {
+        citationRule = "ATURAN SITASI MUTLAK: Anda HANYA BOLEH menggunakan sitasi dari Referensi Jurnal yang dilampirkan. DILARANG KERAS menambahkan referensi eksternal dari luar untuk menjaga keabsahan metodologi SLR.";
+    } else {
+        citationRule = "ATURAN SITASI HIBRIDA: Jadikan Referensi Jurnal yang dilampirkan sebagai rujukan wajib. Namun, Anda SANGAT DIWAJIBKAN untuk MENAMBAHKAN teori, buku, atau sitasi jurnal eksternal lain secara mandiri yang valid dan relevan untuk memperkaya pembahasan. Jangan membatasi diri hanya pada referensi yang dilampirkan.";
+    }
+    text = text + "\n\n" + citationRule;
+
+    // =========================================================
+    // 2. ATURAN KHUSUS DAFTAR PUSTAKA (PENGUMPULAN SITASI)
+    // =========================================================
+    if (promptId.includes('daftar')) {
+        text += "\n\nINSTRUKSI KHUSUS DAFTAR PUSTAKA: Baca seluruh memori teks bab sebelumnya. Kumpulkan SEMUA sitasi yang telah Anda tulis (baik dari rujukan wajib maupun referensi eksternal tambahan yang Anda masukkan sendiri). Susun semuanya menjadi Daftar Pustaka berformat APA 7th Style secara alfabetis.";
+    }
+
+    // HUMANIZER & TONE SETTING
+    let toneInstruction = "Gunakan bahasa akademis yang sangat formal, objektif, baku, dan sesuai standar penulisan tugas akhir/jurnal ilmiah.";
+    if(AppState.tone === 'santai') toneInstruction = "Gunakan bahasa semi-formal yang lebih mengalir, mudah dipahami, namun tetap menjaga kaidah ilmiah.";
+    else if(AppState.tone === 'kritis') toneInstruction = "Gunakan bahasa akademis yang sangat kritis, analitis, tajam dalam membedah masalah, dan argumentatif.";
+    
+    text = text + "\n\n" + toneInstruction;
+
+    // Tambahkan Auto-Memory (Konteks Bab Sebelumnya)
+    let memoryText = "";
 
     if (memoryText !== "") {
         text = `=========================================\n🚨 INGATAN KONTEKS DRAF SAYA (WAJIB DIBACA DULU) 🚨\nAgar dokumen ini koheren dan logis, Anda WAJIB membaca draf bab-bab sebelumnya yang sudah saya tulis di bawah ini. Jawaban Anda saat ini HARUS menyambung secara logis dengan teks ini dan tidak boleh bertentangan:\n${memoryText}\n=========================================\n\n` + text;
