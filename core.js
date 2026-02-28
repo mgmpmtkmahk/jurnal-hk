@@ -203,6 +203,10 @@ window.openApiSettings = function() {
     const modal = document.getElementById('apiSettingsModal'); if (modal) modal.classList.remove('hidden');
 };
 
+function closeApiSettings() {
+    document.getElementById('apiSettingsModal').classList.add('hidden');
+}
+
 async function saveApiKey() {
     const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
     const gemini = getVal('geminiApiKeyInput'), mistral = getVal('mistralApiKeyInput'), groq = getVal('groqApiKeyInput');
