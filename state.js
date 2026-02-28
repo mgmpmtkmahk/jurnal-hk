@@ -73,13 +73,15 @@ AppState.setAndEncryptKeys = async function(gemini, mistral, groq, github, pin) 
     const salt = CryptoService.getDeviceFingerprint();
     const strongPin = pin + salt;
 
+    // SEBELUMNYA:
     this._tempGeminiKey = gemini || null; this._tempMistralKey = mistral || null;
     this._tempGroqKey = groq || null; null; this._tempGithubKey = github || null;
 
-    this._encryptedGeminiKey = gemini ? await CryptoService.encrypt(gemini, strongPin) : null;
-    this._encryptedMistralKey = mistral ? await CryptoService.encrypt(mistral, strongPin) : null;
-    this._encryptedGroqKey = groq ? await CryptoService.encrypt(groq, strongPin) : null;
-    this._encryptedGithubKey = github ? await CryptoService.encrypt(github, strongPin) : null;
+    // PERBAIKI MENJADI:
+    this._tempGeminiKey = gemini || null; 
+    this._tempMistralKey = mistral || null;
+    this._tempGroqKey = groq || null; 
+    this._tempGithubKey = github || null;
 
     this._startTempKeysTimer();
 };
@@ -106,31 +108,6 @@ AppState.decryptKeys = async function(pin) {
     this._startTempKeysTimer();
     return true;
 };
-
-async function saveStateToLocal() {
-    const stateToSave = {
-        documentType: AppState.documentType, currentStep: AppState.currentStep,
-        aiProvider: AppState.aiProvider, geminiModel: AppState.geminiModel, mistralModel: AppState.mistralModel, groqModel: AppState.groqModel, githubModel: AppState.githubModel, tone: AppState.tone,
-        encryptedGeminiKey: AppState._encryptedGeminiKey, encryptedMistralKey: AppState._encryptedMistralKey, encryptedGroqKey: AppState._encryptedGroqKey, encryptedGithubKey: AppState._encryptedGithubKey,
-        journals: AppState.journals, analysisData: AppState.analysisData, generatedTitles: AppState.generatedTitles, selectedTitle: AppState.selectedTitle, proposalData: AppState.proposalData, customPrompts: AppState.customPrompts, plagiarismConfig: AppState.plagiarismConfig, lastSaved: new Date().toISOString()
-    };
-    await localforage.setItem('scientificDocGenState', stateToSave);
-}
-
-async function loadStateFromLocal() {
-    try {
-        const parsed = await localforage.getItem('scientificDocGenState');
-        if (parsed) {
-            AppState._encryptedGeminiKey = parsed.encryptedGeminiKey || null; AppState._encryptedMistralKey = parsed.encryptedMistralKey || null; AppState._encryptedGroqKey = parsed.encryptedGroqKey || null; AppState._encryptedGithubKey = parsed.encryptedGithubKey || null;
-            Object.assign(AppState, {
-                documentType: parsed.documentType || 'proposal', currentStep: parsed.currentStep || 1,
-                aiProvider: parsed.aiProvider || 'gemini', geminiModel: parsed.geminiModel || 'gemini-2.5-flash', mistralModel: parsed.mistralModel || 'mistral-large-latest', groqModel: parsed.groqModel || 'llama-3.3-70b-versatile', githubModel: parsed.githubModel || 'gpt-4o', tone: parsed.tone || 'akademis',
-                journals: parsed.journals || [], analysisData: parsed.analysisData || {}, generatedTitles: parsed.generatedTitles || [], selectedTitle: parsed.selectedTitle || '', customPrompts: parsed.customPrompts || {}, 
-                proposalData: Object.assign(AppState.proposalData, parsed.proposalData || {}), plagiarismConfig: Object.assign(AppState.plagiarismConfig, parsed.plagiarismConfig || {})
-            });
-        }
-    } catch (e) { console.error("Failed to load state:", e); }
-}
 
 // ==========================================
 // FUNGSI SIMPAN & MUAT STATE (LOCALSTORAGE)
