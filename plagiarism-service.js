@@ -217,7 +217,7 @@ const PlagiarismService = {
             const similarPhrases = this.extractSimilarPhrases(text, ref.content || ref.raw || '', similarity);
 
             return {
-                source: ref.title || ref.parsed?.title || 'Unknown',
+                title: ref.title || ref.parsed?.title || 'Jurnal Referensi Lokal',
                 similarity: similarity,
                 matchedPhrases: similarPhrases,
                 type: 'local-reference'
