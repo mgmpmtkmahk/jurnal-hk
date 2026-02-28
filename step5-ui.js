@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const step5Container = document.getElementById('step5-container');
     
     // 1. FUNGSI TEMPLATE BUILDER UNTUK SECTION PROMPT
-    // 1. FUNGSI TEMPLATE BUILDER UNTUK SECTION PROMPT
     const buildSectionHTML = (id, title, defaultPromptText, customInfo = null, hasCheckbox = false) => {
         const finalPromptText = (AppState.customPrompts && AppState.customPrompts[id]) 
             ? AppState.customPrompts[id] 
@@ -453,6 +452,7 @@ CONTOH FORMAT YG DIWAJIBKAN:
             });
         }
     }
+    
     // Di dalam DOMContentLoaded, setelah render sectionsData:
     sectionsData.forEach(sec => {
         injectPlagiarismPanel(sec.id);
@@ -557,4 +557,10 @@ CONTOH FORMAT YG DIWAJIBKAN:
             </div>
         `;
     }
+
+    window.injectPlagiarismPanel = injectPlagiarismPanel;
+
+    sectionsData.forEach(sec => {
+        injectPlagiarismPanel(sec.id);
+    });
 });
