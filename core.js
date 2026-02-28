@@ -1697,46 +1697,74 @@ function highlightSimilarText(sectionId) {
 /**
  * Auto-paraphrase bagian bermasalah (SUPPORT MULTI-PROVIDER)
  */
+/**
+ * Auto-paraphrase bagian bermasalah (SUPPORT MULTI-PROVIDER)
+ */
 async function autoParaphraseProblematic(sectionId) {
     const result = AppState.plagiarismConfig.lastScanResults[sectionId];
-    if (!result || result.overallScore < 0.2) {
-        showCustomAlert('info', 'Tidak Perlu', 'Similarity sudah cukup rendah, tidak perlu auto-parafrase.');
+    if (!result || result.overallScore < 0.1) {
+        showCustomAlert('info', 'Aman', 'Similarity sudah cukup rendah, tidak perlu auto-parafrase.');
         return;
     }
 
     const editor = window.mdeEditors[`output-${sectionId}`];
+    const cm = editor.codemirror;
     
-    // PERBAIKAN: Gunakan Provider yang sedang aktif (Gemini atau Mistral)
     const provider = AppState.aiProvider || 'gemini';
     const apiKey = AppState.getActiveApiKey(); 
     
     if (!apiKey) {
         if (provider === 'gemini' && AppState._encryptedGeminiKey) { showUnlockModal(); return; }
         if (provider === 'mistral' && AppState._encryptedMistralKey) { showUnlockModal(); return; }
+        if (provider === 'groq' && AppState._encryptedGroqKey) { showUnlockModal(); return; }
         
-        showCustomAlert('warning', 'API Key Diperlukan', `Fitur ini membutuhkan API Key ${provider.toUpperCase()} untuk menjalankan AI parafrase.`);
+        showCustomAlert('warning', 'API Key Diperlukan', `Fitur ini membutuhkan API Key ${provider.toUpperCase()}.`);
         openApiSettings();
         return;
     }
 
-    // Identifikasi kalimat dengan similarity tinggi
+    // 1. Kumpulkan semua frasa yang bermasalah dari hasil scan
     const problematicPhrases = result.sources
         .flatMap(s => s.matchedPhrases || [])
         .filter(p => p.length > 15);
 
     if (problematicPhrases.length === 0) {
-        showCustomAlert('warning', 'Tidak Terdeteksi', 'Tidak dapat mengidentifikasi bagian spesifik untuk diparafrase secara otomatis.');
+        showCustomAlert('warning', 'Tidak Terdeteksi', 'Sistem gagal menemukan kalimat spesifik untuk diblok otomatis. Silakan klik tombol "Tandai di Teks" lalu gunakan menu Edit Blok manual.');
         return;
     }
 
-    showCustomAlert('info', 'Memproses...', `AI (${provider.toUpperCase()}) akan memparafrase ${problematicPhrases.length} bagian bermasalah secara bertahap. Ini membutuhkan waktu beberapa saat.`);
+    showCustomAlert('info', 'Memproses...', `AI (${provider.toUpperCase()}) akan memparafrase ${Math.min(problematicPhrases.length, 5)} bagian bermasalah secara bertahap.`);
 
-    // Proses satu per satu dengan delay untuk menghindari rate limit
-    for (const phrase of problematicPhrases.slice(0, 5)) { // Max 5 untuk hemat quota/waktu
-        await handleMicroEdit(sectionId, 'parafrase'); // Panggil engine micro-edit yang sudah multi-provider
-        await new Promise(r => setTimeout(r, 2000));
+    // 2. Loop dan blok teks secara otomatis (Programmatic Selection)
+    let successCount = 0;
+    const textContent = cm.getValue();
+
+    for (const phrase of problematicPhrases.slice(0, 5)) {
+        // Cari posisi persis kalimat tersebut di dalam teks
+        const index = textContent.indexOf(phrase);
+        
+        if (index !== -1) {
+            // Konversi index string biasa menjadi posisi baris & kolom untuk CodeMirror
+            const startPos = cm.posFromIndex(index);
+            const endPos = cm.posFromIndex(index + phrase.length);
+            
+            // Blok teks secara otomatis layaknya kursor mouse user
+            cm.setSelection(startPos, endPos);
+            
+            // Panggil fungsi micro-edit
+            await handleMicroEdit(sectionId, 'parafrase');
+            successCount++;
+            
+            // Delay 2.5 detik antar request agar API tidak marah (Rate Limit)
+            await new Promise(r => setTimeout(r, 2500));
+        }
     }
 
-    // Re-check setelah parafrase
-    setTimeout(() => runPlagiarismCheck(sectionId, 'local'), 3000);
+    if (successCount > 0) {
+        // Re-check originalitas setelah AI selesai memparafrase
+        showCustomAlert('success', 'Selesai', `Berhasil memparafrase ${successCount} bagian. Mengecek ulang originalitas...`);
+        setTimeout(() => runPlagiarismCheck(sectionId, 'local'), 3000);
+    } else {
+        showCustomAlert('warning', 'Gagal Menandai', 'Kalimat mungkin sudah berubah secara manual sebelum tombol ditekan.');
+    }
 }

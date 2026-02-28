@@ -313,17 +313,18 @@ const PlagiarismService = {
     },
 
     extractSimilarPhrases(text1, text2, threshold = 0.6) {
-        // Simplified: cari n-gram yang sama
         const phrases = [];
-        const words1 = text1.split(/\s+/).slice(0, 100); // Limit untuk performa
+        // Hapus batasan 100 kata agar seluruh teks di-scan
+        const words1 = text1.split(/\s+/); 
         
         for (let i = 0; i < words1.length - 3; i++) {
-            const phrase = words1.slice(i, i + 4).join(' ');
-            if (text2.toLowerCase().includes(phrase.toLowerCase()) && phrase.length > 15) {
+            const phrase = words1.slice(i, i + 5).join(' ');
+            
+            if (text2.toLowerCase().includes(phrase.toLowerCase()) && phrase.length > 20) {
                 phrases.push(phrase);
-                i += 3; // Skip overlap
+                i += 4; 
             }
-            if (phrases.length >= 5) break; // Limit output
+            if (phrases.length >= 5) break; 
         }
 
         return phrases;
