@@ -397,7 +397,7 @@ function getDynamicPromptText(elementId, isForAPI = false) {
     const sectionsList = typeof getActiveSections === 'function' ? getActiveSections() : [];
     const currentIndex = sectionsList.indexOf(currentKey);
     
-    const exceptions = ['latar', 'mpendahuluan', 'jpendahuluan', 'slrpendahuluan', 'rpendahuluan', 'sdeskripsi', 'daftar', 'mdaftar', 'jdaftar', 'sdaftar', 'slrdaftar', 'jabstrak', 'slrabstrak'];
+    const exceptions = ['latar', 'mpendahuluan', 'jpendahuluan', 'slrpendahuluan', 'rpendahuluan', 'sdeskripsi', 'daftar', 'mdaftar', 'jdaftar', 'sdaftar', 'slrdaftar', 'rdaftar', 'jabstrak', 'slrabstrak'];
 
     let memoryText = "";
     if (currentIndex > 0 && !exceptions.includes(currentKey) && !elementId.includes('step')) {
@@ -807,7 +807,7 @@ function displayTitleSelection() {
 function selectTitleForProposal(title, element) {
     const hasData = Object.values(AppState.proposalData).some(val => val && val.length > 10);
     const executeSwitch = () => {
-        AppState.proposalData = { latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '', mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '', jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '', sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '', slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrabstrak: '', slrdaftar: '' };
+        AppState.proposalData = { latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '', mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '', jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '', sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '', slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrabstrak: '', slrdaftar: '', rpendahuluan: '', rtinjauan: '', rspesifikasi: '', rmetode: '', rjadwal: '', rdaftar: '' };
         document.querySelectorAll('textarea[id^="output-"]').forEach(el => el.value = '');
         document.querySelectorAll('.title-card').forEach(div => { div.classList.remove('border-yellow-500', 'bg-yellow-50'); div.classList.add('border-gray-200'); });
         element.classList.remove('border-gray-200'); element.classList.add('border-yellow-500', 'bg-yellow-50');
@@ -1123,14 +1123,19 @@ function downloadDOCX() {
         docContent += `<div class="cover-page"><h2>PROPOSAL PROYEK ROBOTIK / IT</h2><div class="cover-title">${AppState.selectedTitle || 'Judul Belum Dipilih'}</div><div class="cover-author">Disusun Oleh:<br><strong>[ TIM PENYUSUN ]</strong></div><div class="cover-inst">EKSTRAKURIKULER ROBOTIK<br>PONTREN HUSNUL KHOTIMAH<br>${new Date().getFullYear()}</div></div>`;
         docContent += `<div class="chapter-title">BAB I<br>PENDAHULUAN</div>`;
         if(AppState.proposalData.rpendahuluan) docContent += formatTextForWord(AppState.proposalData.rpendahuluan);
-        docContent += `<div class="chapter-title page-break">BAB II<br>SPESIFIKASI DAN DESAIN SISTEM</div>`;
+        docContent += `<div class="chapter-title page-break">BAB II<br>TINJAUAN PUSTAKA DAN DASAR TEORI</div>`;
+        if(AppState.proposalData.rtinjauan) docContent += formatTextForWord(AppState.proposalData.rtinjauan);
+        docContent += `<div class="chapter-title page-break">BAB III<br>SPESIFIKASI DAN DESAIN SISTEM</div>`;
         if(AppState.proposalData.rspesifikasi) docContent += formatTextForWord(AppState.proposalData.rspesifikasi);
-        docContent += `<div class="chapter-title page-break">BAB III<br>METODE PELAKSANAAN</div>`;
+        docContent += `<div class="chapter-title page-break">BAB IV<br>METODE PELAKSANAAN DAN TARGET LUARAN</div>`;
         if(AppState.proposalData.rmetode) docContent += formatTextForWord(AppState.proposalData.rmetode);
-        docContent += `<div class="chapter-title page-break">BAB IV<br>TARGET LUARAN DAN MANFAAT</div>`;
-        if(AppState.proposalData.rtarget) docContent += formatTextForWord(AppState.proposalData.rtarget);
-        docContent += `<div class="chapter-title page-break">BAB V<br>JADWAL DAN RENCANA ANGGARAN</div>`;
+        docContent += `<div class="chapter-title page-break">BAB V<br>JADWAL DAN RENCANA ANGGARAN BIAYA</div>`;
         if(AppState.proposalData.rjadwal) docContent += formatTextForWord(AppState.proposalData.rjadwal);
+        if(AppState.proposalData.rdaftar) {
+            docContent += `<div class="chapter-title page-break">DAFTAR PUSTAKA</div>`;
+            let sectionHtml = formatTextForWord(AppState.proposalData.rdaftar);
+            docContent += sectionHtml.replace(/<p[^>]*>/g, '<p class="biblio-item">');
+        }
     }
     else if (AppState.documentType === 'slr') {
         docContent += `<div class="jurnal-title">${AppState.selectedTitle || 'Review Article Title'}</div>`;

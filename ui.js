@@ -95,7 +95,7 @@ function setDocumentType(type) {
 
 function getActiveSections() {
     if (AppState.documentType === 'proposal') return ['latar', 'rumusan', 'tujuan', 'manfaat', 'metode', 'landasan', 'hipotesis', 'jadwal', 'daftar', 'final'];
-    if (AppState.documentType === 'robotik') return ['rpendahuluan', 'rspesifikasi', 'rmetode', 'rtarget', 'rjadwal', 'final'];
+    if (AppState.documentType === 'robotik') return ['rpendahuluan', 'rtinjauan', 'rspesifikasi', 'rmetode', 'rjadwal', 'rdaftar', 'final'];
     if (AppState.documentType === 'makalah') return ['mpendahuluan', 'mpembahasan', 'mpenutup', 'mdaftar', 'final'];
     if (AppState.documentType === 'jurnal') return ['jpendahuluan', 'jmetode', 'jhasil', 'jkesimpulan', 'jabstrak', 'jdaftar', 'final'];
     if (AppState.documentType === 'skripsi') return ['sdeskripsi', 'sanalisis', 'spembahasan', 'skesimpulan', 'ssaran', 'sdaftar', 'final'];
