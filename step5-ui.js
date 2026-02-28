@@ -6,12 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const step5Container = document.getElementById('step5-container');
     
     // 1. FUNGSI TEMPLATE BUILDER UNTUK SECTION PROMPT
+    // 1. FUNGSI TEMPLATE BUILDER UNTUK SECTION PROMPT
     const buildSectionHTML = (id, title, defaultPromptText, customInfo = null, hasCheckbox = false) => {
         const finalPromptText = (AppState.customPrompts && AppState.customPrompts[id]) 
             ? AppState.customPrompts[id] 
             : defaultPromptText;
 
-    const plagiarismPlaceholder = `<div id="plagiarism-panel-${id}" class="mt-2 mb-6"></div>`;
+        // FIXED: Hilangkan mb-6 agar jarak dikontrol oleh padding tombol di bawahnya
+        const plagiarismPlaceholder = `<div id="plagiarism-panel-${id}" class="mt-2"></div>`;
         
         // DETEKSI APAKAH INI BAB DAFTAR PUSTAKA
         const isDaftarPustaka = id.includes('daftar');
@@ -47,11 +49,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     </div>
 
-                    <div class="mt-4 flex gap-3 flex-shrink-0">
-                        <button onclick="openGeminiWithPrompt('prompt-${id}')" class="flex-1 bg-indigo-100 text-indigo-700 py-3 rounded-xl font-bold hover:bg-indigo-200 transition-all border border-indigo-200">
+                    <div class="mt-auto pt-6 flex gap-3 flex-shrink-0 border-t border-transparent">
+                        <button onclick="openGeminiWithPrompt('prompt-${id}')" class="flex-1 bg-indigo-50 text-indigo-700 py-3.5 rounded-xl font-bold hover:bg-indigo-100 transition-all border border-indigo-200 shadow-sm flex items-center justify-center">
                             <i class="fas fa-external-link-alt mr-2"></i>Manual Tab
                         </button>
-                        <button onclick="generateWithAPI('prompt-${id}', 'output-${id}')" class="flex-[1.5] bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all border border-purple-500">
+                        <button onclick="generateWithAPI('prompt-${id}', 'output-${id}')" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all border border-purple-500 shadow-sm flex items-center justify-center">
                             <i class="fas fa-robot mr-2"></i>Auto API
                         </button>
                     </div>
@@ -89,18 +91,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     ${plagiarismPlaceholder}
 
-                    <div class="mt-auto flex gap-3 flex-shrink-0">
-                        <button onclick="prevProposalSection('${id}')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all">
+                    <div class="mt-auto pt-6 flex gap-3 flex-shrink-0 border-t border-transparent">
+                        <button onclick="prevProposalSection('${id}')" class="flex-1 bg-gray-200 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-300 transition-all shadow-sm flex items-center justify-center">
                             <i class="fas fa-arrow-left mr-2"></i>Kembali
                         </button>
                         
                         ${isDaftarPustaka ? `
-                        <button onclick="exportFinalRISToMendeley('${id}')" class="flex-1 bg-blue-100 text-blue-700 py-4 rounded-xl font-bold hover:bg-blue-200 transition-all border border-blue-200">
+                        <button onclick="exportFinalRISToMendeley('${id}')" class="flex-1 bg-blue-100 text-blue-700 py-3.5 rounded-xl font-bold hover:bg-blue-200 transition-all border border-blue-200 shadow-sm flex items-center justify-center">
                             <i class="fas fa-file-export mr-2"></i>Export .RIS
                         </button>
                         ` : ''}
 
-                        <button onclick="saveProposalSection('${id}')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all">
+                        <button onclick="saveProposalSection('${id}')" class="flex-1 bg-green-600 text-white py-3.5 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all shadow-sm flex items-center justify-center">
                             <i class="fas fa-save mr-2"></i>Simpan
                         </button>
                     </div>
@@ -526,7 +528,7 @@ CONTOH FORMAT YG DIWAJIBKAN:
                         </div>
 
                         <!-- Action Buttons -->
-                        <div class="flex gap-2 pt-2 border-t border-orange-100">
+                        <div class="flex gap-2 pt-4 mt-2 border-t border-orange-100">
                             <button onclick="highlightSimilarText('${sectionId}')" 
                                 class="flex-1 bg-indigo-50 text-indigo-700 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-100 transition-all">
                                 <i class="fas fa-highlighter mr-1"></i>Tandai di Teks
