@@ -241,20 +241,18 @@ async function removeApiKey() {
 }
 
 // ==========================================
-// 🌟 FUNGSI GENERATE MULTI-PROVIDER (GEMINI, MISTRAL, GROQ)
+// 🌟 FUNGSI GENERATE MULTI-PROVIDER
 // ==========================================
-
 async function generateWithAPI(promptId, targetTextareaId) {
     const provider = AppState.aiProvider || 'gemini';
-    
-    // Langsung ambil kunci yang ter-dekripsi dari memori aktif
     let apiKey = AppState.getActiveApiKey(); 
     
     if (!apiKey) {
-        // Cek apakah sebenarnya ada key yang tersimpan, tapi sedang terkunci (belum masukin PIN)
         if (provider === 'gemini' && AppState._encryptedGeminiKey) { showUnlockModal(); return; }
         if (provider === 'mistral' && AppState._encryptedMistralKey) { showUnlockModal(); return; }
         if (provider === 'groq' && AppState._encryptedGroqKey) { showUnlockModal(); return; }
+        if (provider === 'ai21' && AppState._encryptedAi21Key) { showUnlockModal(); return; }
+        if (provider === 'github' && AppState._encryptedGithubKey) { showUnlockModal(); return; }
         
         showCustomAlert('warning', 'API Key Dibutuhkan', `Harap masukkan API Key ${provider.toUpperCase()} Anda di pengaturan (Ikon Kunci).`);
         openApiSettings();
@@ -280,7 +278,7 @@ async function generateWithAPI(promptId, targetTextareaId) {
     const targetEl = document.getElementById(targetTextareaId);
     const originalVal = targetEl.value; 
     
-    targetEl.value = `Menghubungkan ke satelit ${provider.toUpperCase()}... Memulai streaming teks...`;
+    targetEl.value = `Menghubungkan ke satelit ${provider.toUpperCase()}... Memproses teks...`;
     targetEl.disabled = true;
     targetEl.classList.add('bg-indigo-50', 'border-indigo-400');
 
@@ -289,106 +287,52 @@ async function generateWithAPI(promptId, targetTextareaId) {
     try {
         let endpoint, options;
 
-        // 🚀 ROUTING BERDASARKAN PROVIDER
         if (provider === 'gemini') {
             const gModel = AppState.geminiModel || 'gemini-2.5-flash';
-            endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
+            endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${gModel}:streamGenerateContent?alt=sse&key=${apiKey}`;
             const genConfig = { temperature: 0.7 };
             if (isJsonExpected) genConfig.responseMimeType = "application/json";
-
-            options = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: promptText }] }],
-                    generationConfig: genConfig 
-                })
-            };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }], generationConfig: genConfig }) };
         } else if (provider === 'mistral') {
             endpoint = `https://api.mistral.ai/v1/chat/completions`;
-            const reqBody = {
-                model: AppState.mistralModel || 'mistral-large-latest',
-                messages: [{ role: 'user', content: promptText }],
-                temperature: 0.7,
-                stream: true
-            };
+            const reqBody = { model: AppState.mistralModel || 'mistral-large-latest', messages: [{ role: 'user', content: promptText }], temperature: 0.7, stream: true };
             if (isJsonExpected) reqBody.response_format = { type: "json_object" };
-
-            options = {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'text/event-stream',
-                    'Authorization': `Bearer ${apiKey}` 
-                },
-                body: JSON.stringify(reqBody)
-            };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         } else if (provider === 'groq') {
             endpoint = `https://api.groq.com/openai/v1/chat/completions`;
-            const reqBody = {
-                model: AppState.groqModel || 'llama-3.3-70b-versatile',
-                messages: [{ role: 'user', content: promptText }],
-                temperature: 0.7,
-                stream: true
-            };
+            const reqBody = { model: AppState.groqModel || 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: promptText }], temperature: 0.7, stream: true };
             if (isJsonExpected) reqBody.response_format = { type: "json_object" };
-
-            options = {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}` 
-                },
-                body: JSON.stringify(reqBody)
-            };
-        } else if (provider === 'ai21') {
-            endpoint = `https://api.ai21.com/studio/v1/chat/completions`;
-            const reqBody = {
-                model: AppState.ai21Model || 'jamba-1.5-large',
-                messages: [{ role: 'user', content: promptText }],
-                temperature: 0.7,
-                max_tokens: 4096, // WAJIB untuk AI21 agar tidak error
-                stream: false
-            };
-            // CATATAN: DILARANG menggunakan response_format = json_object untuk AI21 karena API akan menolaknya.
-            options = { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, 
-                body: JSON.stringify(reqBody) 
-            };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         } else if (provider === 'github') {
             endpoint = `https://models.inference.ai.azure.com/chat/completions`;
-            const reqBody = {
-                model: AppState.githubModel || 'gpt-4o',
-                messages: [{ role: 'user', content: promptText }],
-                temperature: 0.7,
-                max_tokens: 4096,
-                stream: true
-            };
+            const reqBody = { model: AppState.githubModel || 'gpt-4o', messages: [{ role: 'user', content: promptText }], temperature: 0.7, max_tokens: 4096, stream: true };
             if (isJsonExpected) reqBody.response_format = { type: "json_object" };
-            options = { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, 
-                body: JSON.stringify(reqBody) 
-            };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
+        } else if (provider === 'ai21') {
+            // FIX AI21: Gunakan layanan Proxy Bypass, batasi max_tokens, dan matikan stream
+            endpoint = `https://corsproxy.io/?https://api.ai21.com/studio/v1/chat/completions`;
+            const reqBody = { model: AppState.ai21Model || 'jamba-1.5-large', messages: [{ role: 'user', content: promptText }], temperature: 0.7, max_tokens: 2048, stream: false };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         }
 
         const response = await fetch(endpoint, options);
 
         if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error?.message || errData.message || `Gagal menghubungi API ${provider}`);
+            // TANGKAP PESAN ERROR ASLI DARI PROVIDER
+            let errMsg = `Gagal menghubungi server.`;
+            try {
+                const errData = await response.json();
+                errMsg = errData.error?.message || errData.detail || errData.message || JSON.stringify(errData);
+            } catch(e) {
+                errMsg = response.statusText || await response.text();
+            }
+            throw new Error(`Pesan Server: ${errMsg}`);
         }
 
-        targetEl.value = ""; 
-        if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
-            window.mdeEditors[targetTextareaId].value("");
-            window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", true);
-        } 
-
+        // 🚀 PENANGANAN KHUSUS AI21 (NON-STREAMING JALUR CEPAT)
         if (provider === 'ai21') {
             const dataObj = await response.json();
-            const newText = dataObj.choices[0].message?.content || "";
+            const newText = dataObj.choices?.[0]?.message?.content || "";
             
             targetEl.value = ""; 
             if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
@@ -399,15 +343,21 @@ async function generateWithAPI(promptId, targetTextareaId) {
             
             const event = new Event('input', { bubbles: true });
             targetEl.dispatchEvent(event);
-            showCustomAlert('success', 'Generate Selesai!', `AI AI21 Labs berhasil menyusun teks.`);
+            showCustomAlert('success', 'Generate Selesai!', `AI21 Labs berhasil menyusun teks.`);
             
             targetEl.disabled = false;
             targetEl.classList.remove('bg-indigo-50', 'border-indigo-400');
             if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
                 window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", false);
             }
-            return; // Berhenti di sini, jangan lanjutkan ke mesin streaming di bawah!
+            return; // Berhenti di sini, keluar dari fungsi!
         }
+
+        targetEl.value = ""; 
+        if (window.mdeEditors && window.mdeEditors[targetTextareaId]) {
+            window.mdeEditors[targetTextareaId].value("");
+            window.mdeEditors[targetTextareaId].codemirror.setOption("readOnly", true);
+        } 
         
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
@@ -430,10 +380,9 @@ async function generateWithAPI(promptId, targetTextareaId) {
                         const dataObj = JSON.parse(jsonStr);
                         let newText = "";
 
-                        // 🔍 PARSING STREAMING GEMINI VS STANDAR OPENAI (Mistral, Groq, AI21, Github)
                         if (provider === 'gemini' && dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
                             newText = dataObj.candidates[0].content.parts[0].text;
-                        } else if (['mistral', 'groq', 'ai21', 'github'].includes(provider) && dataObj.choices && dataObj.choices[0].delta?.content) {
+                        } else if (['mistral', 'groq', 'github'].includes(provider) && dataObj.choices && dataObj.choices[0].delta?.content) {
                             newText = dataObj.choices[0].delta.content;
                         }
 
@@ -1364,7 +1313,7 @@ async function extractTextFromPDF(event) {
 }
 
 // ==========================================
-// 🌟 FITUR BARU: MICRO-EDITING MULTI-PROVIDER
+// 🌟 FITUR MICRO-EDITING MULTI-PROVIDER
 // ==========================================
 async function handleMicroEdit(sectionId, action) {
     const editor = window.mdeEditors[`output-${sectionId}`];
@@ -1385,6 +1334,8 @@ async function handleMicroEdit(sectionId, action) {
         if (provider === 'gemini' && AppState._encryptedGeminiKey) { showUnlockModal(); return; }
         if (provider === 'mistral' && AppState._encryptedMistralKey) { showUnlockModal(); return; }
         if (provider === 'groq' && AppState._encryptedGroqKey) { showUnlockModal(); return; }
+        if (provider === 'ai21' && AppState._encryptedAi21Key) { showUnlockModal(); return; }
+        if (provider === 'github' && AppState._encryptedGithubKey) { showUnlockModal(); return; }
         
         showCustomAlert('warning', 'API Key Dibutuhkan', `Harap masukkan API Key ${provider.toUpperCase()} Anda di pengaturan.`);
         openApiSettings();
@@ -1405,7 +1356,7 @@ async function handleMicroEdit(sectionId, action) {
     }
 
     cm.setOption("readOnly", true); 
-    const marker = `[⏳ ${provider.toUpperCase()} sedang ${actionLabel}]`;
+    const marker = `[⏳ ${provider.toUpperCase()} sedang memproses...]`;
     cm.replaceSelection(marker);
     
     const endCursor = cm.getCursor();
@@ -1415,69 +1366,42 @@ async function handleMicroEdit(sectionId, action) {
         let endpoint, options;
 
         if (provider === 'gemini') {
-            endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${apiKey}`;
-            options = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-            };
+            const gModel = AppState.geminiModel || 'gemini-2.5-flash';
+            endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${gModel}:streamGenerateContent?alt=sse&key=${apiKey}`;
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] }) };
         } else if (provider === 'mistral') {
             endpoint = `https://api.mistral.ai/v1/chat/completions`;
-            options = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream', 'Authorization': `Bearer ${apiKey}` },
-                body: JSON.stringify({
-                    model: AppState.mistralModel || 'mistral-large-latest',
-                    messages: [{ role: 'user', content: promptText }],
-                    stream: true
-                })
-            };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify({ model: AppState.mistralModel || 'mistral-large-latest', messages: [{ role: 'user', content: promptText }], stream: true }) };
         } else if (provider === 'groq') {
             endpoint = `https://api.groq.com/openai/v1/chat/completions`;
-            options = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-                body: JSON.stringify({
-                    model: AppState.groqModel || 'llama-3.3-70b-versatile',
-                    messages: [{ role: 'user', content: promptText }],
-                    stream: true
-                })
-            };
-        } else if (provider === 'ai21') {
-            endpoint = `https://api.ai21.com/studio/v1/chat/completions`;
-            const reqBody = {
-                model: AppState.ai21Model || 'jamba-1.5-large',
-                messages: [{ role: 'user', content: promptText }],
-                temperature: 0.7, stream: false
-            };
-            if (isJsonExpected) reqBody.response_format = { type: "json_object" };
-            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify({ model: AppState.groqModel || 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: promptText }], stream: true }) };
         } else if (provider === 'github') {
             endpoint = `https://models.inference.ai.azure.com/chat/completions`;
-            const reqBody = {
-                model: AppState.githubModel || 'gpt-4o',
-                messages: [{ role: 'user', content: promptText }],
-                temperature: 0.7, stream: true
-            };
-            if (isJsonExpected) reqBody.response_format = { type: "json_object" };
-            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify({ model: AppState.githubModel || 'gpt-4o', messages: [{ role: 'user', content: promptText }], max_tokens: 2048, stream: true }) };
+        } else if (provider === 'ai21') {
+            // FIX AI21
+            endpoint = `https://corsproxy.io/?https://api.ai21.com/studio/v1/chat/completions`;
+            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify({ model: AppState.ai21Model || 'jamba-1.5-large', messages: [{ role: 'user', content: promptText }], max_tokens: 2048, stream: false }) };
         }
 
         const response = await fetch(endpoint, options);
-        if (!response.ok) throw new Error(`Gagal menghubungi API ${provider}.`);
+        if (!response.ok) {
+            let errMsg = `Gagal menghubungi server`;
+            try { const errData = await response.json(); errMsg = errData.error?.message || errData.detail || errData.message || JSON.stringify(errData); } catch(e) { errMsg = response.statusText; }
+            throw new Error(`Pesan Server: ${errMsg}`);
+        }
 
         cm.replaceSelection(""); 
 
+        // 🚀 JALUR CEPAT KHUSUS AI21
         if (provider === 'ai21') {
             const dataObj = await response.json();
-            const newText = dataObj.choices[0].message?.content || "";
-            
+            const newText = dataObj.choices?.[0]?.message?.content || "";
             if (newText) cm.replaceSelection(newText);
-            
             showCustomAlert('success', 'Berhasil', `Teks berhasil diedit oleh AI21.`);
             cm.setOption("readOnly", false); 
-            document.getElementById(`output-${sectionId}`).value = cm.getValue();
-            return; // Berhenti di sini!
+            document.getElementById(`output-${sectionId}`).value = cm.getValue(); 
+            return;
         }
 
         const reader = response.body.getReader();
@@ -1500,10 +1424,9 @@ async function handleMicroEdit(sectionId, action) {
                         const dataObj = JSON.parse(jsonStr);
                         let newText = "";
                         
-                        // 🔍 PARSING STREAMING GEMINI VS STANDAR OPENAI (Mistral, Groq, AI21, Github)
                         if (provider === 'gemini' && dataObj.candidates && dataObj.candidates[0].content?.parts[0]?.text) {
                             newText = dataObj.candidates[0].content.parts[0].text;
-                        } else if (['mistral', 'groq', 'ai21', 'github'].includes(provider) && dataObj.choices && dataObj.choices[0].delta?.content) {
+                        } else if (['mistral', 'groq', 'github'].includes(provider) && dataObj.choices && dataObj.choices[0].delta?.content) {
                             newText = dataObj.choices[0].delta.content;
                         }
                         
