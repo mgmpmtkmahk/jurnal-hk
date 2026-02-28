@@ -346,19 +346,31 @@ async function generateWithAPI(promptId, targetTextareaId) {
             const reqBody = {
                 model: AppState.ai21Model || 'jamba-1.5-large',
                 messages: [{ role: 'user', content: promptText }],
-                temperature: 0.7, stream: true
+                temperature: 0.7,
+                max_tokens: 4096, // WAJIB untuk AI21 agar tidak error
+                stream: true
             };
-            if (isJsonExpected) reqBody.response_format = { type: "json_object" };
-            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
+            // CATATAN: DILARANG menggunakan response_format = json_object untuk AI21 karena API akan menolaknya.
+            options = { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, 
+                body: JSON.stringify(reqBody) 
+            };
         } else if (provider === 'github') {
             endpoint = `https://models.inference.ai.azure.com/chat/completions`;
             const reqBody = {
                 model: AppState.githubModel || 'gpt-4o',
                 messages: [{ role: 'user', content: promptText }],
-                temperature: 0.7, stream: true
+                temperature: 0.7,
+                max_tokens: 4096,
+                stream: true
             };
             if (isJsonExpected) reqBody.response_format = { type: "json_object" };
-            options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
+            options = { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, 
+                body: JSON.stringify(reqBody) 
+            };
         }
 
         const response = await fetch(endpoint, options);

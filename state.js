@@ -142,6 +142,10 @@ async function loadStateFromLocal() {
 // FUNGSI SIMPAN & MUAT STATE (LOCALSTORAGE)
 // ==========================================
 
+// ==========================================
+// FUNGSI SIMPAN & MUAT STATE (LOCALSTORAGE)
+// ==========================================
+
 async function saveStateToLocal() {
     const stateToSave = {
         documentType: AppState.documentType,
@@ -150,12 +154,16 @@ async function saveStateToLocal() {
         geminiModel: AppState.geminiModel,
         mistralModel: AppState.mistralModel,
         groqModel: AppState.groqModel,
+        ai21Model: AppState.ai21Model,
+        githubModel: AppState.githubModel,
         tone: AppState.tone,
         
-        // Simpan versi terenkripsi dari kedua provider
+        // Simpan versi terenkripsi dari SEMUA provider
         encryptedGeminiKey: AppState._encryptedGeminiKey, 
         encryptedMistralKey: AppState._encryptedMistralKey,
         encryptedGroqKey: AppState._encryptedGroqKey,
+        encryptedAi21Key: AppState._encryptedAi21Key,
+        encryptedGithubKey: AppState._encryptedGithubKey,
         
         journals: AppState.journals,
         analysisData: AppState.analysisData,
@@ -173,9 +181,12 @@ async function loadStateFromLocal() {
     try {
         const parsed = await localforage.getItem('scientificDocGenState');
         if (parsed) {
-            // Muat kembali kunci terenkripsi ke state
-            if (parsed.encryptedGeminiKey) AppState._encryptedGeminiKey = parsed.encryptedGeminiKey;
-            if (parsed.encryptedMistralKey) AppState._encryptedMistralKey = parsed.encryptedMistralKey;
+            // Muat kembali KELIMA kunci terenkripsi ke state
+            AppState._encryptedGeminiKey = parsed.encryptedGeminiKey || null;
+            AppState._encryptedMistralKey = parsed.encryptedMistralKey || null;
+            AppState._encryptedGroqKey = parsed.encryptedGroqKey || null;
+            AppState._encryptedAi21Key = parsed.encryptedAi21Key || null;
+            AppState._encryptedGithubKey = parsed.encryptedGithubKey || null;
 
             Object.assign(AppState, {
                 documentType: parsed.documentType || 'proposal',
@@ -183,8 +194,9 @@ async function loadStateFromLocal() {
                 aiProvider: parsed.aiProvider || 'gemini',
                 geminiModel: parsed.geminiModel || 'gemini-2.5-flash',
                 mistralModel: parsed.mistralModel || 'mistral-large-latest',
-                groqModel: AppState.groqModel,
-                encryptedGroqKey: AppState._encryptedGroqKey,
+                groqModel: parsed.groqModel || 'llama-3.3-70b-versatile',
+                ai21Model: parsed.ai21Model || 'jamba-1.5-large',
+                githubModel: parsed.githubModel || 'gpt-4o',
                 tone: parsed.tone || 'akademis',
                 journals: parsed.journals || [],
                 analysisData: parsed.analysisData || {},
