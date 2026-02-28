@@ -7,75 +7,108 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 1. FUNGSI TEMPLATE BUILDER UNTUK SECTION PROMPT
     const buildSectionHTML = (id, title, defaultPromptText, customInfo = null, hasCheckbox = false) => {
-    const finalPromptText = (AppState.customPrompts && AppState.customPrompts[id]) 
-        ? AppState.customPrompts[id] 
-        : defaultPromptText;
+        const finalPromptText = (AppState.customPrompts && AppState.customPrompts[id]) 
+            ? AppState.customPrompts[id] 
+            : defaultPromptText;
 
-    const plagiarismPlaceholder = `<div id="plagiarism-panel-${id}" class="mt-4"></div>`;
-    
-    // DETEKSI APAKAH INI BAB DAFTAR PUSTAKA
-    const isDaftarPustaka = id.includes('daftar');
+        const plagiarismPlaceholder = `<div id="plagiarism-panel-${id}" class="mt-4"></div>`;
+        
+        // DETEKSI APAKAH INI BAB DAFTAR PUSTAKA
+        const isDaftarPustaka = id.includes('daftar');
 
-    return `
-    <div id="section-${id}" class="proposal-section hidden mb-6">
-        <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">${title}</h3>
-        <div class="grid lg:grid-cols-2 gap-8 items-stretch">
-            
-            <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
-                </div>
-
-            <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
-                <h4 class="text-lg font-bold mb-4 flex items-center text-green-600">
-                    <i class="fas fa-paste mr-3"></i>Paste Hasil Gemini
-                </h4>
+        return `
+        <div id="section-${id}" class="proposal-section hidden mb-6">
+            <h3 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">${title}</h3>
+            <div class="grid lg:grid-cols-2 gap-8 items-stretch">
                 
-                ${hasCheckbox ? `
-                <div class="flex items-center mb-4 bg-yellow-50 p-3 rounded-xl border border-yellow-100">
-                    <input type="checkbox" id="skip-${id}" class="mr-3 w-5 h-5 text-indigo-600" onchange="toggleHipotesis()">
-                    <label for="skip-${id}" class="text-sm font-medium text-yellow-800">Centang jika Kualitatif murni</label>
-                </div>` : ''}
-                
-                <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
-                    <textarea id="output-${id}" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil dari Gemini di sini..."></textarea>
-                </div>
-                
-                <div class="flex flex-wrap gap-2 mb-4 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100 shadow-inner">
-                    <span class="text-xs font-bold text-indigo-500 flex items-center mr-1">
-                        <i class="fas fa-magic mr-1"></i> Edit Blok:
-                    </span>
-                    <button onclick="handleMicroEdit('${id}', 'perpanjang')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
-                        <i class="fas fa-expand-alt mr-1"></i>Perpanjang
-                    </button>
-                    <button onclick="handleMicroEdit('${id}', 'perbaiki')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
-                        <i class="fas fa-spell-check mr-1"></i>Perbaiki
-                    </button>
-                    <button onclick="handleMicroEdit('${id}', 'parafrase')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
-                        <i class="fas fa-sync-alt mr-1"></i>Parafrase
-                    </button>
-                </div>
+                <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                    <h4 class="text-lg font-bold mb-4 flex items-center text-indigo-600">
+                        <i class="fas fa-magic mr-3"></i>Instruksi & Prompt AI
+                    </h4>
 
-                ${plagiarismPlaceholder}
-
-                <div class="mt-auto flex gap-3 flex-shrink-0">
-                    <button onclick="prevProposalSection('${id}')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all">
-                        <i class="fas fa-arrow-left mr-2"></i>Kembali
-                    </button>
-                    
-                    ${isDaftarPustaka ? `
-                    <button onclick="exportFinalRISToMendeley('${id}')" class="flex-1 bg-blue-100 text-blue-700 py-4 rounded-xl font-bold hover:bg-blue-200 transition-all border border-blue-200">
-                        <i class="fas fa-file-export mr-2"></i>Export .RIS
-                    </button>
+                    ${customInfo ? `
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4 rounded-r-lg text-sm text-yellow-800 flex items-start shadow-sm">
+                        <i class="fas fa-info-circle mt-0.5 mr-2"></i>
+                        <p><strong>Tips User:</strong> ${customInfo}</p>
+                    </div>
                     ` : ''}
 
-                    <button onclick="saveProposalSection('${id}')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all">
-                        <i class="fas fa-save mr-2"></i>Simpan
-                    </button>
+                    <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px] shadow-inner border border-gray-800">
+                        <div class="absolute top-2 right-2 flex gap-2 z-10">
+                            <button id="btn-edit-${id}" onclick="toggleEditPrompt('${id}')" class="bg-gray-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-gray-500 transition-colors shadow-sm font-semibold flex items-center">
+                                <i class="fas fa-edit mr-1"></i>Edit
+                            </button>
+                            <button onclick="copyPromptText('prompt-${id}')" class="copy-btn bg-indigo-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-indigo-500 transition-colors shadow-sm font-semibold flex items-center" data-prompt-id="prompt-${id}">
+                                <i class="fas fa-copy mr-1"></i>Copy
+                            </button>
+                        </div>
+                        <div class="absolute inset-0 p-4 mt-8 overflow-y-auto custom-scrollbar">
+                            <pre id="prompt-${id}" class="text-green-400 text-xs whitespace-pre-wrap font-mono m-0 leading-relaxed outline-none" contenteditable="false">${finalPromptText}</pre>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex gap-3 flex-shrink-0">
+                        <button onclick="openGeminiWithPrompt('prompt-${id}')" class="flex-1 bg-indigo-100 text-indigo-700 py-3 rounded-xl font-bold hover:bg-indigo-200 transition-all border border-indigo-200">
+                            <i class="fas fa-external-link-alt mr-2"></i>Manual Tab
+                        </button>
+                        <button onclick="generateWithAPI('prompt-${id}', 'output-${id}')" class="flex-[1.5] bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all border border-purple-500">
+                            <i class="fas fa-robot mr-2"></i>Auto API
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-xl p-6 flex flex-col h-full border border-gray-100">
+                    <h4 class="text-lg font-bold mb-4 flex items-center text-green-600">
+                        <i class="fas fa-paste mr-3"></i>Paste Hasil AI & Editor
+                    </h4>
+                    
+                    ${hasCheckbox ? `
+                    <div class="flex items-center mb-4 bg-yellow-50 p-3 rounded-xl border border-yellow-100">
+                        <input type="checkbox" id="skip-${id}" class="mr-3 w-5 h-5 text-indigo-600" onchange="toggleHipotesis()">
+                        <label for="skip-${id}" class="text-sm font-medium text-yellow-800">Centang jika Kualitatif murni (Lewati Bagian)</label>
+                    </div>` : ''}
+                    
+                    <div class="flex-grow mb-4 flex flex-col relative min-h-[250px]">
+                        <textarea id="output-${id}" class="w-full h-full absolute inset-0 p-4 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none custom-scrollbar resize-none text-sm" placeholder="Paste hasil dari AI di sini..."></textarea>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4 bg-indigo-50/50 p-2.5 rounded-xl border border-indigo-100 shadow-inner">
+                        <span class="text-xs font-bold text-indigo-500 flex items-center mr-1">
+                            <i class="fas fa-magic mr-1"></i> Edit Blok:
+                        </span>
+                        <button onclick="handleMicroEdit('${id}', 'perpanjang')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
+                            <i class="fas fa-expand-alt mr-1"></i>Perpanjang
+                        </button>
+                        <button onclick="handleMicroEdit('${id}', 'perbaiki')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
+                            <i class="fas fa-spell-check mr-1"></i>Perbaiki
+                        </button>
+                        <button onclick="handleMicroEdit('${id}', 'parafrase')" class="text-xs bg-white border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
+                            <i class="fas fa-sync-alt mr-1"></i>Parafrase
+                        </button>
+                    </div>
+
+                    ${plagiarismPlaceholder}
+
+                    <div class="mt-auto flex gap-3 flex-shrink-0">
+                        <button onclick="prevProposalSection('${id}')" class="flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-300 transition-all">
+                            <i class="fas fa-arrow-left mr-2"></i>Kembali
+                        </button>
+                        
+                        ${isDaftarPustaka ? `
+                        <button onclick="exportFinalRISToMendeley('${id}')" class="flex-1 bg-blue-100 text-blue-700 py-4 rounded-xl font-bold hover:bg-blue-200 transition-all border border-blue-200">
+                            <i class="fas fa-file-export mr-2"></i>Export .RIS
+                        </button>
+                        ` : ''}
+
+                        <button onclick="saveProposalSection('${id}')" class="flex-1 bg-green-600 text-white py-4 rounded-xl font-bold hover:shadow-lg transform hover:scale-[1.02] transition-all">
+                            <i class="fas fa-save mr-2"></i>Simpan
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    `;
-};
+        `;
+    };
 
     // 2. DATA KONFIGURASI NAVIGASI TOMBOL (DYNAMIC NAV)
     const navConfig = {
