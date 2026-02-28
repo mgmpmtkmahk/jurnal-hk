@@ -348,7 +348,7 @@ CONTOH FORMAT YG DIWAJIBKAN:
                 </div>
             </div>
 
-            <div class="sticky bottom-0 z-40 bg-gray-50/95 backdrop-blur pt-4 pb-4 border-t border-gray-200 mt-8 flex justify-between">
+            <div class="sticky bottom-0 z-40 bg-gray-100/95 backdrop-blur pt-4 pb-4 border-t border-gray-200 mt-8 flex justify-between">
                 <button onclick="goToStep(4)" class="bg-white border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold shadow-sm hover:bg-gray-100"><i class="fas fa-arrow-left mr-2"></i>Kembali ke Judul</button>
             </div>
         </section>
