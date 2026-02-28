@@ -1448,7 +1448,7 @@ async function handleMicroEdit(sectionId, action) {
             const reqBody = {
                 model: AppState.ai21Model || 'jamba-1.5-large',
                 messages: [{ role: 'user', content: promptText }],
-                temperature: 0.7, stream: true
+                temperature: 0.7, stream: false
             };
             if (isJsonExpected) reqBody.response_format = { type: "json_object" };
             options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
@@ -1467,6 +1467,18 @@ async function handleMicroEdit(sectionId, action) {
         if (!response.ok) throw new Error(`Gagal menghubungi API ${provider}.`);
 
         cm.replaceSelection(""); 
+
+        if (provider === 'ai21') {
+            const dataObj = await response.json();
+            const newText = dataObj.choices[0].message?.content || "";
+            
+            if (newText) cm.replaceSelection(newText);
+            
+            showCustomAlert('success', 'Berhasil', `Teks berhasil diedit oleh AI21.`);
+            cm.setOption("readOnly", false); 
+            document.getElementById(`output-${sectionId}`).value = cm.getValue();
+            return; // Berhenti di sini!
+        }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
