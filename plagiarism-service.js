@@ -33,8 +33,8 @@ const PlagiarismService = {
         switch(method) {
             case 'local':
                 return this.checkLocalSimilarity(cleanText, options.references || []);
-            case 'copyleaks':
-                return this.checkWithCopyleaks(cleanText, options.apiKey);
+            case 'edenai':
+                return this.checkWithEdenAi(cleanText, options.apiKey);
             case 'quick':
                 // Cek lokal dulu, kalau > threshold baru ke Copyleaks
                 const localResult = await this.checkLocalSimilarity(cleanText, options.references || []);
@@ -48,144 +48,65 @@ const PlagiarismService = {
     },
 
     // ==========================================
-    // COPYLEAKS API INTEGRATION
+    // EDEN AI API INTEGRATION
     // ==========================================
 
-    /**
-     * Step 1: Submit text ke Copyleaks
-     */
-    async checkWithCopyleaks(text, apiKey) {
-        if (!apiKey) throw new Error('Copyleaks API Key diperlukan.');
+    async checkWithEdenAi(text, apiKey) {
+        if (!apiKey) throw new Error('API Key Eden AI diperlukan.');
 
-        // Bagi text jika terlalu panjang
-        const chunks = this.chunkText(text, this.config.maxTextLength);
-        const results = [];
+        this.reportProgress({ status: 'Menganalisis...', detail: 'Mengirim teks ke Eden AI' });
 
-        for (let i = 0; i < chunks.length; i++) {
-            const chunkResult = await this.submitAndPollChunk(chunks[i], apiKey, i + 1, chunks.length);
-            results.push(chunkResult);
-        }
-
-        // Merge results
-        return this.mergeResults(results);
-    },
-
-    /**
-     * Submit chunk dan poll hasilnya
-     */
-    async submitAndPollChunk(text, apiKey, chunkNum, totalChunks) {
-        // Generate unique ID untuk scan ini
-        const scanId = `sci-doc-${Date.now()}-${chunkNum}`;
-        
         try {
-            // Step 1: Submit
-            const submitResponse = await fetch(`${this.config.baseUrl}/scans/submit/file`, {
+            const response = await fetch('https://api.edenai.run/v2/text/plagiarism', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    base64: this.textToBase64(text),
-                    filename: `chunk-${chunkNum}.txt`,
-                    properties: {
-                        action: 0, // 0 = plagiarism check
-                        includeHtml: false,
-                        sandbox: false,
-                        filters: {
-                            identicalEnabled: true,
-                            minorChangesEnabled: true,
-                            relatedMeaningEnabled: true
-                        }
-                    }
+                    providers: "originalityai", // Menggunakan provider Originality.ai via Eden AI
+                    text: text,
+                    language: "id"
                 })
             });
 
-            if (!submitResponse.ok) {
-                const error = await submitResponse.json();
-                throw new Error(`Copyleaks Error: ${error.message || 'Submit failed'}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'Gagal menghubungi server Eden AI');
             }
 
-            const { id: copyleaksScanId } = await submitResponse.json();
+            const data = await response.json();
             
-            // Step 2: Poll untuk hasil
-            return await this.pollResult(copyleaksScanId, apiKey, chunkNum, totalChunks);
+            // Mengambil hasil dari provider yang sukses (biasanya array/object pertama)
+            const providerResult = data['originalityai'] || Object.values(data)[0];
+
+            if (!providerResult || providerResult.status !== "success") {
+                throw new Error('Eden AI gagal memproses teks ini.');
+            }
+
+            // Plagiarism Score dari Eden AI biasanya dari 0.0 sampai 1.0
+            const similarityScore = providerResult.plagiarism_score || 0;
+
+            // Memetakan sumber link jika Eden AI mengembalikannya
+            const sources = (providerResult.items || []).map(item => ({
+                title: item.title || 'Sumber Terdeteksi',
+                url: item.url || null,
+                similarity: item.plagiarism_score || similarityScore,
+                type: 'internet',
+                snippet: item.text || null
+            }));
+
+            return {
+                method: 'edenai',
+                overallScore: similarityScore, // Disimpan dalam format desimal, UI akan mengalikannya 100%
+                sources: sources,
+                raw: data
+            };
 
         } catch (error) {
-            console.error(`[Copyleaks] Chunk ${chunkNum} failed:`, error);
+            console.error("[Eden AI Error]:", error);
             throw error;
         }
-    },
-
-    /**
-     * Polling loop untuk mendapatkan hasil scan
-     */
-    async pollResult(scanId, apiKey, chunkNum, totalChunks) {
-        let attempts = 0;
-        
-        while (attempts < this.config.maxPollingAttempts) {
-            await this.delay(this.config.pollingInterval);
-            attempts++;
-
-            try {
-                const response = await fetch(`${this.config.baseUrl}/scans/${scanId}/result`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`
-                    }
-                });
-
-                if (response.status === 200) {
-                    const result = await response.json();
-                    return this.parseCopyleaksResult(result, chunkNum, totalChunks);
-                }
-
-                // 202 = still processing, continue polling
-                if (response.status === 202) {
-                    console.log(`[Copyleaks] Chunk ${chunkNum}/${totalChunks}: Scanning... (${attempts}/${this.config.maxPollingAttempts})`);
-                    continue;
-                }
-
-                // Error
-                const error = await response.json();
-                throw new Error(error.message || 'Polling failed');
-
-            } catch (error) {
-                if (attempts >= this.config.maxPollingAttempts) {
-                    throw new Error('Timeout: Scan terlalu lama, coba lagi nanti.');
-                }
-                // Continue polling on network errors
-                console.warn(`[Copyleaks] Polling error, retrying: ${error.message}`);
-            }
-        }
-
-        throw new Error('Polling timeout');
-    },
-
-    /**
-     * Parse response Copyleaks ke format internal
-     */
-    parseCopyleaksResult(raw, chunkNum, totalChunks) {
-        const statistics = raw.statistics || {};
-        const similarity = statistics.similarity || 0;
-        const sources = (raw.results || []).map(r => ({
-            url: r.url,
-            title: r.title || 'Unknown Source',
-            similarity: r.similarity || 0,
-            matchedWords: r.matchedWords || 0,
-            type: r.type || 'internet', // internet, database, etc
-            snippet: r.snippet || null
-        }));
-
-        return {
-            method: 'copyleaks',
-            chunk: chunkNum,
-            totalChunks: totalChunks,
-            overallScore: similarity,
-            totalWords: statistics.totalWords || 0,
-            sources: sources,
-            raw: raw // untuk debugging
-        };
     },
 
     // ==========================================

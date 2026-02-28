@@ -11,6 +11,7 @@ const AppState = {
     groqModel: 'llama-3.3-70b-versatile',
     githubModel: 'gpt-4o',
     tone: 'akademis',
+    aiTemperature: 0.3,
     
     // Kunci tersimpan secara aman (Ter-enkripsi)
     _encryptedGeminiKey: null,
@@ -30,17 +31,17 @@ const AppState = {
     selectedTitle: '',
     proposalData: {},
     customPrompts: {},
-    plagiarismConfig: { provider: 'local', copyleaksApiKey: null, similarityThreshold: 15, lastScanResults: {} },
+    plagiarismConfig: { provider: 'local', edenAiApiKey: null, similarityThreshold: 15, lastScanResults: {} },
 
-    async setCopyleaksKey(apiKey, pin) {
-        if (!apiKey) { this.plagiarismConfig.copyleaksApiKey = null; return; }
+    async setEdenAiKey(apiKey, pin) {
+        if (!apiKey) { this.plagiarismConfig.edenAiApiKey = null; return; }
         const salt = CryptoService.getDeviceFingerprint();
-        this.plagiarismConfig.copyleaksApiKey = await CryptoService.encrypt(apiKey, pin + salt);
+        this.plagiarismConfig.edenAiApiKey = await CryptoService.encrypt(apiKey, pin + salt);
     },
-    async getCopyleaksKey(pin) {
-        if (!this.plagiarismConfig.copyleaksApiKey) return null;
+    async getEdenAiKey(pin) {
+        if (!this.plagiarismConfig.edenAiApiKey) return null;
         const salt = CryptoService.getDeviceFingerprint();
-        return await CryptoService.decrypt(this.plagiarismConfig.copyleaksApiKey, pin + salt);
+        return await CryptoService.decrypt(this.plagiarismConfig.edenAiApiKey, pin + salt);
     }
 };
 
@@ -73,15 +74,17 @@ AppState.setAndEncryptKeys = async function(gemini, mistral, groq, github, pin) 
     const salt = CryptoService.getDeviceFingerprint();
     const strongPin = pin + salt;
 
-    // SEBELUMNYA:
-    this._tempGeminiKey = gemini || null; this._tempMistralKey = mistral || null;
-    this._tempGroqKey = groq || null; null; this._tempGithubKey = github || null;
-
-    // PERBAIKI MENJADI:
+    // 1. Simpan ke memori sementara (Plaintext) untuk langsung dipakai
     this._tempGeminiKey = gemini || null; 
     this._tempMistralKey = mistral || null;
     this._tempGroqKey = groq || null; 
     this._tempGithubKey = github || null;
+
+    // 2. ENKRIPSI KUNCI UNTUK DISIMPAN (Ini yang sebelumnya terhapus)
+    this._encryptedGeminiKey = gemini ? await CryptoService.encrypt(gemini, strongPin) : null;
+    this._encryptedMistralKey = mistral ? await CryptoService.encrypt(mistral, strongPin) : null;
+    this._encryptedGroqKey = groq ? await CryptoService.encrypt(groq, strongPin) : null;
+    this._encryptedGithubKey = github ? await CryptoService.encrypt(github, strongPin) : null;
 
     this._startTempKeysTimer();
 };
@@ -113,10 +116,6 @@ AppState.decryptKeys = async function(pin) {
 // FUNGSI SIMPAN & MUAT STATE (LOCALSTORAGE)
 // ==========================================
 
-// ==========================================
-// FUNGSI SIMPAN & MUAT STATE (LOCALSTORAGE)
-// ==========================================
-
 async function saveStateToLocal() {
     const stateToSave = {
         documentType: AppState.documentType,
@@ -127,6 +126,7 @@ async function saveStateToLocal() {
         groqModel: AppState.groqModel,
         githubModel: AppState.githubModel,
         tone: AppState.tone,
+        aiTemperature: AppState.aiTemperature,
         
         // Simpan versi terenkripsi dari SEMUA provider
         encryptedGeminiKey: AppState._encryptedGeminiKey, 
@@ -165,6 +165,7 @@ async function loadStateFromLocal() {
                 groqModel: parsed.groqModel || 'llama-3.3-70b-versatile',
                 githubModel: parsed.githubModel || 'gpt-4o',
                 tone: parsed.tone || 'akademis',
+                aiTemperature: parsed.aiTemperature || 0.3,
                 journals: parsed.journals || [],
                 analysisData: parsed.analysisData || {},
                 generatedTitles: parsed.generatedTitles || [],

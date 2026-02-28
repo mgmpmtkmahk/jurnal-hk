@@ -462,11 +462,11 @@ CONTOH FORMAT YG DIWAJIBKAN:
         const container = document.getElementById(`plagiarism-panel-${sectionId}`);
         if (!container) return;
 
-        const isCopyleaksConfigured = !!AppState.plagiarismConfig.copyleaksApiKey;
+        // UBAH NAMA VARIABEL MENJADI EDEN AI
+        const isEdenAiConfigured = !!AppState.plagiarismConfig.edenAiApiKey;
 
         container.innerHTML = `
             <div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl overflow-hidden shadow-sm">
-                <!-- HEADER -->
                 <div class="px-4 py-3 bg-orange-100/50 border-b border-orange-200 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <i class="fas fa-shield-virus text-orange-600"></i>
@@ -477,60 +477,56 @@ CONTOH FORMAT YG DIWAJIBKAN:
                     </span>
                 </div>
 
-                <!-- BODY -->
                 <div class="p-4">
-                    <!-- Provider Selection -->
                     <div class="flex gap-2 mb-4">
                         <button onclick="runPlagiarismCheck('${sectionId}', 'local')" 
                             class="flex-1 bg-white border-2 border-orange-200 text-orange-700 py-2.5 rounded-lg text-sm font-semibold hover:bg-orange-50 hover:border-orange-300 transition-all flex items-center justify-center gap-2">
                             <i class="fas fa-bolt text-amber-500"></i>
-                            <span>Cepat (Gratis)</span>
+                            <span>Lokal</span>
                         </button>
                         
-                        <button onclick="runPlagiarismCheck('${sectionId}', 'copyleaks')" 
-                            class="flex-1 ${isCopyleaksConfigured ? 'bg-orange-600 text-white border-orange-600' : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'} py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-all flex items-center justify-center gap-2"
-                            ${!isCopyleaksConfigured ? 'disabled' : ''}>
+                        <button onclick="runPlagiarismCheck('${sectionId}', 'edenai')" 
+                            class="flex-1 ${isEdenAiConfigured ? 'bg-orange-600 text-white border-orange-600' : 'bg-gray-100 text-gray-400 border-gray-200'} py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-all flex items-center justify-center gap-2"
+                            ${!isEdenAiConfigured ? 'disabled title="Atur API Key Eden AI di Pengaturan"' : ''}>
                             <i class="fas fa-cloud"></i>
-                            <span>Akurat ${isCopyleaksConfigured ? '' : '(Atur API)'}</span>
+                            <span>Eden AI</span>
+                        </button>
+
+                        <button onclick="checkPlagiarismExternal('${sectionId}')" 
+                            class="flex-1 bg-blue-50 text-blue-700 border-2 border-blue-200 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-100 transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-external-link-alt"></i>
+                            <span>Web</span>
                         </button>
                     </div>
 
-                    <!-- Quick Mode Info -->
                     <div class="flex items-start gap-2 text-xs text-orange-700/80 mb-3">
                         <i class="fas fa-info-circle mt-0.5"></i>
                         <p><strong>Mode Cepat:</strong> Bandingkan dengan ${AppState.journals.length} jurnal yang sudah dikaji. 
-                        <strong>Mode Akurat:</strong> Scan ke database internet + academic papers via Copyleaks.</p>
+                        <strong>Mode Akurat:</strong> Scan ke database internet via Eden AI.</p>
                     </div>
 
-                    <!-- RESULTS AREA (Hidden by default) -->
                     <div id="plagiarism-result-${sectionId}" class="hidden space-y-3">
                         
-                        <!-- Score Card -->
                         <div class="bg-white rounded-lg p-4 border border-orange-100 shadow-sm">
                             <div class="flex justify-between items-end mb-2">
                                 <span class="text-sm text-gray-600">Similarity Score</span>
                                 <span id="similarity-score-${sectionId}" class="text-3xl font-bold text-gray-400">--%</span>
                             </div>
                             
-                            <!-- Progress Bar -->
                             <div class="h-3 bg-gray-100 rounded-full overflow-hidden mb-3">
                                 <div id="similarity-bar-${sectionId}" 
                                     class="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-green-400 via-yellow-400 to-red-500"
                                     style="width: 0%"></div>
                             </div>
 
-                            <!-- Interpretation -->
                             <p id="similarity-interpretation-${sectionId}" class="text-sm text-gray-600 italic">
                                 Klik tombol di atas untuk memulai scan...
                             </p>
                         </div>
 
-                        <!-- Sources List -->
                         <div id="similarity-sources-${sectionId}" class="max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-                            <!-- Sources injected here -->
-                        </div>
+                            </div>
 
-                        <!-- Action Buttons -->
                         <div class="flex gap-2 pt-4 mt-2 border-t border-orange-100">
                             <button onclick="highlightSimilarText('${sectionId}')" 
                                 class="flex-1 bg-indigo-50 text-indigo-700 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-100 transition-all">
@@ -543,7 +539,6 @@ CONTOH FORMAT YG DIWAJIBKAN:
                         </div>
                     </div>
 
-                    <!-- LOADING STATE -->
                     <div id="plagiarism-loading-${sectionId}" class="hidden py-8 text-center">
                         <div class="inline-flex items-center gap-3">
                             <div class="w-8 h-8 border-3 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>

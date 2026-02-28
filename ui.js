@@ -236,12 +236,12 @@ function openPlagiarismSettings() {
                         <div class="text-sm font-semibold">Lokal</div>
                         <div class="text-xs text-gray-500">Gratis</div>
                     </button>
-                    <button onclick="selectPlagiarismProvider('copyleaks')" 
-                        class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'copyleaks' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center"
-                        data-provider="copyleaks">
+                    <button onclick="selectPlagiarismProvider('edenai')" 
+                        class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'edenai' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center"
+                        data-provider="edenai">
                         <i class="fas fa-cloud text-orange-500 text-lg mb-1"></i>
-                        <div class="text-sm font-semibold">Copyleaks</div>
-                        <div class="text-xs text-gray-500">Freemium</div>
+                        <div class="text-sm font-semibold">Eden AI</div>
+                        <div class="text-xs text-gray-500">Akurat</div>
                     </button>
                     <button onclick="selectPlagiarismProvider('quick')" 
                         class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'quick' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center"
@@ -254,30 +254,26 @@ function openPlagiarismSettings() {
             </div>
 
             <!-- Copyleaks Configuration -->
-            <div id="copyleaks-config-section" class="${currentProvider === 'copyleaks' || currentProvider === 'quick' ? '' : 'hidden'} mb-5 p-4 bg-orange-50 rounded-xl border border-orange-200">
+            <div id="edenai-config-section" class="${currentProvider === 'edenai' || currentProvider === 'quick' ? '' : 'hidden'} mb-5 p-4 bg-orange-50 rounded-xl border border-orange-200">
                 <div class="flex items-center justify-between mb-3">
-                    <label class="text-sm font-bold text-orange-800">Copyleaks API Key</label>
+                    <label class="text-sm font-bold text-orange-800">Eden AI API Key</label>
                     <span class="text-xs ${isConfigured ? 'text-green-600' : 'text-orange-600'} font-semibold">
                         ${isConfigured ? '<i class="fas fa-check-circle mr-1"></i>Tersimpan' : '<i class="fas fa-exclamation-circle mr-1"></i>Belum diatur'}
                     </span>
                 </div>
-                
                 <div class="space-y-3">
-                    <input type="password" id="copyleaksKeyInput" 
+                    <input type="password" id="edenAiKeyInput" 
                         class="w-full p-3 border-2 border-orange-200 rounded-xl focus:border-orange-500 outline-none text-sm font-mono"
-                        placeholder="Paste API Key dari dashboard.copyleaks.com">
-                    
+                        placeholder="Paste API Key dari app.edenai.run">
                     <div class="p-3 bg-white rounded-lg border border-orange-100">
                         <p class="text-xs text-gray-600 leading-relaxed">
                             <i class="fas fa-info-circle text-orange-500 mr-1"></i>
-                            Daftar gratis di <a href="https://copyleaks.com" target="_blank" class="text-orange-600 font-bold underline">copyleaks.com</a> 
-                            untuk mendapatkan 100 scan/bulan. Key akan dienkripsi dengan PIN keamanan.
+                            Daftar gratis di <a href="https://app.edenai.run/" target="_blank" class="text-orange-600 font-bold underline">Eden AI</a>. Key akan dienkripsi aman di browser.
                         </p>
                     </div>
-
                     <div class="${isConfigured ? '' : 'hidden'}">
                         <label class="block text-sm font-bold text-gray-700 mb-1">PIN Keamanan (untuk dekripsi)</label>
-                        <input type="password" id="copyleaksPinInput" 
+                        <input type="password" id="edenAiPinInput" 
                             class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none text-sm"
                             placeholder="Masukkan PIN yang sama saat menyimpan API Key">
                     </div>
@@ -307,9 +303,6 @@ function openPlagiarismSettings() {
                     <span class="text-gray-600">Sisa Scan Bulan Ini:</span>
                     <span class="font-semibold text-gray-800" id="copyleaks-quota">Memuat...</span>
                 </div>
-                <button onclick="checkCopyleaksQuota()" class="mt-2 text-xs text-orange-600 hover:underline">
-                    <i class="fas fa-sync-alt mr-1"></i>Refresh Status
-                </button>
             </div>
             ` : ''}
 
@@ -319,9 +312,6 @@ function openPlagiarismSettings() {
                     Batal
                 </button>
                 ${isConfigured ? `
-                <button onclick="removeCopyleaksKey()" class="flex-1 bg-red-50 text-red-600 border border-red-200 py-3 rounded-xl font-bold hover:bg-red-100 transition-all">
-                    <i class="fas fa-trash-alt mr-1"></i>Hapus
-                </button>
                 ` : ''}
                 <button onclick="savePlagiarismSettings()" class="flex-1 bg-orange-600 py-3 rounded-xl text-white font-bold hover:bg-orange-700 shadow-lg transition-all">
                     <i class="fas fa-save mr-1"></i>Simpan
@@ -355,124 +345,57 @@ function closePlagiarismSettings() {
 async function savePlagiarismSettings() {
     const provider = document.querySelector('.provider-btn.border-orange-500')?.dataset.provider || 'local';
     const threshold = parseInt(document.getElementById('similarityThreshold').value);
-    const apiKey = document.getElementById('copyleaksKeyInput').value.trim();
-    const pin = document.getElementById('copyleaksPinInput')?.value.trim();
+    
+    // PERUBAHAN 1: Ubah ID input menjadi milik Eden AI
+    const apiKey = document.getElementById('edenAiKeyInput').value.trim();
+    const pin = document.getElementById('edenAiPinInput')?.value.trim();
 
-    // Validasi
-    if ((provider === 'copyleaks' || provider === 'quick') && apiKey && !pin) {
-        showCustomAlert('warning', 'PIN Diperlukan', 'Buat PIN keamanan untuk mengenkripsi API Key Copyleaks.');
+    // PERUBAHAN 2: Ubah string 'copyleaks' menjadi 'edenai'
+    if ((provider === 'edenai' || provider === 'quick') && apiKey && !pin) {
+        showCustomAlert('warning', 'PIN Diperlukan', 'Buat PIN keamanan untuk mengenkripsi API Key Eden AI.');
         return;
     }
 
     try {
-        // Test API key kalau baru diinput
-        if (apiKey) {
-            updatePlagiarismButtonState('Memvalidasi API Key...');
-            await testCopyleaksKey(apiKey);
-        }
+        // PERUBAHAN 3: Kita hapus blok testCopyleaksKey di sini karena fungsinya sudah kamu hapus sebelumnya
 
         // Simpan ke state
         AppState.plagiarismConfig.provider = provider;
         AppState.plagiarismConfig.similarityThreshold = threshold;
         
+        // PERUBAHAN 4: Ganti pemanggilan fungsi ke setEdenAiKey
         if (apiKey && pin) {
-            await AppState.setCopyleaksKey(apiKey, pin);
+            await AppState.setEdenAiKey(apiKey, pin);
         }
 
         await saveStateToLocal();
         
         closePlagiarismSettings();
-        showCustomAlert('success', 'Tersimpan', 'Pengaturan plagiarism checker berhasil diperbarui.');
+        showCustomAlert('success', 'Tersimpan', 'Pengaturan Eden AI berhasil diperbarui.');
         
         // Refresh UI di semua section
         document.querySelectorAll('[id^="plagiarism-panel-"]').forEach(el => {
             const sectionId = el.id.replace('plagiarism-panel-', '');
-            injectPlagiarismPanel(sectionId);
+            if (typeof injectPlagiarismPanel === 'function') injectPlagiarismPanel(sectionId);
         });
 
     } catch (error) {
-        showCustomAlert('error', 'Validasi Gagal', error.message);
+        showCustomAlert('error', 'Gagal Menyimpan', error.message);
     }
 }
 
-async function testCopyleaksKey(key) {
-    const response = await fetch('https://api.copyleaks.com/v3/scans/credits', {
-        headers: { 'Authorization': `Bearer ${key}` }
+window.checkPlagiarismExternal = function(sectionId) {
+    const editor = window.mdeEditors[`output-${sectionId}`];
+    if (!editor) return;
+    const text = editor.value();
+    
+    // Auto-copy teks ke clipboard
+    navigator.clipboard.writeText(text).then(() => {
+        showCustomAlert('info', 'Teks Disalin', 'Teks berhasil disalin! Silakan paste (Ctrl+V) di website yang akan terbuka.');
+        setTimeout(() => {
+            window.open('https://smallseotools.com/plagiarism-checker/', '_blank');
+        }, 1500);
     });
-    
-    if (!response.ok) {
-        throw new Error('API Key Copyleaks tidak valid atau expired.');
-    }
-    
-    const data = await response.json();
-    return data;
-}
-
-async function checkCopyleaksQuota() {
-    try {
-        const key = await getCopyleaksKeyWithUnlock();
-        if (!key) {
-            document.getElementById('copyleaks-quota').textContent = 'Error: Key tidak tersedia';
-            return;
-        }
-        
-        const data = await testCopyleaksKey(key);
-        document.getElementById('copyleaks-quota').textContent = `${data.credits} scan tersisa`;
-    } catch (error) {
-        document.getElementById('copyleaks-quota').textContent = 'Error: ' + error.message;
-    }
-}
-
-async function removeCopyleaksKey() {
-    if (!confirm('Yakin ingin menghapus API Key Copyleaks?')) return;
-    
-    AppState.plagiarismConfig.copyleaksApiKey = null;
-    AppState._tempCopyleaksKey = null;
-    await saveStateToLocal();
-    
-    closePlagiarismSettings();
-    showCustomAlert('success', 'Terhapus', 'API Key Copyleaks telah dihapus.');
-}
-
-// Modal unlock untuk Copyleaks (mirip Gemini tapi terpisah)
-function showUnlockModalForCopyleaks(callback) {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 z-[140] flex items-center justify-center';
-    modal.innerHTML = `
-        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 relative z-10 animate-fade-in-up">
-            <div class="w-16 h-16 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-2xl mb-4 mx-auto">
-                <i class="fas fa-lock"></i>
-            </div>
-            <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Buka Kunci Copyleaks</h3>
-            <p class="text-gray-600 text-center text-sm mb-6">Masukkan PIN keamanan untuk mengakses API Key Copyleaks.</p>
-            
-            <input type="password" id="unlockCopyleaksPin" 
-                class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none text-center text-lg tracking-widest font-mono mb-4"
-                placeholder="PIN Anda">
-            
-            <div class="flex gap-3">
-                <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold">Batal</button>
-                <button onclick="confirmCopyleaksUnlock(${callback.toString()})" class="flex-1 bg-orange-600 py-3 rounded-xl text-white font-bold hover:bg-orange-700">
-                    Buka
-                </button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-}
-
-async function confirmCopyleaksUnlock(callback) {
-    const pin = document.getElementById('unlockCopyleaksPin').value;
-    if (!pin) return;
-    
-    try {
-        const key = await AppState.getCopyleaksKey(pin);
-        document.querySelector('[class*="fixed inset-0 z-[140]"]').remove();
-        callback(key);
-    } catch (e) {
-        showCustomAlert('error', 'PIN Salah', 'Gagal membuka kunci Copyleaks.');
-    }
 }
 
 function showUnlockModal() {

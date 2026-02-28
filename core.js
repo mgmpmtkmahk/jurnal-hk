@@ -193,6 +193,7 @@ window.openApiSettings = function() {
     setVal('groqModelSelect', AppState.groqModel || 'llama-3.3-70b-versatile');
     setVal('githubModelSelect', AppState.githubModel || 'gpt-4o');
     setVal('apiPinInput', '');
+    setVal('aiTemperatureSelect', AppState.aiTemperature || '0.3');
     
     if (typeof toggleApiProvider === 'function') toggleApiProvider(); 
     const modal = document.getElementById('apiSettingsModal'); if (modal) modal.classList.remove('hidden');
@@ -214,6 +215,7 @@ async function saveApiKey() {
 
     AppState.tone = getVal('aiToneSelect') || 'akademis';
     AppState.aiProvider = getVal('aiProviderSelect') || 'gemini';
+    AppState.aiTemperature = parseFloat(getVal('aiTemperatureSelect')) || 0.3;
     
     if(document.getElementById('geminiModelSelect')) AppState.geminiModel = getVal('geminiModelSelect');
     if(document.getElementById('mistralModelSelect')) AppState.mistralModel = getVal('mistralModelSelect');
@@ -280,25 +282,28 @@ async function generateWithAPI(promptId, targetTextareaId) {
     try {
         let endpoint, options;
 
+        // Ambil nilai temperature dari state
+        const tempValue = AppState.aiTemperature !== undefined ? parseFloat(AppState.aiTemperature) : 0.3;
+
         if (provider === 'gemini') {
             const gModel = AppState.geminiModel || 'gemini-2.5-flash';
             endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${gModel}:streamGenerateContent?alt=sse&key=${apiKey}`;
-            const genConfig = { temperature: 0.7 };
+            const genConfig = { temperature: tempValue }; // GUNAKAN VARIABEL DI SINI
             if (isJsonExpected) genConfig.responseMimeType = "application/json";
             options = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }], generationConfig: genConfig }) };
         } else if (provider === 'mistral') {
             endpoint = `https://api.mistral.ai/v1/chat/completions`;
-            const reqBody = { model: AppState.mistralModel || 'mistral-large-latest', messages: [{ role: 'user', content: promptText }], temperature: 0.7, stream: true };
+            const reqBody = { model: AppState.mistralModel || 'mistral-large-latest', messages: [{ role: 'user', content: promptText }], temperature: tempValue, stream: true };
             if (isJsonExpected) reqBody.response_format = { type: "json_object" };
             options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'text/event-stream', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         } else if (provider === 'groq') {
             endpoint = `https://api.groq.com/openai/v1/chat/completions`;
-            const reqBody = { model: AppState.groqModel || 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: promptText }], temperature: 0.7, stream: true };
+            const reqBody = { model: AppState.groqModel || 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: promptText }], temperature: tempValue, stream: true };
             if (isJsonExpected) reqBody.response_format = { type: "json_object" };
             options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         } else if (provider === 'github') {
             endpoint = `https://models.inference.ai.azure.com/chat/completions`;
-            const reqBody = { model: AppState.githubModel || 'gpt-4o', messages: [{ role: 'user', content: promptText }], temperature: 0.7, max_tokens: 4096, stream: true };
+            const reqBody = { model: AppState.githubModel || 'gpt-4o', messages: [{ role: 'user', content: promptText }], temperature: tempValue, max_tokens: 4096, stream: true };
             if (isJsonExpected) reqBody.response_format = { type: "json_object" };
             options = { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` }, body: JSON.stringify(reqBody) };
         }
@@ -1404,9 +1409,56 @@ async function handleMicroEdit(sectionId, action) {
 // PLAGIARISM CHECKER FUNCTIONS
 // ==========================================
 
-/**
- * Entry point untuk plagiarism check dari UI
- */
+async function getEdenAiKeyWithUnlock() {
+    if (AppState._tempEdenAiKey) return AppState._tempEdenAiKey;
+
+    if (AppState.plagiarismConfig.edenAiApiKey) {
+        return new Promise((resolve) => {
+            showUnlockModalForEdenAi((pin) => {
+                AppState.getEdenAiKey(pin).then(key => {
+                    AppState._tempEdenAiKey = key;
+                    setTimeout(() => AppState._tempEdenAiKey = null, 60 * 60 * 1000);
+                    resolve(key);
+                });
+            });
+        });
+    }
+    return null;
+}
+
+function showUnlockModalForEdenAi(callback) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-[140] flex items-center justify-center';
+    modal.innerHTML = `
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-md p-6 relative z-10 animate-fade-in-up">
+            <div class="w-16 h-16 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-2xl mb-4 mx-auto">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="text-xl font-bold text-center text-gray-800 mb-2">Buka Kunci Plagiarism Checker</h3>
+            <p class="text-gray-600 text-center text-sm mb-6">Masukkan PIN keamanan untuk mengakses API Key Eden AI.</p>
+            <input type="password" id="unlockEdenAiPin" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none text-center text-lg tracking-widest font-mono mb-4" placeholder="PIN Anda">
+            <div class="flex gap-3">
+                <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold">Batal</button>
+                <button onclick="confirmEdenAiUnlock(${callback.toString()})" class="flex-1 bg-orange-600 py-3 rounded-xl text-white font-bold hover:bg-orange-700">Buka</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+async function confirmEdenAiUnlock(callback) {
+    const pin = document.getElementById('unlockEdenAiPin').value;
+    if (!pin) return;
+    try {
+        const key = await AppState.getEdenAiKey(pin);
+        document.querySelector('[class*="fixed inset-0 z-[140]"]').remove();
+        callback(key);
+    } catch (e) {
+        showCustomAlert('error', 'PIN Salah', 'Gagal membuka kunci.');
+    }
+}
+
 async function runPlagiarismCheck(sectionId, method) {
     const editor = window.mdeEditors[`output-${sectionId}`];
     if (!editor) {
@@ -1427,7 +1479,7 @@ async function runPlagiarismCheck(sectionId, method) {
     try {
         const options = {
             references: AppState.journals,
-            apiKey: method === 'copyleaks' ? await getCopyleaksKeyWithUnlock() : null
+            apiKey: method === 'edenai' ? await getEdenAiKeyWithUnlock() : null // UBAH DI SINI
         };
 
         // Progress callback
@@ -1452,7 +1504,7 @@ async function runPlagiarismCheck(sectionId, method) {
         // Error handling spesifik
         if (error.message.includes('API Key')) {
             showCustomAlert('warning', 'API Key Diperlukan', 
-                'Masukkan Copyleaks API Key di pengaturan. Daftar gratis di copyleaks.com');
+                'Masukkan API Key Eden AI di pengaturan. Daftar gratis di app.edenai.run');
             openPlagiarismSettings();
         } else {
             showCustomAlert('error', 'Scan Gagal', error.message);
@@ -1465,33 +1517,6 @@ async function runPlagiarismCheck(sectionId, method) {
     }
 }
 
-/**
- * Dapatkan Copyleaks key dengan unlock jika perlu
- */
-async function getCopyleaksKeyWithUnlock() {
-    // Cek apakah sudah di-decrypt di memory
-    if (AppState._tempCopyleaksKey) return AppState._tempCopyleaksKey;
-
-    // Kalau encrypted, minta PIN
-    if (AppState.plagiarismConfig.copyleaksApiKey) {
-        return new Promise((resolve) => {
-            showUnlockModalForCopyleaks((pin) => {
-                AppState.getCopyleaksKey(pin).then(key => {
-                    AppState._tempCopyleaksKey = key;
-                    // Auto-expire setelah 1 jam
-                    setTimeout(() => AppState._tempCopyleaksKey = null, 60 * 60 * 1000);
-                    resolve(key);
-                });
-            });
-        });
-    }
-
-    return null;
-}
-
-/**
- * Tampilkan hasil scan di UI
- */
 function displayPlagiarismResult(sectionId, result) {
     const resultContainer = document.getElementById(`plagiarism-result-${sectionId}`);
     const badge = document.getElementById(`plagiarism-badge-${sectionId}`);
