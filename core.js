@@ -8,6 +8,8 @@ function searchJournals() {
     if (!keyword) { showCustomAlert('warning', 'Input Kosong', 'Masukkan keyword jurnal!'); return; }
     const resultsDiv = document.getElementById('searchResults');
     resultsDiv.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl text-indigo-600"></i><p class="mt-2 text-gray-600">Mencari jurnal...</p></div>';
+    // EFEK AUTO-SCROLL: Langsung gulir layar ke bagian hasil pencarian
+    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     setTimeout(() => {
         const intlSources = [
