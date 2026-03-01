@@ -291,17 +291,15 @@ window.checkPlagiarismExternal = function(sectionId) {
     // Auto-copy teks ke clipboard
     navigator.clipboard.writeText(text).then(() => {
         
-        // Hapus modal lama jika ada
         const oldModal = document.getElementById('externalCheckModal');
         if (oldModal) oldModal.remove();
 
-        // Buat modal popup pilihan Web Eksternal
         const modal = document.createElement('div');
         modal.id = 'externalCheckModal';
         modal.className = 'fixed inset-0 z-[150] flex items-center justify-center p-4';
         modal.innerHTML = `
             <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="this.parentElement.remove()"></div>
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative z-10 animate-fade-in-up">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative z-10 animate-fade-in-up">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"><i class="fas fa-external-link-alt text-blue-600 text-xl"></i></div>
                     <div>
@@ -309,31 +307,51 @@ window.checkPlagiarismExternal = function(sectionId) {
                         <p class="text-xs text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i>Teks otomatis disalin (Tinggal Ctrl+V)</p>
                     </div>
                 </div>
-                <p class="text-sm text-gray-600 mb-5 leading-relaxed">Silakan pilih layanan web gratis di bawah ini. Setelah tab baru terbuka, klik di dalam kotak teks mereka lalu tekan <strong>Ctrl+V (Paste)</strong>.</p>
+                <p class="text-sm text-gray-600 mb-5 leading-relaxed">Silakan pilih layanan web gratis di bawah ini. Teks Anda sudah disalin. Setelah web terbuka, klik di dalam kotaknya lalu tekan <strong>Ctrl+V (Paste)</strong>.</p>
 
                 <div class="space-y-3">
-                    <a href="https://smallseotools.com/plagiarism-checker/" target="_blank" onclick="document.getElementById('externalCheckModal').remove()" 
-                        class="flex items-center p-4 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all group">
+                    <a href="https://smallseotools.com/id/plagiarism-checker/" target="_blank" onclick="document.getElementById('externalCheckModal').remove()" 
+                        class="flex items-center p-3 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all group">
                         <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"><i class="fas fa-copy"></i></div>
                         <div class="flex-1">
-                            <h4 class="font-bold text-gray-800 group-hover:text-blue-700">SmallSEOTools</h4>
-                            <p class="text-xs text-gray-500">Cek Plagiarisme (Database Internet)</p>
+                            <h4 class="font-bold text-gray-800 group-hover:text-blue-700">Cek Plagiarisme (SmallSEOTools)</h4>
+                            <p class="text-xs text-gray-500">Mengecek plagiat dari database internet (Limit: 1000 kata)</p>
                         </div>
                         <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-500"></i>
                     </a>
 
                     <a href="https://quillbot.com/ai-content-detector" target="_blank" onclick="document.getElementById('externalCheckModal').remove()" 
-                        class="flex items-center p-4 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all group">
+                        class="flex items-center p-3 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all group">
                         <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"><i class="fas fa-robot"></i></div>
                         <div class="flex-1">
-                            <h4 class="font-bold text-gray-800 group-hover:text-green-700">Quillbot AI Detector</h4>
-                            <p class="text-xs text-gray-500">Cek Skor Tulisan AI (AI Detection)</p>
+                            <h4 class="font-bold text-gray-800 group-hover:text-green-700">Cek Skor AI (Quillbot AI)</h4>
+                            <p class="text-xs text-gray-500">Mendeteksi persentase teks buatan AI (Limit: Tanpa Batas)</p>
                         </div>
                         <i class="fas fa-chevron-right text-gray-400 group-hover:text-green-500"></i>
                     </a>
+
+                    <a href="https://www.editpad.org/tool/id/parafrase-online" target="_blank" onclick="document.getElementById('externalCheckModal').remove()" 
+                        class="flex items-center p-3 border-2 border-gray-200 rounded-xl hover:border-purple-500 hover:bg-purple-50 transition-all group">
+                        <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"><i class="fas fa-sync-alt"></i></div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-800 group-hover:text-purple-700">Parafrase Pro (Editpad)</h4>
+                            <p class="text-xs text-gray-500">Tata bahasa sangat natural bahasa Indonesia (Limit: 1000 Kata)</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 group-hover:text-purple-500"></i>
+                    </a>
+                    
+                    <a href="https://smallseotools.com/id/article-rewriter/" target="_blank" onclick="document.getElementById('externalCheckModal').remove()" 
+                        class="flex items-center p-3 border-2 border-gray-200 rounded-xl hover:border-orange-500 hover:bg-orange-50 transition-all group">
+                        <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mr-4 group-hover:scale-110 transition-transform"><i class="fas fa-bolt"></i></div>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-800 group-hover:text-orange-700">Parafrase Brutal (SmallSEOTools)</h4>
+                            <p class="text-xs text-gray-500">Mengubah sinonim kata secara massal (Limit: 2000 Kata)</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400 group-hover:text-orange-500"></i>
+                    </a>
                 </div>
                 
-                <button onclick="document.getElementById('externalCheckModal').remove()" class="w-full mt-5 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">Batal</button>
+                <button onclick="document.getElementById('externalCheckModal').remove()" class="w-full mt-5 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition-all">Tutup</button>
             </div>
         `;
         document.body.appendChild(modal);
