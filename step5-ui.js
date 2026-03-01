@@ -462,8 +462,8 @@ CONTOH FORMAT YG DIWAJIBKAN:
         const container = document.getElementById(`plagiarism-panel-${sectionId}`);
         if (!container) return;
 
-        // UBAH NAMA VARIABEL MENJADI EDEN AI
-        const isEdenAiConfigured = !!AppState.plagiarismConfig.edenAiApiKey;
+        // PERBAIKAN: Mengecek kunci dari State Utama (Sistem 1 PIN)
+        const isEdenAiConfigured = !!AppState._encryptedEdenAiKey;
 
         container.innerHTML = `
             <div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl overflow-hidden shadow-sm">
@@ -487,7 +487,7 @@ CONTOH FORMAT YG DIWAJIBKAN:
                         
                         <button onclick="runPlagiarismCheck('${sectionId}', 'edenai')" 
                             class="flex-1 ${isEdenAiConfigured ? 'bg-orange-600 text-white border-orange-600' : 'bg-gray-100 text-gray-400 border-gray-200'} py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-all flex items-center justify-center gap-2"
-                            ${!isEdenAiConfigured ? 'disabled title="Atur API Key Eden AI di Pengaturan"' : ''}>
+                            ${!isEdenAiConfigured ? 'disabled title="Simpan API Key Eden AI di Pengaturan Utama (Ikon Kunci)"' : ''}>
                             <i class="fas fa-cloud"></i>
                             <span>Eden AI</span>
                         </button>
