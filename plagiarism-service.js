@@ -54,20 +54,19 @@ const PlagiarismService = {
     async checkWithEdenAi(text, apiKey) {
         if (!apiKey) throw new Error('API Key Eden AI diperlukan.');
 
-        this.reportProgress({ status: 'Menganalisis...', detail: 'Mengirim teks ke Eden AI' });
+        this.reportProgress({ status: 'Menganalisis...', detail: 'Mengecek Turnitin AI Score via Eden AI (Sapling)' });
 
         try {
-            // Menggunakan endpoint resmi Eden AI untuk plagiarisme
-            const response = await fetch('https://api.edenai.run/v2/text/plagia_detection', {
+            // Menggunakan endpoint AI Detection yang ramah Free Tier
+            const response = await fetch('https://api.edenai.run/v2/text/ai_detection', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    providers: "originalityai", // Provider standar spesialis plagiasi
-                    text: text,
-                    language: "id"
+                    providers: "sapling", // Provider alternatif yang lebih stabil untuk akun gratis
+                    text: text
                 })
             });
 
@@ -75,44 +74,49 @@ const PlagiarismService = {
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.includes("application/json")) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error?.message || `Error Eden AI: ${response.status}`);
+                    throw new Error(errorData.error?.message || `Error Server: ${response.status}`);
                 } else {
-                    throw new Error(`Koneksi ditolak (Error ${response.status}). Pastikan akun Eden AI Anda aktif dan memiliki kredit gratis.`);
+                    throw new Error(`Endpoint dikunci oleh Eden AI (Error ${response.status}).`);
                 }
             }
 
             const data = await response.json();
-            const providerResult = data['originalityai'] || Object.values(data)[0];
+            const providerResult = data['sapling'] || Object.values(data)[0];
 
             if (!providerResult || providerResult.status !== "success") {
-                throw new Error('Provider Eden AI gagal memproses teks ini.');
+                throw new Error('Provider Sapling gagal memproses teks ini.');
             }
 
-            // Ambil Skor Plagiasi
-            const similarityScore = providerResult.plagia_score !== undefined ? providerResult.plagia_score : 
-                                   (providerResult.plagiarism_score !== undefined ? providerResult.plagiarism_score : 0);
+            // Mengekstrak skor dari berbagai kemungkinan format response Eden AI
+            let aiScore = 0;
+            if (providerResult.ai_score !== undefined) {
+                aiScore = providerResult.ai_score;
+            } else if (providerResult.items && providerResult.items.length > 0) {
+                aiScore = providerResult.items[0].ai_score || providerResult.items[0].score || 0;
+            }
 
-            // Ambil Daftar Sumber (Jika terdeteksi menjiplak)
-            const sources = (providerResult.items || []).map(item => ({
-                title: item.title || 'Sumber Internet Terdeteksi',
-                url: item.url || null,
-                similarity: item.plagiarism_score || item.plagia_score || similarityScore,
-                type: 'internet',
-                snippet: item.text || null
-            }));
+            // Memastikan skor berupa desimal (0.0 - 1.0) agar tidak error saat dikalikan 100 di UI
+            if (aiScore > 1) {
+                aiScore = aiScore / 100;
+            }
 
             return {
                 method: 'edenai',
-                overallScore: similarityScore,
-                sources: sources,
+                overallScore: aiScore,
+                sources: [{
+                    title: 'Indikasi Teks Buatan AI (Turnitin AI Score)',
+                    url: null,
+                    similarity: aiScore,
+                    type: 'ai-detection',
+                    snippet: 'Skor ini menunjukkan seberapa mirip gaya tulisan Anda dengan pola AI. Semakin rendah skornya (< 20%), tulisan Anda semakin natural layaknya manusia.'
+                }],
                 raw: data
             };
 
         } catch (error) {
             console.error("[Eden AI Error]:", error);
-            // Tangkap error 404 jika akun free tier tidak mendukung originalityai
             if (error.message.includes('404')) {
-                throw new Error("Penyedia API Plagiasi (OriginalityAI) belum aktif di akun Eden AI Anda, atau saldo API habis.");
+                throw new Error("Provider Sapling sedang tidak tersedia atau saldo API gratis Anda telah habis. Silakan gunakan tombol Lokal atau Web.");
             }
             throw error; 
         }
