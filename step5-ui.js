@@ -462,8 +462,8 @@ CONTOH FORMAT YG DIWAJIBKAN:
         const container = document.getElementById(`plagiarism-panel-${sectionId}`);
         if (!container) return;
 
-        // PERBAIKAN: Mengecek kunci dari State Utama (Sistem 1 PIN)
-        const isEdenAiConfigured = !!AppState._encryptedEdenAiKey;
+        // PERBAIKAN: Cek kunci yang dienkripsi ATAU kunci sementara yang sedang aktif
+        const isEdenAiConfigured = !!AppState._encryptedEdenAiKey || !!AppState._tempEdenAiKey;
 
         container.innerHTML = `
             <div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl overflow-hidden shadow-sm">

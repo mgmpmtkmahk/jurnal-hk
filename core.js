@@ -815,15 +815,30 @@ function displayTitleSelection() {
 
 function selectTitleForProposal(title, element) {
     const hasData = Object.values(AppState.proposalData).some(val => val && val.length > 10);
+    
     const executeSwitch = () => {
+        // 1. Reset memori state
         AppState.proposalData = { latar: '', rumusan: '', tujuan: '', manfaat: '', metode: '', landasan: '', hipotesis: '', jadwal: '', daftar: '', mpendahuluan: '', mpembahasan: '', mpenutup: '', mdaftar: '', jpendahuluan: '', jmetode: '', jhasil: '', jkesimpulan: '', jabstrak: '', jdaftar: '', sdeskripsi: '', sanalisis: '', spembahasan: '', skesimpulan: '', ssaran: '', sdaftar: '', slrpendahuluan: '', slrmetode: '', slrhasil: '', slrpembahasan: '', slrkesimpulan: '', slrabstrak: '', slrdaftar: '', rpendahuluan: '', rtinjauan: '', rspesifikasi: '', rmetode: '', rjadwal: '', rdaftar: '' };
+        
+        // 2. Kosongkan textarea biasa
         document.querySelectorAll('textarea[id^="output-"]').forEach(el => el.value = '');
+        
+        // 3. PERBAIKAN: Kosongkan visual dari Rich Text Editor (EasyMDE)
+        if (window.mdeEditors) {
+            Object.values(window.mdeEditors).forEach(editor => {
+                if (editor) editor.value(''); // Ini yang akan menghapus teks di layar
+            });
+        }
+
+        // 4. Ubah visual tombol judul
         document.querySelectorAll('.title-card').forEach(div => { div.classList.remove('border-yellow-500', 'bg-yellow-50'); div.classList.add('border-gray-200'); });
         element.classList.remove('border-gray-200'); element.classList.add('border-yellow-500', 'bg-yellow-50');
         
+        // 5. Simpan judul baru
         AppState.selectedTitle = title;
         saveStateToLocal(); 
         
+        // 6. Tampilkan tombol lanjut
         const stickyNav = document.querySelector('#step4 .sticky');
         if (stickyNav && !document.getElementById('btn-continue')) {
             const btn = document.createElement('button'); btn.id = 'btn-continue';
@@ -832,9 +847,19 @@ function selectTitleForProposal(title, element) {
             btn.onclick = () => goToStep(5);
             stickyNav.appendChild(btn);
         }
-        showCustomAlert('success', 'Direset', 'Siap menyusun untuk judul baru.');
+        
+        // 7. Update judul di layar langkah 5
+        const titleDisplay = document.getElementById('selectedTitleDisplayStep5'); 
+        if (titleDisplay) titleDisplay.textContent = AppState.selectedTitle;
+        
+        showCustomAlert('success', 'Direset', 'Layar editor telah dibersihkan. Siap menyusun untuk judul baru.');
     };
-    if (hasData && AppState.selectedTitle && AppState.selectedTitle !== title) showWarningModal(executeSwitch); else executeSwitch();
+
+    if (hasData && AppState.selectedTitle && AppState.selectedTitle !== title) {
+        showWarningModal(executeSwitch); 
+    } else {
+        executeSwitch();
+    }
 }
 
 function showProposalSection(section) {
