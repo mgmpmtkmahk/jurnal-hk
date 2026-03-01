@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panduan - Scientific Document Generator</title>
+    <title>Panduan Pengguna - Scientific Document Generator</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,178 +14,232 @@
     
     <style>
         .step-number { 
-            width: 2.5rem; height: 2.5rem; 
+            width: 2.75rem; height: 2.75rem; 
             display: flex; align-items: center; justify-content: center; 
             border-radius: 9999px; font-weight: bold; font-size: 1.25rem; 
             color: white; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             flex-shrink: 0;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
         }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .animate-fade-in-up { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .content-box { transition: all 0.3s ease; }
+        .content-box:hover { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); transform: translateY(-2px); border-color: #e0e7ff; }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-700 min-h-screen relative pb-20">
+<body class="bg-gray-50 text-gray-700 min-h-screen relative pb-20 font-['Inter']">
 
     <header class="gradient-bg text-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto px-4 md:px-6 py-3 md:py-4 flex flex-col md:flex-row justify-between items-center gap-4">
             
-            <div class="flex items-center space-x-3 text-center md:text-left">
-                <div class="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-inner">
-                    <i class="fas fa-book-reader text-xl md:text-2xl"></i>
+            <div class="flex items-center space-x-4 text-center md:text-left">
+                <div class="w-12 h-12 md:w-14 md:h-14 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-inner">
+                    <i class="fas fa-book-reader text-2xl md:text-3xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl md:text-2xl font-bold tracking-tight">Buku Panduan Pengguna</h1>
-                    <p class="text-xs md:text-sm text-indigo-100">Scientific Document Generator</p>
+                    <h1 class="text-xl md:text-2xl font-bold tracking-tight">Buku Panduan Komprehensif</h1>
+                    <p class="text-xs md:text-sm text-indigo-100 font-medium">Cara Menggunakan Scientific Document Generator</p>
                 </div>
             </div>
             
-            <div class="flex items-center justify-center space-x-2 md:space-x-3 w-full md:w-auto">
-                <a href="index.html" class="bg-white/20 hover:bg-white/30 text-white px-3 md:px-4 h-10 md:h-12 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center shadow-sm transform hover:scale-105">
-                    <i class="fas fa-laptop-code text-lg md:text-xl md:mr-2"></i>
-                    <span class="text-sm font-bold hidden md:inline">Aplikasi Utama</span>
+            <div class="flex items-center justify-center space-x-3 w-full md:w-auto">
+                <a href="index.html" class="bg-white/20 hover:bg-white/30 text-white px-4 h-12 rounded-xl backdrop-blur-sm border border-white/30 transition-all flex items-center shadow-sm transform hover:scale-105">
+                    <i class="fas fa-laptop-code text-lg mr-2"></i>
+                    <span class="text-sm font-bold">Kembali ke Aplikasi Utama</span>
                 </a>
-
-                <div class="hidden lg:flex items-center space-x-3 bg-white/10 px-3 py-1.5 h-12 rounded-xl backdrop-blur-sm border border-white/20">
-                    <img src="logo1.png" alt="Logo Pontren" class="h-8 w-auto object-contain rounded-md shadow-sm">
-                    <div class="w-px h-6 bg-white/30"></div> 
-                    <img src="logo2.png" alt="Logo Kemenag" class="h-8 w-auto object-contain drop-shadow-md">
-                    <div class="w-px h-6 bg-white/30"></div> 
-                    <img src="logo3.png" alt="Logo Kampus" class="h-8 w-auto object-contain drop-shadow-md">
-                </div>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-6 py-8 max-w-4xl animate-fade-in-up">
+    <main class="container mx-auto px-4 md:px-6 py-10 max-w-5xl animate-fade-in-up space-y-8">
 
-        <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8 border border-gray-200 mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                <i class="fas fa-info-circle text-indigo-500 mr-3 text-3xl"></i> Selamat Datang!
+        <div class="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 content-box">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-info-circle text-indigo-500 mr-3"></i> Selamat Datang!
             </h2>
-            <p class="text-gray-600 leading-relaxed mb-4">
-                Aplikasi ini dirancang sebagai "Dosen Pembimbing Virtual" yang akan membantu Anda menyusun berbagai dokumen akademis secara sistematis dari nol hingga siap diekspor ke Microsoft Word.
+            <p class="text-gray-600 leading-relaxed mb-6 text-justify">
+                Aplikasi <strong>Scientific Document Generator</strong> dirancang sebagai "Dosen Pembimbing Virtual" yang akan menuntun Anda menyusun berbagai dokumen akademis (seperti Proposal, Skripsi, Jurnal, hingga Makalah) secara terstruktur. Berbeda dengan sekadar mengobrol bebas dengan ChatGPT, aplikasi ini menggunakan metode <em>Reverse-Engineering</em>: Anda mengumpulkan bahan baku jurnal aslinya terlebih dahulu, lalu AI akan menganalisis celah penelitian (Research Gap), merekomendasikan judul yang ilmiah, dan memandu Anda menulis bab demi bab yang bebas dari halusinasi AI.
             </p>
-            <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
-                <p class="text-sm text-green-800">
-                    <i class="fas fa-shield-alt mr-2"></i><strong>Privasi Terjamin:</strong> Aplikasi berjalan 100% di browser Anda. Data tulisan Anda aman dan tidak pernah dikirim ke server pihak ketiga mana pun selain ke mesin AI pilihan Anda.
+            <div class="bg-emerald-50 border-l-4 border-emerald-500 p-5 rounded-r-xl shadow-sm">
+                <h4 class="font-bold text-emerald-800 flex items-center mb-2"><i class="fas fa-shield-alt mr-2"></i>Privasi Data 100% Terjamin</h4>
+                <p class="text-sm text-emerald-700 leading-relaxed">
+                    Aplikasi ini berjalan sepenuhnya di dalam browser (komputer) Anda. Teks, jurnal, maupun ide penelitian Anda disimpan di memori lokal browser (Local Storage) dan <strong>tidak pernah dikirim ke server kami</strong>. Data Anda hanya dikomunikasikan secara langsung ke server penyedia AI (seperti Google/Mistral) menggunakan kunci API rahasia milik Anda sendiri.
                 </p>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8 border border-gray-200 mb-8">
+        <div class="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 content-box">
             <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center border-b pb-4 border-gray-100">
-                <i class="fas fa-cogs text-gray-500 mr-3 text-3xl"></i> PERSIAPAN AWAL: Setup Mesin AI
+                <i class="fas fa-cogs text-gray-500 mr-3"></i> 1. PERSIAPAN AWAL: Memasang "Otak" AI
             </h2>
-            <p class="text-gray-600 mb-4">Sebelum memulai, Anda perlu memasang "otak" untuk aplikasi ini:</p>
-            <ol class="list-decimal list-inside space-y-3 text-gray-700 ml-2">
-                <li>Klik <strong>Ikon Kunci</strong> di sudut kanan layar utama untuk membuka Pengaturan API.</li>
-                <li>Pilih provider AI yang ingin Anda gunakan (Google Gemini, Mistral, Groq, dll).</li>
-                <li>Masukkan <strong>API Key</strong> yang Anda miliki ke dalam kolom yang tersedia.</li>
-                <li>Buat <strong>PIN Keamanan</strong>. PIN ini untuk mengenkripsi API Key Anda agar aman tersimpan di browser.</li>
-                <li>Klik tombol <strong>Simpan Aturan</strong>.</li>
-            </ol>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8 border border-gray-200 mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center border-b pb-4 border-gray-100">
-                <i class="fas fa-rocket text-indigo-500 mr-3 text-3xl"></i> PANDUAN 5 LANGKAH PENYUSUNAN
-            </h2>
-
-            <div class="space-y-8">
-                <div class="flex gap-4">
-                    <div class="step-number">1</div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Pencarian Jurnal (Literatur)</h3>
-                        <p class="text-gray-600 mb-2">Langkah ini membantu Anda mencari bahan baku penelitian.</p>
-                        <ul class="list-disc list-inside text-gray-600 text-sm space-y-1 ml-1">
-                            <li>Masukkan <strong>Kata Kunci</strong> topik riset Anda di kolom pencarian.</li>
-                            <li>Tekan Enter, aplikasi akan membuatkan tautan instan ke database bereputasi.</li>
-                            <li>Unduh file PDF jurnal yang relevan ke laptop Anda.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="flex gap-4">
-                    <div class="step-number">2</div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Ekstraksi & Kajian Pustaka</h3>
-                        <p class="text-gray-600 mb-2">AI akan membaca jurnal PDF Anda dan mengekstrak intisarinya.</p>
-                        <ul class="list-disc list-inside text-gray-600 text-sm space-y-1 ml-1">
-                            <li><strong>Upload PDF</strong> jurnal yang sudah Anda unduh. Sistem akan menyalin teksnya.</li>
-                            <li>Tekan tombol <strong>Auto API</strong>. AI akan menyusun tabel ringkasan jurnal.</li>
-                            <li>Klik <strong>Simpan Jurnal</strong> agar data masuk ke memori. Ulangi untuk 3-5 jurnal berbeda.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="flex gap-4">
-                    <div class="step-number">3</div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Analisis Komparatif (Mencari <em>Gap</em>)</h3>
-                        <p class="text-gray-600 mb-2">AI akan membandingkan seluruh jurnal yang sudah Anda simpan di Langkah 2.</p>
-                        <ul class="list-disc list-inside text-gray-600 text-sm space-y-1 ml-1">
-                            <li>Tekan <strong>Generate Analisis Komparatif</strong>.</li>
-                            <li>AI akan menemukan <strong>Research Gap</strong> dan <strong>Novelty</strong>.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="flex gap-4">
-                    <div class="step-number">4</div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Rekomendasi Judul</h3>
-                        <p class="text-gray-600 mb-2">Menentukan arah tulisan Anda.</p>
-                        <ul class="list-disc list-inside text-gray-600 text-sm space-y-1 ml-1">
-                            <li>Tekan <strong>Generate Judul</strong>.</li>
-                            <li>AI akan memberikan 5 rekomendasi judul akademis beserta alasan pemilihannya.</li>
-                            <li>Pilih salah satu judul hingga kotak menyala kuning sebagai tanda terkunci.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="flex gap-4">
-                    <div class="step-number">5</div>
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Penyusunan Dokumen Bab per Bab</h3>
-                        <p class="text-gray-600 mb-2">Ruang kerja utama Anda (Instruksi AI di kiri, Editor Visual di kanan).</p>
-                        <ul class="list-disc list-inside text-gray-600 text-sm space-y-2 mt-3 ml-1">
-                            <li><strong>Memulai Penulisan:</strong> Klik tombol <strong>Auto API</strong> pada bab yang ingin ditulis.</li>
-                            <li><strong>Auto-Save:</strong> Setiap kali Anda berhenti mengetik 1,5 detik di Editor, sistem akan otomatis menyimpan teks Anda.</li>
-                            <li><strong>Micro-Editing (Edit Blok):</strong> Blok teks tertentu di Editor, lalu gunakan tombol warna ungu (<strong>Perpanjang</strong>, <strong>Perbaiki PUEBI</strong>, atau <strong>Parafrase</strong>).</li>
-                            <li><strong>Export RIS:</strong> Khusus di Bab Daftar Pustaka, gunakan tombol "Export .RIS" untuk mengunduh daftar referensi ke Mendeley/Zotero.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8 border border-gray-200 mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center border-b pb-4 border-gray-100">
-                <i class="fas fa-shield-virus text-orange-500 mr-3 text-3xl"></i> FITUR KEAMANAN: Cek Originalitas
-            </h2>
-            <p class="text-gray-600 mb-4">Di setiap bab Langkah 5, terdapat panel pengecekan plagiasi bawaan:</p>
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div class="bg-orange-50 p-4 rounded-xl border border-orange-100">
-                    <h4 class="font-bold text-orange-800 mb-1"><i class="fas fa-bolt mr-2 text-amber-500"></i>Mode Cepat (Lokal)</h4>
-                    <p class="text-sm text-gray-600">Membandingkan teks Anda secara gratis dengan teks jurnal yang Anda unggah di Langkah 2.</p>
-                </div>
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                    <h4 class="font-bold text-blue-800 mb-1"><i class="fas fa-cloud mr-2 text-blue-500"></i>Mode Akurat (Copyleaks)</h4>
-                    <p class="text-sm text-gray-600">Scan luas ke database internet (Membutuhkan API Key Copyleaks terpisah).</p>
-                </div>
-            </div>
-            <p class="text-gray-700 text-sm bg-purple-50 p-3 rounded-lg border border-purple-100">
-                <strong><i class="fas fa-magic text-purple-600 mr-1"></i> Tandai & Auto-Perbaiki:</strong> Jika terdeteksi plagiat, klik "Tandai di Teks" untuk mewarnai merah kalimat bermasalah. Lalu klik "Auto-Perbaiki" agar AI otomatis memblok dan memparafrase kalimat tersebut.
+            <p class="text-gray-600 mb-5 leading-relaxed">
+                Aplikasi ini hanyalah sebuah kerangka kerja. Agar ia bisa berpikir, Anda perlu memberinya "otak" berupa <strong>API Key</strong>. Ikuti langkah ini sebelum memulai:
             </p>
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                <ol class="list-decimal list-inside space-y-4 text-gray-700">
+                    <li>Klik <strong>Ikon Kunci</strong> di menu samping kanan layar utama untuk membuka Pengaturan API.</li>
+                    <li><strong>Pilih Provider AI:</strong> Anda bisa memilih Google Gemini (Rekomendasi), Mistral, Groq, atau Github Models.</li>
+                    <li><strong>Masukkan API Key:</strong> Dapatkan kode rahasia (API Key) secara gratis melalui tautan yang disediakan di bawah kolom input, lalu tempel (paste) di kolom tersebut.</li>
+                    <li><strong>Atur Temperature (Kepatuhan AI):</strong> Pilih angka rendah (misal: 0.3) agar AI patuh pada instruksi pembuatan format akademis yang kaku. Jika Anda memilih angka tinggi (0.7 - 1.0), tulisan akan menjadi puitis namun berisiko merusak format aturan anti-plagiasi.</li>
+                    <li><strong>Buat PIN Keamanan:</strong> Ini wajib. PIN ini berfungsi untuk mengunci dan mengenkripsi API Key Anda di dalam browser, sehingga orang lain yang meminjam laptop Anda tidak bisa mencuri API Key tersebut.</li>
+                </ol>
+            </div>
         </div>
 
-        <div class="text-center pt-4 pb-12">
-            <a href="index.html" class="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-4 px-10 rounded-xl hover:shadow-lg hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1">
-                <i class="fas fa-arrow-left mr-2"></i> Kembali ke Aplikasi
+        <div class="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 content-box">
+            <h2 class="text-2xl font-bold text-gray-800 mb-8 flex items-center border-b pb-4 border-gray-100">
+                <i class="fas fa-rocket text-indigo-500 mr-3"></i> 2. PANDUAN 5 LANGKAH PENYUSUNAN
+            </h2>
+
+            <div class="space-y-10">
+                <div class="flex gap-5">
+                    <div class="step-number shadow-lg">1</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-indigo-900 mb-2">Pencarian Jurnal (Mencari Bahan Baku)</h3>
+                        <p class="text-gray-600 mb-3 leading-relaxed text-sm">
+                            Tulisan yang baik berawal dari referensi yang kuat. Aplikasi ini menyediakan mesin pencari terintegrasi ke portal jurnal nasional dan internasional.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-sm text-indigo-800">
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Ketik topik penelitian Anda di kolom kata kunci.</li>
+                                <li>Tekan Enter atau klik Cari. Layar akan otomatis bergeser turun menampilkan pilihan portal seperti <strong>Garuda Ristekdikti, Neliti, Moraref, atau Google Scholar</strong>.</li>
+                                <li>Klik portal yang Anda tuju, unduh file PDF jurnalnya, dan kembali ke aplikasi.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-5">
+                    <div class="step-number shadow-lg">2</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-indigo-900 mb-2">Ekstraksi Kajian Pustaka</h3>
+                        <p class="text-gray-600 mb-3 leading-relaxed text-sm">
+                            Di sinilah keajaiban AI dimulai. Anda tidak perlu membaca puluhan halaman PDF secara manual.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-sm text-indigo-800">
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Klik <strong>Pilih File PDF</strong> untuk mengunggah jurnal yang baru saja Anda unduh. Sistem akan mengekstrak seluruh teks di dalamnya.</li>
+                                <li>Klik tombol ungu <strong><i class="fas fa-magic"></i> Analisis via AI (Auto API)</strong>. AI akan merangkum latar belakang, metode, hasil, dan kelemahan jurnal tersebut dalam hitungan detik.</li>
+                                <li>Klik <strong>Simpan ke Database</strong>. Ulangi proses ini minimal untuk 3 jurnal agar data penelitian Anda kaya.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-5">
+                    <div class="step-number shadow-lg">3</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-indigo-900 mb-2">Analisis Komparatif & Mencari <em>Gap</em></h3>
+                        <p class="text-gray-600 mb-3 leading-relaxed text-sm">
+                            Sistem akan membandingkan seluruh jurnal yang sudah Anda simpan di Langkah 2 untuk menemukan celah penelitian yang belum dikerjakan orang lain.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-sm text-indigo-800">
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Klik <strong>Generate Analisis Komparatif</strong>.</li>
+                                <li>AI akan menyajikan tabel perbandingan dan merumuskan titik <em>Novelty</em> (kebaruan) yang akan menjadi nilai jual penelitian Anda.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-5">
+                    <div class="step-number shadow-lg">4</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-indigo-900 mb-2">Rekomendasi Judul Penelitian</h3>
+                        <p class="text-gray-600 mb-3 leading-relaxed text-sm">
+                            Berdasarkan celah (gap) yang ditemukan di Langkah 3, AI akan merumuskan judul yang paling relevan dan kuat.
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 text-sm text-indigo-800">
+                            <ul class="list-disc list-inside space-y-2">
+                                <li>Klik <strong>Generate Rekomendasi Judul</strong>. Akan muncul 5 opsi judul lengkap dengan alasan metodologisnya.</li>
+                                <li><strong>Pilih salah satu judul</strong> dengan mengkliknya hingga kotaknya berubah warna menjadi kuning.</li>
+                                <li><em>Catatan: Setelah judul dikunci, menu jenis dokumen di sidebar kiri (Proposal, Makalah, dll) akan otomatis terkunci untuk menjaga konsistensi alur dokumen Anda.</em></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-5">
+                    <div class="step-number shadow-lg">5</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-indigo-900 mb-2">Penyusunan Bab (Ruang Kerja Utama)</h3>
+                        <p class="text-gray-600 mb-3 leading-relaxed text-sm">
+                            Ini adalah fitur inti aplikasi. Setiap bagian dokumen (Latar Belakang, Metode, dll) dipecah ke dalam blok-blok yang bisa digenerasi satu per satu agar hasilnya fokus dan mendetail.
+                        </p>
+                        <div class="grid md:grid-cols-2 gap-4 mt-4">
+                            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                                <h4 class="font-bold text-blue-900 mb-2 text-sm"><i class="fas fa-robot mr-2"></i>Mode Generasi Teks</h4>
+                                <ul class="text-sm text-blue-800 space-y-2 list-disc list-inside">
+                                    <li><strong>Tombol Auto API:</strong> AI akan langsung mengetik jawaban secara otomatis ke dalam Editor di sebelah kanan.</li>
+                                    <li><strong>Mode Manual:</strong> Anda menyalin instruksi (prompt) di sebelah kiri, lalu mem-paste-nya ke web eksternal (ChatGPT/Claude), lalu hasilnya Anda copas kembali ke Editor.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                                <h4 class="font-bold text-purple-900 mb-2 text-sm"><i class="fas fa-magic mr-2"></i>Fitur Micro-Editing</h4>
+                                <ul class="text-sm text-purple-800 space-y-2">
+                                    <li>Anda merasa ada paragraf yang kurang pas? <strong>Blok teksnya</strong> di Editor.</li>
+                                    <li>Akan muncul tombol ajaib di bawah: <strong>Perpanjang</strong> (menambah elaborasi), <strong>Parafrase</strong> (mengubah susunan kalimat), atau <strong>Perbaiki PUEBI</strong> (membenarkan ejaan).</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-4 bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs text-gray-500">
+                            <i class="fas fa-save text-indigo-500 mr-1"></i> <strong>Auto-Save:</strong> Setiap kali Anda berhenti mengetik selama 1,5 detik, atau menekan tombol `Ctrl+S`, aplikasi akan menyimpan teks Anda secara otomatis agar tidak hilang jika browser tertutup.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 content-box">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center border-b pb-4 border-gray-100">
+                <i class="fas fa-shield-virus text-orange-500 mr-3"></i> 3. FITUR ANTI-PLAGIASI
+            </h2>
+            <p class="text-gray-600 mb-5 leading-relaxed">
+                Di bagian bawah setiap Editor pada Langkah 5, terdapat Panel Pengecekan Originalitas. Ini penting untuk memastikan bahwa tulisan yang dihasilkan (atau yang Anda copas) aman dari deteksi sistem seperti Turnitin.
+            </p>
+            
+            <div class="space-y-4">
+                <div class="flex items-start gap-4 p-4 rounded-xl border border-amber-200 bg-amber-50">
+                    <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0 mt-1"><i class="fas fa-bolt"></i></div>
+                    <div>
+                        <h4 class="font-bold text-amber-900 mb-1">Pengecekan Lokal (Gratis & Cepat)</h4>
+                        <p class="text-sm text-amber-800">Sistem akan membandingkan teks yang baru ditulis dengan seluruh teks jurnal PDF yang Anda simpan di Langkah 2. Berguna untuk mendeteksi apakah AI menjiplak mentah-mentah referensinya.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-4 rounded-xl border border-orange-200 bg-orange-50">
+                    <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0 mt-1"><i class="fas fa-cloud"></i></div>
+                    <div>
+                        <h4 class="font-bold text-orange-900 mb-1">Pengecekan Eden AI (Akurat Basis Web)</h4>
+                        <p class="text-sm text-orange-800">Melakukan scan plagiasi kelas berat layaknya Turnitin. <strong>Syarat:</strong> Anda harus memasukkan API Key Eden AI di menu Pengaturan API (Ikon Kunci) terlebih dahulu.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 p-4 rounded-xl border border-blue-200 bg-blue-50">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mt-1"><i class="fas fa-external-link-alt"></i></div>
+                    <div>
+                        <h4 class="font-bold text-blue-900 mb-1">Cek Web Eksternal</h4>
+                        <p class="text-sm text-blue-800">Otomatis menyalin seluruh teks Anda dan membuka tab baru menuju penyedia layanan cek plagiasi gratis di internet (SmallSEOTools).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 bg-gray-800 text-white rounded-xl shadow-md border border-gray-700">
+                <h4 class="font-bold mb-2 text-orange-400"><i class="fas fa-magic mr-2"></i>Tindakan Pasca-Scan</h4>
+                <p class="text-sm leading-relaxed text-gray-300">
+                    Jika skor plagiasi Anda tinggi (berwarna merah), klik tombol <strong>"Tandai di Teks"</strong> untuk menyorot bagian kalimat yang terdeteksi menjiplak. Setelah itu, klik tombol <strong>"Auto-Perbaiki"</strong> untuk menyuruh AI memparafrase khusus bagian yang disorot tersebut secara otomatis.
+                </p>
+            </div>
+        </div>
+
+        <div class="text-center pt-8 pb-12">
+            <a href="index.html" class="inline-flex items-center justify-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-4 px-10 rounded-2xl hover:shadow-xl hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-1 text-lg">
+                <i class="fas fa-rocket mr-3"></i> Mulai Menulis Sekarang
             </a>
+            <p class="text-gray-400 text-sm mt-4">Scientific Document Generator v2.0</p>
         </div>
 
     </main>
@@ -193,44 +247,25 @@
     <div class="fixed left-1 md:left-6 top-1/2 transform -translate-y-1/2 flex flex-col space-y-2 md:space-y-3 z-50 bg-white/80 backdrop-blur-md p-1 md:p-2 rounded-xl md:rounded-2xl shadow-xl border border-gray-200">
         <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white">
             <i class="fas fa-file-alt text-base md:text-xl"></i>
-            <span class="absolute left-12 md:left-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">Buka Aplikasi</span>
+            <span class="absolute left-12 md:left-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl">Buka Aplikasi Utama</span>
         </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white">
+        <button class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-blue-50 text-blue-400 cursor-not-allowed" title="Panduan Mode Proposal">
             <i class="fas fa-robot text-base md:text-xl"></i>
         </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-yellow-50 text-yellow-600 hover:bg-yellow-600 hover:text-white">
+        <button class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-yellow-50 text-yellow-400 cursor-not-allowed">
             <i class="fas fa-graduation-cap text-base md:text-xl"></i>
-        </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white">
-            <i class="fas fa-book-open text-base md:text-xl"></i>
-        </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-teal-50 text-teal-600 hover:bg-teal-600 hover:text-white">
-            <i class="fas fa-newspaper text-base md:text-xl"></i>
-        </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-sm border bg-purple-50 text-purple-600 hover:bg-purple-600 hover:text-white">
-            <i class="fas fa-search-plus text-base md:text-xl"></i>
         </button>
     </div>
 
     <div class="fixed right-1 md:right-6 top-1/2 transform -translate-y-1/2 flex flex-col gap-2 md:gap-3 z-50 bg-white/80 backdrop-blur-md p-1.5 md:p-2.5 rounded-xl md:rounded-2xl shadow-xl border border-gray-200">   
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-gray-50 text-gray-600 hover:bg-gray-600 hover:text-white shadow-sm border border-gray-200">
-            <i class="fas fa-moon text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
-            <span class="absolute right-12 md:right-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">Buka Aplikasi</span>
+        <button class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-gray-50 text-gray-400 cursor-not-allowed border border-gray-200" title="Dark Mode">
+            <i class="fas fa-moon text-base md:text-xl"></i>
         </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white shadow-sm border border-indigo-100">
-            <i class="fas fa-key text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
+        <button class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-indigo-50 text-indigo-400 cursor-not-allowed border border-indigo-100" title="Pengaturan API">
+            <i class="fas fa-key text-base md:text-xl"></i>
         </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white shadow-sm border border-orange-100">
-            <i class="fas fa-shield-virus text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
-        </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm border border-blue-100">
-            <i class="fas fa-download text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
-        </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-green-50 text-green-600 hover:bg-green-600 hover:text-white shadow-sm border border-green-100">
-            <i class="fas fa-upload text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
-        </button>
-        <button onclick="window.location.href='index.html'" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-red-50 text-red-600 hover:bg-red-600 hover:text-white shadow-sm border border-red-100">
-            <i class="fas fa-power-off text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
+        <button class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-orange-50 text-orange-400 cursor-not-allowed border border-orange-100" title="Pengaturan Plagiasi">
+            <i class="fas fa-shield-virus text-base md:text-xl"></i>
         </button>
     </div>
 
