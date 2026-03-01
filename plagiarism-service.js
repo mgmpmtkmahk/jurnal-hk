@@ -57,7 +57,7 @@ const PlagiarismService = {
         this.reportProgress({ status: 'Menganalisis...', detail: 'Mengirim teks ke Eden AI' });
 
         try {
-            // PERBAIKAN FINAL: Alamat resmi Eden AI untuk Plagiarisme adalah "plagia_detection"
+            // Menggunakan endpoint resmi Eden AI untuk plagiarisme
             const response = await fetch('https://api.edenai.run/v2/text/plagia_detection', {
                 method: 'POST',
                 headers: {
@@ -77,27 +77,24 @@ const PlagiarismService = {
                     const errorData = await response.json();
                     throw new Error(errorData.error?.message || `Error Eden AI: ${response.status}`);
                 } else {
-                    // Penanganan jika API Key belum aktif atau saldo Eden AI habis
                     throw new Error(`Koneksi ditolak (Error ${response.status}). Pastikan akun Eden AI Anda aktif dan memiliki kredit gratis.`);
                 }
             }
 
             const data = await response.json();
-            
-            // Ambil hasil dari provider (OriginalityAI)
             const providerResult = data['originalityai'] || Object.values(data)[0];
 
             if (!providerResult || providerResult.status !== "success") {
-                throw new Error('Eden AI gagal memproses teks ini.');
+                throw new Error('Provider Eden AI gagal memproses teks ini.');
             }
 
-            // Ekstrak Skor Plagiasi (Berjaga-jaga jika Eden AI mengubah nama variabel skornya)
+            // Ambil Skor Plagiasi
             const similarityScore = providerResult.plagia_score !== undefined ? providerResult.plagia_score : 
                                    (providerResult.plagiarism_score !== undefined ? providerResult.plagiarism_score : 0);
 
-            // Ekstrak Sumber Website yang dijiplak (Jika ada)
+            // Ambil Daftar Sumber (Jika terdeteksi menjiplak)
             const sources = (providerResult.items || []).map(item => ({
-                title: item.title || 'Sumber Terdeteksi',
+                title: item.title || 'Sumber Internet Terdeteksi',
                 url: item.url || null,
                 similarity: item.plagiarism_score || item.plagia_score || similarityScore,
                 type: 'internet',
@@ -113,7 +110,11 @@ const PlagiarismService = {
 
         } catch (error) {
             console.error("[Eden AI Error]:", error);
-            throw error; // Lempar ke core.js agar dimunculkan pop-up yang rapi
+            // Tangkap error 404 jika akun free tier tidak mendukung originalityai
+            if (error.message.includes('404')) {
+                throw new Error("Penyedia API Plagiasi (OriginalityAI) belum aktif di akun Eden AI Anda, atau saldo API habis.");
+            }
+            throw error; 
         }
     },
 
