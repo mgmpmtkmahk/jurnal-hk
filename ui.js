@@ -29,10 +29,9 @@ function goToStep(step) {
 }
 
 function updateSidebarLock(step) {
-    const sidebar = document.getElementById('btn-mode-proposal').parentElement;
-    if (step < 5) {
-        sidebar.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
-    } else {
+    // Kunci dimatikan: Menghapus class pengunci agar sidebar selalu aktif
+    const sidebar = document.getElementById('btn-mode-proposal')?.parentElement;
+    if (sidebar) {
         sidebar.classList.remove('opacity-50', 'pointer-events-none', 'grayscale');
     }
 }
