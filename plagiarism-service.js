@@ -54,52 +54,51 @@ const PlagiarismService = {
     async checkWithEdenAi(text, apiKey) {
         if (!apiKey) throw new Error('API Key Eden AI diperlukan.');
 
-        this.reportProgress({ status: 'Menganalisis...', detail: 'Mengirim teks ke Eden AI' });
+        this.reportProgress({ status: 'Menganalisis...', detail: 'Mengecek Turnitin AI Score via Eden AI' });
 
         try {
-            const response = await fetch('https://api.edenai.run/v2/text/plagiarism', {
+            // PERBAIKAN 1: Menggunakan endpoint AI Detection yang 100% aktif
+            const response = await fetch('https://api.edenai.run/v2/text/ai_detection', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    providers: "originalityai", // Menggunakan provider Originality.ai via Eden AI
-                    text: text,
-                    language: "id"
+                    providers: "originalityai,sapling", // Provider andalan untuk deteksi AI
+                    text: text
                 })
             });
 
+            // PERBAIKAN 2: Penanganan Error HTML (Agar tidak crash "Unexpected token '<'")
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || 'Gagal menghubungi server Eden AI');
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || `Error Server Eden AI: ${response.status}`);
+                } else {
+                    // Jika yang dikembalikan adalah HTML 404/500
+                    const textError = await response.text();
+                    throw new Error(`Endpoint Eden AI sedang gangguan (Error ${response.status}). Silakan gunakan pengecekan Lokal atau Web.`);
+                }
             }
 
             const data = await response.json();
             
-            // Mengambil hasil dari provider yang sukses (biasanya array/object pertama)
-            const providerResult = data['originalityai'] || Object.values(data)[0];
+            // Ambil hasil dari provider yang sukses merespons
+            const providerResult = data['originalityai'] || data['sapling'] || Object.values(data)[0];
 
             if (!providerResult || providerResult.status !== "success") {
                 throw new Error('Eden AI gagal memproses teks ini.');
             }
 
-            // Plagiarism Score dari Eden AI biasanya dari 0.0 sampai 1.0
-            const similarityScore = providerResult.plagiarism_score || 0;
-
-            // Memetakan sumber link jika Eden AI mengembalikannya
-            const sources = (providerResult.items || []).map(item => ({
-                title: item.title || 'Sumber Terdeteksi',
-                url: item.url || null,
-                similarity: item.plagiarism_score || similarityScore,
-                type: 'internet',
-                snippet: item.text || null
-            }));
+            // Mengambil Skor AI (0.0 sampai 1.0)
+            const aiScore = providerResult.ai_score !== undefined ? providerResult.ai_score : 0;
 
             return {
                 method: 'edenai',
-                overallScore: similarityScore, // Disimpan dalam format desimal, UI akan mengalikannya 100%
-                sources: sources,
+                overallScore: aiScore, // Akan diubah jadi % secara otomatis oleh UI
+                sources: [], // AI Detection tidak punya URL sumber, jadi panel bawah akan rapi
                 raw: data
             };
 
