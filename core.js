@@ -187,6 +187,7 @@ window.openApiSettings = function() {
     setVal('mistralApiKeyInput', AppState._tempMistralKey || '');
     setVal('groqApiKeyInput', AppState._tempGroqKey || '');
     setVal('githubApiKeyInput', AppState._tempGithubKey || '');
+    setVal('edenAiKeyInputMain', AppState._tempEdenAiKey || '');
     
     setVal('aiToneSelect', AppState.tone || 'akademis');
     setVal('aiProviderSelect', AppState.aiProvider || 'gemini');
@@ -208,9 +209,10 @@ function closeApiSettings() {
 async function saveApiKey() {
     const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
     const gemini = getVal('geminiApiKeyInput'), mistral = getVal('mistralApiKeyInput'), groq = getVal('groqApiKeyInput');
-    const github = getVal('githubApiKeyInput'), pin = getVal('apiPinInput');
+    const github = getVal('githubApiKeyInput'), edenai = getVal('edenAiKeyInputMain'), pin = getVal('apiPinInput');
     
-    if ((gemini || mistral || groq || github) && !pin) {
+    // Perbaikan kondisi PIN
+    if ((gemini || mistral || groq || github || edenai) && !pin) {
         showCustomAlert('warning', 'PIN Diperlukan', 'Harap buat PIN keamanan (wajib) untuk mengenkripsi API Key Anda.');
         return;
     }
@@ -224,14 +226,14 @@ async function saveApiKey() {
     if(document.getElementById('groqModelSelect')) AppState.groqModel = getVal('groqModelSelect');
     if(document.getElementById('githubModelSelect')) AppState.githubModel = getVal('githubModelSelect');
     
-    await AppState.setAndEncryptKeys(gemini, mistral, groq, github, pin);
+    await AppState.setAndEncryptKeys(gemini, mistral, groq, github, edenai, pin);
     await saveStateToLocal();
     closeApiSettings(); showCustomAlert('success', 'Tersimpan', `Pengaturan AI diperbarui.`);
 }
 
 async function removeApiKey() {
     await AppState.setAndEncryptKeys('', '', '', '', '', ''); 
-    const ids = ['geminiApiKeyInput', 'mistralApiKeyInput', 'groqApiKeyInput', 'githubApiKeyInput', 'apiPinInput'];
+    const ids = ['geminiApiKeyInput', 'mistralApiKeyInput', 'groqApiKeyInput', 'githubApiKeyInput', 'edenAiKeyInputMain', 'apiPinInput'];
     ids.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
     await saveStateToLocal(); closeApiSettings();
     const unlockModal = document.getElementById('unlockModal'); if (unlockModal) unlockModal.remove();
@@ -1463,56 +1465,48 @@ async function confirmEdenAiUnlock(callback) {
 
 async function runPlagiarismCheck(sectionId, method) {
     const editor = window.mdeEditors[`output-${sectionId}`];
-    if (!editor) {
-        showCustomAlert('error', 'Error', 'Editor tidak ditemukan.');
-        return;
-    }
+    if (!editor) { showCustomAlert('error', 'Error', 'Editor tidak ditemukan.'); return; }
 
     const text = editor.value();
-    if (!text || text.trim().length < 50) {
-        showCustomAlert('warning', 'Teks Terlalu Pendek', 'Minimal 50 karakter untuk plagiarism check.');
-        return;
+    if (!text || text.trim().length < 50) { showCustomAlert('warning', 'Teks Terlalu Pendek', 'Minimal 50 karakter untuk check.'); return; }
+
+    // PERBAIKAN: Gunakan 1 PIN Global
+    if ((method === 'edenai' || method === 'quick') && !AppState._tempEdenAiKey) {
+        if (AppState._encryptedEdenAiKey) {
+            showUnlockModal(); // Panggil PIN Utama
+            return;
+        } else {
+            showCustomAlert('warning', 'API Key Diperlukan', 'Harap simpan API Key Eden AI di menu Pengaturan API (Ikon Kunci Utama).');
+            return;
+        }
     }
 
-    // UI State: Loading
     setPlagiarismLoading(sectionId, true);
     updatePlagiarismStatus(sectionId, 'Memulai scan...', 'Menyiapkan analisis');
 
     try {
         const options = {
             references: AppState.journals,
-            apiKey: method === 'edenai' ? await getEdenAiKeyWithUnlock() : null // UBAH DI SINI
+            apiKey: method === 'edenai' ? AppState._tempEdenAiKey : null
         };
 
-        // Progress callback
         PlagiarismService.onProgress((data) => {
-            if (data.status) {
-                updatePlagiarismStatus(sectionId, data.status, data.detail);
-            }
+            if (data.status) updatePlagiarismStatus(sectionId, data.status, data.detail);
         });
 
         const result = await PlagiarismService.check(text, method, options);
-        
-        // Simpan hasil
         AppState.plagiarismConfig.lastScanResults[sectionId] = result;
         saveStateToLocal();
-
-        // Tampilkan hasil
         displayPlagiarismResult(sectionId, result);
 
     } catch (error) {
         console.error('Plagiarism check failed:', error);
-        
-        // Error handling spesifik
         if (error.message.includes('API Key')) {
-            showCustomAlert('warning', 'API Key Diperlukan', 
-                'Masukkan API Key Eden AI di pengaturan. Daftar gratis di app.edenai.run');
-            openPlagiarismSettings();
+            showCustomAlert('warning', 'API Key Diperlukan', 'Masukkan API Key Eden AI di pengaturan Utama (Ikon Kunci).');
+            openApiSettings();
         } else {
             showCustomAlert('error', 'Scan Gagal', error.message);
         }
-        
-        // Reset UI
         document.getElementById(`plagiarism-result-${sectionId}`).classList.add('hidden');
     } finally {
         setPlagiarismLoading(sectionId, false);

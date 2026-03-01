@@ -205,13 +205,10 @@ function renderMarkdownTable(mdText) {
 // UI Updates untuk Keamanan API Key (REFACTORED)
 // ==========================================
 
-// Tambahkan di openApiSettings atau buat modal terpisah
 function openPlagiarismSettings() {
-    // Hapus modal lama jika ada
     const oldModal = document.getElementById('plagiarismSettingsModal');
     if (oldModal) oldModal.remove();
 
-    const isConfigured = !!AppState.plagiarismConfig.copyleaksApiKey;
     const currentProvider = AppState.plagiarismConfig.provider || 'local';
 
     const modal = document.createElement('div');
@@ -219,120 +216,53 @@ function openPlagiarismSettings() {
     modal.className = 'fixed inset-0 z-[135] flex items-center justify-center';
     modal.innerHTML = `
         <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closePlagiarismSettings()"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-lg p-6 relative z-10 animate-fade-in-up max-h-[90vh] overflow-y-auto">
-            
+        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-lg p-6 relative z-10 animate-fade-in-up">
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-shield-virus text-orange-600 text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold text-gray-800">Pengaturan Plagiarism Checker</h3>
-                    <p class="text-sm text-gray-500">Konfigurasi Copyleaks API & threshold</p>
-                </div>
+                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center"><i class="fas fa-shield-virus text-orange-600 text-xl"></i></div>
+                <div><h3 class="text-xl font-bold text-gray-800">Pengaturan Plagiarism Checker</h3><p class="text-sm text-gray-500">Konfigurasi scan & threshold</p></div>
             </div>
 
-            <!-- Provider Selection -->
             <div class="mb-5">
                 <label class="block text-sm font-bold text-gray-700 mb-2">Provider Default</label>
                 <div class="grid grid-cols-3 gap-2">
-                    <button onclick="selectPlagiarismProvider('local')" 
-                        class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'local' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center"
-                        data-provider="local">
-                        <i class="fas fa-bolt text-amber-500 text-lg mb-1"></i>
-                        <div class="text-sm font-semibold">Lokal</div>
-                        <div class="text-xs text-gray-500">Gratis</div>
+                    <button onclick="selectPlagiarismProvider('local')" class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'local' ? 'border-orange-500 bg-orange-50' : 'border-gray-200'} transition-all" data-provider="local">
+                        <i class="fas fa-bolt text-amber-500 text-lg mb-1"></i><div class="text-sm font-semibold">Lokal</div><div class="text-xs text-gray-500">Gratis</div>
                     </button>
-                    <button onclick="selectPlagiarismProvider('edenai')" 
-                        class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'edenai' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center"
-                        data-provider="edenai">
-                        <i class="fas fa-cloud text-orange-500 text-lg mb-1"></i>
-                        <div class="text-sm font-semibold">Eden AI</div>
-                        <div class="text-xs text-gray-500">Akurat</div>
+                    <button onclick="selectPlagiarismProvider('edenai')" class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'edenai' ? 'border-orange-500 bg-orange-50' : 'border-gray-200'} transition-all" data-provider="edenai">
+                        <i class="fas fa-cloud text-orange-500 text-lg mb-1"></i><div class="text-sm font-semibold">Eden AI</div><div class="text-xs text-gray-500">Akurat</div>
                     </button>
-                    <button onclick="selectPlagiarismProvider('quick')" 
-                        class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'quick' ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center"
-                        data-provider="quick">
-                        <i class="fas fa-rocket text-purple-500 text-lg mb-1"></i>
-                        <div class="text-sm font-semibold">Hybrid</div>
-                        <div class="text-xs text-gray-500">Cepat→Akurat</div>
+                    <button onclick="selectPlagiarismProvider('quick')" class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'quick' ? 'border-orange-500 bg-orange-50' : 'border-gray-200'} transition-all" data-provider="quick">
+                        <i class="fas fa-rocket text-purple-500 text-lg mb-1"></i><div class="text-sm font-semibold">Hybrid</div><div class="text-xs text-gray-500">Cepat→Akurat</div>
                     </button>
                 </div>
             </div>
-
-            <!-- Copyleaks Configuration -->
-            <div id="edenai-config-section" class="${currentProvider === 'edenai' || currentProvider === 'quick' ? '' : 'hidden'} mb-5 p-4 bg-orange-50 rounded-xl border border-orange-200">
-                <div class="flex items-center justify-between mb-3">
-                    <label class="text-sm font-bold text-orange-800">Eden AI API Key</label>
-                    <span class="text-xs ${isConfigured ? 'text-green-600' : 'text-orange-600'} font-semibold">
-                        ${isConfigured ? '<i class="fas fa-check-circle mr-1"></i>Tersimpan' : '<i class="fas fa-exclamation-circle mr-1"></i>Belum diatur'}
-                    </span>
-                </div>
-                <div class="space-y-3">
-                    <input type="password" id="edenAiKeyInput" 
-                        class="w-full p-3 border-2 border-orange-200 rounded-xl focus:border-orange-500 outline-none text-sm font-mono"
-                        placeholder="Paste API Key dari app.edenai.run">
-                    <div class="p-3 bg-white rounded-lg border border-orange-100">
-                        <p class="text-xs text-gray-600 leading-relaxed">
-                            <i class="fas fa-info-circle text-orange-500 mr-1"></i>
-                            Daftar gratis di <a href="https://app.edenai.run/" target="_blank" class="text-orange-600 font-bold underline">Eden AI</a>. Key akan dienkripsi aman di browser.
-                        </p>
-                    </div>
-                    
-                    <div class="mt-3">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">PIN Keamanan (Wajib)</label>
-                        <input type="password" id="edenAiPinInput" 
-                            class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none text-sm font-mono tracking-widest text-center shadow-sm"
-                            placeholder="Buat / Masukkan PIN">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Threshold Setting -->
+            
             <div class="mb-5">
                 <label class="block text-sm font-bold text-gray-700 mb-2">Threshold Peringatan (%)</label>
                 <div class="flex items-center gap-4">
-                    <input type="range" id="similarityThreshold" min="5" max="50" 
-                        value="${AppState.plagiarismConfig.similarityThreshold || 15}" 
-                        class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                        oninput="document.getElementById('thresholdValue').textContent = this.value + '%'">
-                    <span id="thresholdValue" class="w-16 text-center font-mono font-bold text-lg text-orange-600">
-                        ${AppState.plagiarismConfig.similarityThreshold || 15}%
-                    </span>
-                </div>
-                <p class="text-xs text-gray-500 mt-1">Aplikasi akan memperingatkan jika similarity melebihi nilai ini.</p>
-            </div>
-
-            <!-- Usage Stats -->
-            ${isConfigured ? `
-            <div class="mb-5 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <h4 class="text-sm font-bold text-gray-700 mb-2">Status Akun Copyleaks</h4>
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">Sisa Scan Bulan Ini:</span>
-                    <span class="font-semibold text-gray-800" id="copyleaks-quota">Memuat...</span>
+                    <input type="range" id="similarityThreshold" min="5" max="50" value="${AppState.plagiarismConfig.similarityThreshold || 15}" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500" oninput="document.getElementById('thresholdValue').textContent = this.value + '%'">
+                    <span id="thresholdValue" class="w-16 text-center font-mono font-bold text-lg text-orange-600">${AppState.plagiarismConfig.similarityThreshold || 15}%</span>
                 </div>
             </div>
-            ` : ''}
 
-            <!-- Action Buttons -->
             <div class="flex gap-3 pt-4 border-t border-gray-100">
-                <button onclick="closePlagiarismSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200 transition-all">
-                    Batal
-                </button>
-                ${isConfigured ? `
-                ` : ''}
-                <button onclick="savePlagiarismSettings()" class="flex-1 bg-orange-600 py-3 rounded-xl text-white font-bold hover:bg-orange-700 shadow-lg transition-all">
-                    <i class="fas fa-save mr-1"></i>Simpan
-                </button>
+                <button onclick="closePlagiarismSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200">Batal</button>
+                <button onclick="savePlagiarismSettings()" class="flex-1 bg-orange-600 py-3 rounded-xl text-white font-bold hover:bg-orange-700 shadow-lg">Simpan</button>
             </div>
-        </div>
-    `;
-    
+        </div>`;
     document.body.appendChild(modal);
+}
+
+async function savePlagiarismSettings() {
+    const provider = document.querySelector('.provider-btn.border-orange-500')?.dataset.provider || 'local';
+    const threshold = parseInt(document.getElementById('similarityThreshold').value);
     
-    // Pre-fill jika ada
-    if (isConfigured) {
-        // Tidak bisa pre-fill karena encrypted, user harus masukkan ulang atau pakai PIN
-    }
+    AppState.plagiarismConfig.provider = provider;
+    AppState.plagiarismConfig.similarityThreshold = threshold;
+    
+    await saveStateToLocal();
+    closePlagiarismSettings();
+    showCustomAlert('success', 'Tersimpan', 'Preferensi plagiasi diperbarui.');
 }
 
 function selectPlagiarismProvider(provider) {
@@ -341,6 +271,7 @@ function selectPlagiarismProvider(provider) {
         btn.className = `provider-btn p-3 rounded-xl border-2 ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center`;
     });
     
+    // Perbaikan Error null (Mencari elemen yang benar)
     const configSection = document.getElementById('edenai-config-section');
     if (configSection) {
         configSection.classList.toggle('hidden', provider === 'local');
@@ -350,48 +281,6 @@ function selectPlagiarismProvider(provider) {
 function closePlagiarismSettings() {
     const modal = document.getElementById('plagiarismSettingsModal');
     if (modal) modal.remove();
-}
-
-async function savePlagiarismSettings() {
-    const provider = document.querySelector('.provider-btn.border-orange-500')?.dataset.provider || 'local';
-    const threshold = parseInt(document.getElementById('similarityThreshold').value);
-    
-    // PERUBAHAN 1: Ubah ID input menjadi milik Eden AI
-    const apiKey = document.getElementById('edenAiKeyInput').value.trim();
-    const pin = document.getElementById('edenAiPinInput')?.value.trim();
-
-    // PERUBAHAN 2: Ubah string 'copyleaks' menjadi 'edenai'
-    if ((provider === 'edenai' || provider === 'quick') && apiKey && !pin) {
-        showCustomAlert('warning', 'PIN Diperlukan', 'Buat PIN keamanan untuk mengenkripsi API Key Eden AI.');
-        return;
-    }
-
-    try {
-        // PERUBAHAN 3: Kita hapus blok testCopyleaksKey di sini karena fungsinya sudah kamu hapus sebelumnya
-
-        // Simpan ke state
-        AppState.plagiarismConfig.provider = provider;
-        AppState.plagiarismConfig.similarityThreshold = threshold;
-        
-        // PERUBAHAN 4: Ganti pemanggilan fungsi ke setEdenAiKey
-        if (apiKey && pin) {
-            await AppState.setEdenAiKey(apiKey, pin);
-        }
-
-        await saveStateToLocal();
-        
-        closePlagiarismSettings();
-        showCustomAlert('success', 'Tersimpan', 'Pengaturan Eden AI berhasil diperbarui.');
-        
-        // Refresh UI di semua section
-        document.querySelectorAll('[id^="plagiarism-panel-"]').forEach(el => {
-            const sectionId = el.id.replace('plagiarism-panel-', '');
-            if (typeof injectPlagiarismPanel === 'function') injectPlagiarismPanel(sectionId);
-        });
-
-    } catch (error) {
-        showCustomAlert('error', 'Gagal Menyimpan', error.message);
-    }
 }
 
 window.checkPlagiarismExternal = function(sectionId) {

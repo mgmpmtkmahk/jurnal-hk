@@ -515,9 +515,15 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 items-start">
+            <div class="mb-4 mt-5">
+                <label class="block text-sm font-bold text-gray-700 mb-2">5. API Key Eden AI (Untuk Cek Plagiasi)</label>
+                <input type="password" id="edenAiKeyInputMain" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm" placeholder="Paste API Key Eden AI (Opsional)">
+                <p class="text-[11px] text-gray-500 leading-relaxed mt-2"><i class="fas fa-info-circle mr-1"></i>Opsional. Dapatkan gratis di <a href="https://app.edenai.run/" target="_blank" class="text-indigo-600 underline font-bold">app.edenai.run</a>.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 items-start mt-4">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">5. Kepatuhan AI (Temperature)</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">6. Kepatuhan AI (Temperature)</label>
                     <select id="aiTemperatureSelect" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-medium text-gray-700">
                         <option value="0.1">0.1 - Sangat Kaku & Patuh Format</option>
                         <option value="0.3">0.3 - Seimbang & Analitis</option>
@@ -525,20 +531,20 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
                         <option value="0.7">0.7 - Kreatif (Standar Biasa)</option>
                         <option value="1.0">1.0 - Sangat Kreatif (Rawan Error)</option>
                     </select>
-                    <p class="text-[11px] text-gray-500 mt-2">Pilih (0.1-0.3) agar AI tidak merusak format & Turnitin.</p>
+                    <p class="text-[11px] text-gray-500 mt-2">Pilih (0.1-0.3) agar AI patuh pada format JSON & Turnitin.</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">6. PIN Keamanan (Wajib)</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">7. PIN Keamanan (Wajib)</label>
                     <input type="password" id="apiPinInput" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-mono tracking-widest text-center shadow-sm" placeholder="Buat / Masukkan PIN" maxlength="20">
-                    <p class="text-[11px] text-gray-500 mt-2"><i class="fas fa-shield-alt text-indigo-500 mr-1"></i>Mengenghapus/mengunci API Key di browser.</p>
+                    <p class="text-[11px] text-gray-500 mt-2"><i class="fas fa-shield-alt text-indigo-500 mr-1"></i>1 PIN untuk mengunci SEMUA API Key Anda di browser.</p>
                 </div>
             </div>
 
-            <div class="flex gap-3 pt-4 border-t border-gray-100">
-                <button onclick="closeApiSettings()" class="flex-1 bg-gray-100 py-3.5 rounded-xl text-gray-700 font-bold hover:bg-gray-200 transition-all">Batal</button>
-                <button onclick="removeApiKey()" class="flex-1 bg-red-50 border border-red-200 py-3.5 rounded-xl text-red-600 font-bold hover:bg-red-100 transition-all">Hapus Key</button>
-                <button onclick="saveApiKey()" class="flex-[1.5] bg-indigo-600 py-3.5 rounded-xl text-white font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition-all">Simpan Aturan</button>
+            <div class="flex gap-2 pt-4 border-t border-gray-100 mt-4">
+                <button onclick="closeApiSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200 text-sm transition-all">Batal</button>
+                <button onclick="removeApiKey()" class="flex-1 bg-red-50 border border-red-200 py-3 rounded-xl text-red-600 font-bold hover:bg-red-100 text-sm transition-all">Hapus Key</button>
+                <button onclick="saveApiKey()" class="flex-[1.5] bg-indigo-600 py-3 rounded-xl text-white font-bold hover:bg-indigo-700 shadow-lg text-sm transition-all">Simpan Aturan</button>
             </div>
         </div>
     </div>
