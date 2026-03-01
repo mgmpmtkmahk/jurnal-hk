@@ -277,11 +277,12 @@ function openPlagiarismSettings() {
                             Daftar gratis di <a href="https://app.edenai.run/" target="_blank" class="text-orange-600 font-bold underline">Eden AI</a>. Key akan dienkripsi aman di browser.
                         </p>
                     </div>
-                    <div class="${isConfigured ? '' : 'hidden'}">
-                        <label class="block text-sm font-bold text-gray-700 mb-1">PIN Keamanan (untuk dekripsi)</label>
+                    
+                    <div class="mt-3">
+                        <label class="block text-sm font-bold text-gray-700 mb-1">PIN Keamanan (Wajib)</label>
                         <input type="password" id="edenAiPinInput" 
-                            class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none text-sm"
-                            placeholder="Masukkan PIN yang sama saat menyimpan API Key">
+                            class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 outline-none text-sm font-mono tracking-widest text-center shadow-sm"
+                            placeholder="Buat / Masukkan PIN">
                     </div>
                 </div>
             </div>
