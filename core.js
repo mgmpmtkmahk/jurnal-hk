@@ -211,7 +211,6 @@ async function saveApiKey() {
     const gemini = getVal('geminiApiKeyInput'), mistral = getVal('mistralApiKeyInput'), groq = getVal('groqApiKeyInput');
     const github = getVal('githubApiKeyInput'), edenai = getVal('edenAiKeyInputMain'), pin = getVal('apiPinInput');
     
-    // Perbaikan kondisi PIN
     if ((gemini || mistral || groq || github || edenai) && !pin) {
         showCustomAlert('warning', 'PIN Diperlukan', 'Harap buat PIN keamanan (wajib) untuk mengenkripsi API Key Anda.');
         return;
@@ -228,7 +227,17 @@ async function saveApiKey() {
     
     await AppState.setAndEncryptKeys(gemini, mistral, groq, github, edenai, pin);
     await saveStateToLocal();
-    closeApiSettings(); showCustomAlert('success', 'Tersimpan', `Pengaturan AI diperbarui.`);
+    closeApiSettings(); 
+    
+    // PERBAIKAN: Refresh tombol Eden AI di semua bab secara otomatis
+    document.querySelectorAll('[id^="plagiarism-panel-"]').forEach(el => {
+        const sectionId = el.id.replace('plagiarism-panel-', '');
+        if (typeof window.injectPlagiarismPanel === 'function') {
+            window.injectPlagiarismPanel(sectionId);
+        }
+    });
+
+    showCustomAlert('success', 'Tersimpan', `Pengaturan AI & API diperbarui.`);
 }
 
 async function removeApiKey() {
