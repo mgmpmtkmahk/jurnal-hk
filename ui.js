@@ -340,7 +340,10 @@ function selectPlagiarismProvider(provider) {
         btn.className = `provider-btn p-3 rounded-xl border-2 ${isSelected ? 'border-orange-500 bg-orange-50' : 'border-gray-200 hover:border-orange-200'} transition-all text-center`;
     });
     
-    document.getElementById('copyleaks-config-section').classList.toggle('hidden', provider === 'local');
+    const configSection = document.getElementById('edenai-config-section');
+    if (configSection) {
+        configSection.classList.toggle('hidden', provider === 'local');
+    }
 }
 
 function closePlagiarismSettings() {

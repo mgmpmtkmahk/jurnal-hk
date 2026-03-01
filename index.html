@@ -521,16 +521,18 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
                     <select id="aiTemperatureSelect" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-medium text-gray-700">
                         <option value="0.1">0.1 - Sangat Kaku & Patuh Format</option>
                         <option value="0.3">0.3 - Seimbang & Analitis</option>
+                        <option value="0.5">0.5 - Menengah (Cukup Kreatif)</option>
                         <option value="0.7">0.7 - Kreatif (Standar Biasa)</option>
                         <option value="1.0">1.0 - Sangat Kreatif (Rawan Error)</option>
                     </select>
                     <p class="text-[11px] text-gray-500 mt-2">Pilih (0.1-0.3) agar AI tidak merusak format & Turnitin.</p>
                 </div>
 
-                <div class="p-4 bg-green-50 border border-green-200 rounded-xl">
-                    <label class="block text-sm font-bold text-gray-700 mb-2"><i class="fas fa-shield-alt text-green-600 mr-2"></i>6. PIN Keamanan (Wajib)</label>
-                    <input type="password" id="apiPinInput" class="w-full p-3 border-2 border-white rounded-xl focus:border-green-500 outline-none text-sm font-mono tracking-widest text-center shadow-sm" placeholder="Buat / Masukkan PIN" maxlength="20">
-                </div>
+                <div class="mb-5 mt-4">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">6. PIN Keamanan (Wajib)</label>
+                    <input type="password" id="apiPinInput" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-mono tracking-widest text-center shadow-sm" placeholder="Buat / Masukkan PIN" maxlength="20">
+                <p class="text-xs text-gray-500 mt-2 font-medium"><i class="fas fa-shield-alt text-indigo-500 mr-1"></i>PIN ini akan mengenkripsi/mengunci kunci API Anda di browser ini.</p>
+            </div>
             </div>
 
             <div class="flex gap-3 pt-4 border-t border-gray-100">
