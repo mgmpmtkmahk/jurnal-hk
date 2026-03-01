@@ -29,10 +29,17 @@ function goToStep(step) {
 }
 
 function updateSidebarLock(step) {
-    // Kunci dimatikan: Menghapus class pengunci agar sidebar selalu aktif
     const sidebar = document.getElementById('btn-mode-proposal')?.parentElement;
-    if (sidebar) {
+    if (!sidebar) return;
+
+    // Kunci sidebar JIKA judul sudah dipilih dan tersimpan di memori
+    if (AppState.selectedTitle && AppState.selectedTitle.trim() !== '') {
+        sidebar.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
+        sidebar.title = "Mode dokumen terkunci. Hapus/Reset judul jika ingin mengubah mode.";
+    } else {
+        // Buka kunci jika belum ada judul yang dipilih
         sidebar.classList.remove('opacity-50', 'pointer-events-none', 'grayscale');
+        sidebar.removeAttribute('title');
     }
 }
 
