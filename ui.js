@@ -32,12 +32,12 @@ function updateSidebarLock(step) {
     const sidebar = document.getElementById('btn-mode-proposal')?.parentElement;
     if (!sidebar) return;
 
-    // Kunci sidebar JIKA judul sudah dipilih dan tersimpan di memori
-    if (AppState.selectedTitle && AppState.selectedTitle.trim() !== '') {
+    // Kunci sidebar HANYA JIKA di Langkah 5 DAN judul sudah dipilih
+    if (step >= 5 && AppState.selectedTitle && AppState.selectedTitle.trim() !== '') {
         sidebar.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
-        sidebar.title = "Mode dokumen terkunci. Hapus/Reset judul jika ingin mengubah mode.";
+        sidebar.title = "Mode dokumen terkunci. Kembali ke langkah sebelumnya jika ingin mengubah mode.";
     } else {
-        // Buka kunci jika belum ada judul yang dipilih
+        // Buka kunci jika user berada di Langkah 1-4, atau belum memilih judul
         sidebar.classList.remove('opacity-50', 'pointer-events-none', 'grayscale');
         sidebar.removeAttribute('title');
     }
