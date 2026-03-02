@@ -355,9 +355,9 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
             <span class="absolute right-12 md:right-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">Set API Key</span>
         </button>
 
-        <button onclick="openPlagiarismSettings()" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white shadow-sm border border-orange-100">
-            <i class="fas fa-shield-virus text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
-            <span class="absolute right-12 md:right-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">🛡️ Plagiarism Check</span>
+        <button onclick="openExternalToolsModal()" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white shadow-sm border border-orange-100">
+            <i class="fas fa-toolbox text-base md:text-xl transform group-hover:scale-110 transition-transform"></i>
+            <span class="absolute right-12 md:right-16 bg-gray-800 text-white text-xs md:text-sm px-3 md:px-4 h-10 md:h-12 flex items-center rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold shadow-xl z-50">🧰 Tools Eksternal</span>
         </button>
 
         <button onclick="downloadBackup()" class="w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm border border-blue-100">
@@ -515,15 +515,10 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
                 </div>
             </div>
             
-            <div class="mb-4 mt-5">
-                <label class="block text-sm font-bold text-gray-700 mb-2">5. API Key Eden AI (Untuk Cek Plagiasi)</label>
-                <input type="password" id="edenAiKeyInputMain" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm" placeholder="Paste API Key Eden AI (Opsional)">
-                <p class="text-[11px] text-gray-500 leading-relaxed mt-2"><i class="fas fa-info-circle mr-1"></i>Opsional. Dapatkan gratis di <a href="https://app.edenai.run/" target="_blank" class="text-indigo-600 underline font-bold">app.edenai.run</a>.</p>
-            </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5 items-start mt-4">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">6. Kepatuhan AI (Temperature)</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">5. Kepatuhan AI (Temperature)</label>
                     <select id="aiTemperatureSelect" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-medium text-gray-700">
                         <option value="0.1">0.1 - Sangat Kaku & Patuh Format</option>
                         <option value="0.3">0.3 - Seimbang & Analitis</option>
@@ -535,9 +530,9 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-2">7. PIN Keamanan (Wajib)</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">6. PIN Keamanan (Wajib)</label>
                     <input type="password" id="apiPinInput" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-mono tracking-widest text-center shadow-sm" placeholder="Buat / Masukkan PIN" maxlength="20">
-                    <p class="text-[11px] text-gray-500 mt-2"><i class="fas fa-shield-alt text-indigo-500 mr-1"></i>1 PIN untuk mengunci SEMUA API Key Anda di browser.</p>
+                    <p class="text-[11px] text-gray-500 mt-2"><i class="fas fa-toolbox text-indigo-500 mr-1"></i>1 PIN untuk mengunci SEMUA API Key Anda di browser.</p>
                 </div>
             </div>
 
@@ -559,8 +554,7 @@ OUTPUT HARUS BERUPA ARRAY JSON SEPERTI INI:
 
     <script src="crypto-service.js"></script>
     <script src="state.js"></script>
-    <script src="plagiarism-service.js"></script>
-    <script src="error-handler.js"></script>
+<script src="error-handler.js"></script>
     <script src="core.js"></script>
     <script src="ui.js"></script>
     <script src="step5-ui.js"></script>

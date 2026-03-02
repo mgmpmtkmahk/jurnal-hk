@@ -27,13 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-magic mr-3"></i>Instruksi & Prompt AI
                     </h4>
 
-                    ${customInfo ? `
-                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-4 rounded-r-lg text-sm text-yellow-800 flex items-start shadow-sm">
-                        <i class="fas fa-info-circle mt-0.5 mr-2"></i>
-                        <p><strong>Tips User:</strong> ${customInfo}</p>
-                    </div>
-                    ` : ''}
-
                     <div class="bg-gray-900 rounded-xl p-4 relative flex-grow overflow-hidden min-h-[250px] shadow-inner border border-gray-800">
                         <div class="absolute top-2 right-2 flex gap-2 z-10">
                             <button id="btn-edit-${id}" onclick="toggleEditPrompt('${id}')" class="bg-gray-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-gray-500 transition-colors shadow-sm font-semibold flex items-center">
@@ -452,110 +445,5 @@ CONTOH FORMAT YG DIWAJIBKAN:
             });
         }
     }
-    
-    // Di dalam DOMContentLoaded, setelah render sectionsData:
-    sectionsData.forEach(sec => {
-        injectPlagiarismPanel(sec.id);
-    });
 
-    function injectPlagiarismPanel(sectionId) {
-        const container = document.getElementById(`plagiarism-panel-${sectionId}`);
-        if (!container) return;
-
-        // PERBAIKAN: Cek kunci yang dienkripsi ATAU kunci sementara yang sedang aktif
-        const isEdenAiConfigured = !!AppState._encryptedEdenAiKey || !!AppState._tempEdenAiKey;
-
-        container.innerHTML = `
-            <div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-xl overflow-hidden shadow-sm">
-                <div class="px-4 py-3 bg-orange-100/50 border-b border-orange-200 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-shield-virus text-orange-600"></i>
-                        <span class="font-bold text-orange-800 text-sm">Cek Originalitas</span>
-                    </div>
-                    <span id="plagiarism-badge-${sectionId}" class="hidden px-2.5 py-1 rounded-full text-xs font-bold">
-                        --%
-                    </span>
-                </div>
-
-                <div class="p-4">
-                    <div class="flex gap-2 mb-4">
-                        <button onclick="runPlagiarismCheck('${sectionId}', 'local')" 
-                            class="flex-1 bg-white border-2 border-orange-200 text-orange-700 py-2.5 rounded-lg text-sm font-semibold hover:bg-orange-50 hover:border-orange-300 transition-all flex items-center justify-center gap-2">
-                            <i class="fas fa-bolt text-amber-500"></i>
-                            <span>Lokal</span>
-                        </button>
-                        
-                        <button onclick="runPlagiarismCheck('${sectionId}', 'edenai')" 
-                            class="flex-1 ${isEdenAiConfigured ? 'bg-orange-600 text-white border-orange-600' : 'bg-gray-100 text-gray-400 border-gray-200'} py-2.5 rounded-lg text-sm font-semibold hover:shadow-md transition-all flex items-center justify-center gap-2"
-                            ${!isEdenAiConfigured ? 'disabled title="Simpan API Key Eden AI di Pengaturan Utama (Ikon Kunci)"' : ''}>
-                            <i class="fas fa-cloud"></i>
-                            <span>Eden AI</span>
-                        </button>
-
-                        <button onclick="checkPlagiarismExternal('${sectionId}')" 
-                            class="flex-1 bg-blue-50 text-blue-700 border-2 border-blue-200 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-100 transition-all flex items-center justify-center gap-2">
-                            <i class="fas fa-external-link-alt"></i>
-                            <span>Web</span>
-                        </button>
-                    </div>
-
-                    <div class="flex items-start gap-2 text-xs text-orange-700/80 mb-3">
-                        <i class="fas fa-info-circle mt-0.5"></i>
-                        <p><strong>Mode Cepat:</strong> Bandingkan dengan ${AppState.journals.length} jurnal yang sudah dikaji. 
-                        <strong>Mode Akurat:</strong> Scan ke database internet via Eden AI.</p>
-                    </div>
-
-                    <div id="plagiarism-result-${sectionId}" class="hidden space-y-3">
-                        
-                        <div class="bg-white rounded-lg p-4 border border-orange-100 shadow-sm">
-                            <div class="flex justify-between items-end mb-2">
-                                <span class="text-sm text-gray-600">Similarity Score</span>
-                                <span id="similarity-score-${sectionId}" class="text-3xl font-bold text-gray-400">--%</span>
-                            </div>
-                            
-                            <div class="h-3 bg-gray-100 rounded-full overflow-hidden mb-3">
-                                <div id="similarity-bar-${sectionId}" 
-                                    class="h-full rounded-full transition-all duration-1000 ease-out bg-gradient-to-r from-green-400 via-yellow-400 to-red-500"
-                                    style="width: 0%"></div>
-                            </div>
-
-                            <p id="similarity-interpretation-${sectionId}" class="text-sm text-gray-600 italic">
-                                Klik tombol di atas untuk memulai scan...
-                            </p>
-                        </div>
-
-                        <div id="similarity-sources-${sectionId}" class="max-h-48 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-                            </div>
-
-                        <div class="flex gap-2 pt-4 mt-2 border-t border-orange-100">
-                            <button onclick="highlightSimilarText('${sectionId}')" 
-                                class="flex-1 bg-indigo-50 text-indigo-700 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-100 transition-all">
-                                <i class="fas fa-highlighter mr-1"></i>Tandai di Teks
-                            </button>
-                            <button onclick="autoParaphraseProblematic('${sectionId}')" 
-                                class="flex-1 bg-purple-50 text-purple-700 py-2 rounded-lg text-sm font-semibold hover:bg-purple-100 transition-all">
-                                <i class="fas fa-magic mr-1"></i>Auto-Perbaiki
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="plagiarism-loading-${sectionId}" class="hidden py-8 text-center">
-                        <div class="inline-flex items-center gap-3">
-                            <div class="w-8 h-8 border-3 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
-                            <div class="text-left">
-                                <p class="text-sm font-semibold text-orange-800" id="plagiarism-status-${sectionId}">Memindai...</p>
-                                <p class="text-xs text-orange-600" id="plagiarism-detail-${sectionId}">Menganalisis struktur teks</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    window.injectPlagiarismPanel = injectPlagiarismPanel;
-
-    sectionsData.forEach(sec => {
-        injectPlagiarismPanel(sec.id);
-    });
 });

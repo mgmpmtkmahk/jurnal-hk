@@ -70,87 +70,91 @@ function setDocumentType(type) {
     // PERBAIKAN: Masukkan kembali class responsif layar kecil
     if(activeBtn) activeBtn.className = `w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center transition-all group relative shadow-lg transform scale-110 ring-2 ring-offset-1 border-transparent ${btnStyles[type].active}`;
 
-    if (type === 'proposal') {
-        const nav = document.getElementById('proposal-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
-        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Proposal (Bab 1-3)";
-        if(typeof showProposalSection === 'function') showProposalSection('latar');
-    } else if (type === 'robotik') {
-        const nav = document.getElementById('robotik-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
-        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Proposal Proyek Robotik/IT";
-        if(typeof showProposalSection === 'function') showProposalSection('rpendahuluan');
-    } else if (type === 'makalah') {
-        const nav = document.getElementById('makalah-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
-        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Makalah (Standar Akademik)";
-        if(typeof showProposalSection === 'function') showProposalSection('mpendahuluan');
-    } else if (type === 'jurnal') {
-        const nav = document.getElementById('jurnal-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
-        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Artikel Jurnal";
-        if(typeof showProposalSection === 'function') showProposalSection('jpendahuluan');
-    } else if (type === 'skripsi') {
-        const nav = document.getElementById('skripsi-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
-        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan Skripsi Akhir (Bab 4 & 5)";
-        if(typeof showProposalSection === 'function') showProposalSection('sdeskripsi');
-    } else if (type === 'slr') {
-        const nav = document.getElementById('slr-nav-buttons'); if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
-        if(titleStep5) titleStep5.innerText = "Langkah 5: Penyusunan SLR";
-        if(typeof showProposalSection === 'function') showProposalSection('slrpendahuluan');
-    }
+    // Mapping konfigurasi UI per dokumen
+    const docConfigs = {
+        proposal: { navId: 'proposal-nav-buttons', title: "Langkah 5: Penyusunan Proposal (Bab 1-3)", first: 'latar' },
+        robotik: { navId: 'robotik-nav-buttons', title: "Langkah 5: Penyusunan Proposal Proyek Robotik/IT", first: 'rpendahuluan' },
+        makalah: { navId: 'makalah-nav-buttons', title: "Langkah 5: Penyusunan Makalah (Standar Akademik)", first: 'mpendahuluan' },
+        jurnal: { navId: 'jurnal-nav-buttons', title: "Langkah 5: Penyusunan Artikel Jurnal", first: 'jpendahuluan' },
+        skripsi: { navId: 'skripsi-nav-buttons', title: "Langkah 5: Penyusunan Skripsi Akhir (Bab 4 & 5)", first: 'sdeskripsi' },
+        slr: { navId: 'slr-nav-buttons', title: "Langkah 5: Penyusunan SLR", first: 'slrpendahuluan' }
+    };
+
+    const config = docConfigs[type] || docConfigs['proposal'];
+    
+    // Terapkan konfigurasi
+    const nav = document.getElementById(config.navId);
+    if(nav) { nav.classList.remove('hidden'); nav.classList.add('grid'); }
+    if(titleStep5) titleStep5.innerText = config.title;
+    if(typeof showProposalSection === 'function') showProposalSection(config.first);
+    
     saveStateToLocal(); 
     showCustomAlert('success', 'Mode Diperbarui', `Sistem dialihkan ke Mode ${type.toUpperCase()}.`);
 }
 
 function getActiveSections() {
-    if (AppState.documentType === 'proposal') return ['latar', 'rumusan', 'tujuan', 'manfaat', 'metode', 'landasan', 'hipotesis', 'jadwal', 'daftar', 'final'];
-    if (AppState.documentType === 'robotik') return ['rpendahuluan', 'rtinjauan', 'rspesifikasi', 'rmetode', 'rjadwal', 'rdaftar', 'final'];
-    if (AppState.documentType === 'makalah') return ['mpendahuluan', 'mpembahasan', 'mpenutup', 'mdaftar', 'final'];
-    if (AppState.documentType === 'jurnal') return ['jpendahuluan', 'jmetode', 'jhasil', 'jkesimpulan', 'jabstrak', 'jdaftar', 'final'];
-    if (AppState.documentType === 'skripsi') return ['sdeskripsi', 'sanalisis', 'spembahasan', 'skesimpulan', 'ssaran', 'sdaftar', 'final'];
-    if (AppState.documentType === 'slr') return ['slrpendahuluan', 'slrmetode', 'slrhasil', 'slrpembahasan', 'slrkesimpulan', 'slrabstrak', 'slrdaftar', 'final'];
+    const sectionsMap = {
+        proposal: ['latar', 'rumusan', 'tujuan', 'manfaat', 'metode', 'landasan', 'hipotesis', 'jadwal', 'daftar', 'final'],
+        robotik: ['rpendahuluan', 'rtinjauan', 'rspesifikasi', 'rmetode', 'rjadwal', 'rdaftar', 'final'],
+        makalah: ['mpendahuluan', 'mpembahasan', 'mpenutup', 'mdaftar', 'final'],
+        jurnal: ['jpendahuluan', 'jmetode', 'jhasil', 'jkesimpulan', 'jabstrak', 'jdaftar', 'final'],
+        skripsi: ['sdeskripsi', 'sanalisis', 'spembahasan', 'skesimpulan', 'ssaran', 'sdaftar', 'final'],
+        slr: ['slrpendahuluan', 'slrmetode', 'slrhasil', 'slrpembahasan', 'slrkesimpulan', 'slrabstrak', 'slrdaftar', 'final']
+    };
+    return sectionsMap[AppState.documentType] || sectionsMap['proposal'];
+}
+
+// HELPER: Mengontrol animasi semua modal
+function toggleModalState(modalId, cardId, isShow) {
+    const modal = document.getElementById(modalId);
+    const card = document.getElementById(cardId);
+    if (!modal) return;
+
+    if (isShow) {
+        modal.classList.remove('hidden');
+        void modal.offsetWidth; // Trigger animasi
+        if (card) {
+            card.classList.remove('scale-95', 'opacity-0');
+            card.classList.add('scale-100', 'opacity-100');
+        }
+    } else {
+        if (card) {
+            card.classList.remove('scale-100', 'opacity-100');
+            card.classList.add('scale-95', 'opacity-0');
+        }
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
 }
 
 function showCustomAlert(type, title, message) {
-    const modal = document.getElementById('customAlertModal'); const card = document.getElementById('customAlertCard'); const iconDiv = document.getElementById('customAlertIcon');
-    if(!modal || !card || !iconDiv) return;
+    const iconDiv = document.getElementById('customAlertIcon');
+    if (!iconDiv) return;
+    
     iconDiv.className = 'w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-4 mx-auto';
     if (type === 'success') { iconDiv.classList.add('bg-green-100', 'text-green-600'); iconDiv.innerHTML = '<i class="fas fa-check"></i>'; } 
     else if (type === 'error') { iconDiv.classList.add('bg-red-100', 'text-red-600'); iconDiv.innerHTML = '<i class="fas fa-times"></i>'; } 
     else { iconDiv.classList.add('bg-yellow-100', 'text-yellow-600'); iconDiv.innerHTML = '<i class="fas fa-exclamation"></i>'; }
-    document.getElementById('customAlertTitle').innerText = title; document.getElementById('customAlertMessage').innerText = message;
-    modal.classList.remove('hidden'); void modal.offsetWidth; 
-    card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100');
+    
+    document.getElementById('customAlertTitle').innerText = title; 
+    document.getElementById('customAlertMessage').innerText = message;
+    
+    toggleModalState('customAlertModal', 'customAlertCard', true);
 }
 
-function closeCustomAlert() {
-    const modal = document.getElementById('customAlertModal'); const card = document.getElementById('customAlertCard');
-    if(card) { card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0'); }
-    if(modal) setTimeout(() => modal.classList.add('hidden'), 300);
-}
-
-function showConfirmModal() {
-    const modal = document.getElementById('customConfirmModal'); const card = document.getElementById('customConfirmCard');
-    if(!modal) return; modal.classList.remove('hidden'); void modal.offsetWidth;
-    if(card) { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }
-}
-
-function closeConfirmModal() {
-    const modal = document.getElementById('customConfirmModal'); const card = document.getElementById('customConfirmCard');
-    if(card) { card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0'); }
-    if(modal) setTimeout(() => modal.classList.add('hidden'), 300);
-}
+function closeCustomAlert() { toggleModalState('customAlertModal', 'customAlertCard', false); }
+function showConfirmModal() { toggleModalState('customConfirmModal', 'customConfirmCard', true); }
+function closeConfirmModal() { toggleModalState('customConfirmModal', 'customConfirmCard', false); }
+function closeWarningModal() { toggleModalState('customWarningModal', 'customWarningCard', false); }
 
 function showWarningModal(onConfirm) {
-    const modal = document.getElementById('customWarningModal'); const card = document.getElementById('customWarningCard'); const btnConfirm = document.getElementById('btnConfirmSwitchTitle');
-    if(!modal) return;
-    const newBtn = btnConfirm.cloneNode(true); btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
+    const btnConfirm = document.getElementById('btnConfirmSwitchTitle');
+    if (!btnConfirm) return;
+    
+    const newBtn = btnConfirm.cloneNode(true); 
+    btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
     newBtn.addEventListener('click', function() { closeWarningModal(); onConfirm(); });
-    modal.classList.remove('hidden');
-    setTimeout(() => { if(card) { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); } }, 10);
-}
-
-function closeWarningModal() {
-    const modal = document.getElementById('customWarningModal'); const card = document.getElementById('customWarningCard');
-    if(card) { card.classList.remove('scale-100', 'opacity-100'); card.classList.add('scale-95', 'opacity-0'); }
-    if(modal) setTimeout(() => modal.classList.add('hidden'), 300);
+    
+    toggleModalState('customWarningModal', 'customWarningCard', true);
 }
 
 function cleanMarkdown(str) {
@@ -205,53 +209,6 @@ function renderMarkdownTable(mdText) {
 // UI Updates untuk Keamanan API Key (REFACTORED)
 // ==========================================
 
-function openPlagiarismSettings() {
-    const oldModal = document.getElementById('plagiarismSettingsModal');
-    if (oldModal) oldModal.remove();
-
-    const currentProvider = AppState.plagiarismConfig.provider || 'local';
-
-    const modal = document.createElement('div');
-    modal.id = 'plagiarismSettingsModal';
-    modal.className = 'fixed inset-0 z-[135] flex items-center justify-center';
-    modal.innerHTML = `
-        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closePlagiarismSettings()"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-lg p-6 relative z-10 animate-fade-in-up">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center"><i class="fas fa-shield-virus text-orange-600 text-xl"></i></div>
-                <div><h3 class="text-xl font-bold text-gray-800">Pengaturan Plagiarism Checker</h3><p class="text-sm text-gray-500">Konfigurasi scan & threshold</p></div>
-            </div>
-
-            <div class="mb-5">
-                <label class="block text-sm font-bold text-gray-700 mb-2">Provider Default</label>
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="selectPlagiarismProvider('local')" class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'local' ? 'border-orange-500 bg-orange-50' : 'border-gray-200'} transition-all" data-provider="local">
-                        <i class="fas fa-bolt text-amber-500 text-lg mb-1"></i><div class="text-sm font-semibold">Lokal</div><div class="text-xs text-gray-500">Gratis</div>
-                    </button>
-                    <button onclick="selectPlagiarismProvider('edenai')" class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'edenai' ? 'border-orange-500 bg-orange-50' : 'border-gray-200'} transition-all" data-provider="edenai">
-                        <i class="fas fa-cloud text-orange-500 text-lg mb-1"></i><div class="text-sm font-semibold">Eden AI</div><div class="text-xs text-gray-500">Akurat</div>
-                    </button>
-                    <button onclick="selectPlagiarismProvider('quick')" class="provider-btn p-3 rounded-xl border-2 ${currentProvider === 'quick' ? 'border-orange-500 bg-orange-50' : 'border-gray-200'} transition-all" data-provider="quick">
-                        <i class="fas fa-rocket text-purple-500 text-lg mb-1"></i><div class="text-sm font-semibold">Hybrid</div><div class="text-xs text-gray-500">Cepat→Akurat</div>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="mb-5">
-                <label class="block text-sm font-bold text-gray-700 mb-2">Threshold Peringatan (%)</label>
-                <div class="flex items-center gap-4">
-                    <input type="range" id="similarityThreshold" min="5" max="50" value="${AppState.plagiarismConfig.similarityThreshold || 15}" class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500" oninput="document.getElementById('thresholdValue').textContent = this.value + '%'">
-                    <span id="thresholdValue" class="w-16 text-center font-mono font-bold text-lg text-orange-600">${AppState.plagiarismConfig.similarityThreshold || 15}%</span>
-                </div>
-            </div>
-
-            <div class="flex gap-3 pt-4 border-t border-gray-100">
-                <button onclick="closePlagiarismSettings()" class="flex-1 bg-gray-100 py-3 rounded-xl text-gray-700 font-bold hover:bg-gray-200">Batal</button>
-                <button onclick="savePlagiarismSettings()" class="flex-1 bg-orange-600 py-3 rounded-xl text-white font-bold hover:bg-orange-700 shadow-lg">Simpan</button>
-            </div>
-        </div>`;
-    document.body.appendChild(modal);
-}
 
 async function savePlagiarismSettings() {
     const provider = document.querySelector('.provider-btn.border-orange-500')?.dataset.provider || 'local';
@@ -682,3 +639,154 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     });
 });
+
+// ==========================================
+// TOOLS EKSTERNAL (Auto-copy output -> open tab)
+// ==========================================
+function getActiveSectionIdForTools() {
+    if (window.__currentSectionId) return window.__currentSectionId;
+    const visible = Array.from(document.querySelectorAll('.proposal-section'))
+        .find(el => !el.classList.contains('hidden') && el.id && el.id.startsWith('section-'));
+    if (visible) return visible.id.replace('section-', '');
+    const any = document.querySelector('textarea[id^="output-"]');
+    if (any) return any.id.replace('output-', '');
+    return null;
+}
+
+async function copySectionOutputToClipboard(sectionId) {
+    const editor = window.mdeEditors && window.mdeEditors[`output-${sectionId}`];
+    const text = editor ? editor.value() : (document.getElementById(`output-${sectionId}`)?.value || '');
+    if (!text || !text.trim()) {
+        showCustomAlert('warning', 'Kosong', 'Tidak ada teks output untuk disalin.');
+        return null;
+    }
+    try {
+        await navigator.clipboard.writeText(text);
+        return text;
+    } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        return text;
+    }
+}
+
+const EXTERNAL_TOOL_URLS = {
+    gptzero_ai: 'https://gptzero.me/',
+    sapling_ai: 'https://sapling.ai/ai-content-detector',
+    quetext_plag: 'https://www.quetext.com/plagiarism-checker',
+    gptzero_plag: 'https://gptzero.me/plagiarism-checker',
+    quillbot_para: 'https://quillbot.com/paraphrasing-tool',
+    paperpal_para: 'https://edit.paperpal.com/'
+};
+
+async function openExternalWritingTool(toolKey) {
+    const sectionId = getActiveSectionIdForTools();
+    if (!sectionId) {
+        showCustomAlert('warning', 'Tidak Ditemukan', 'Tidak dapat menentukan bagian aktif. Buka salah satu bagian dulu, lalu coba lagi.');
+        return;
+    }
+    const url = EXTERNAL_TOOL_URLS[toolKey];
+    if (!url) {
+        showCustomAlert('error', 'Tool Tidak Valid', 'Mapping URL tool tidak ditemukan.');
+        return;
+    }
+
+    // Buka URL tool *langsung* untuk menghindari tab blank (popup-safe).
+    const newTab = window.open(url, '_blank', 'noopener,noreferrer');
+    if (!newTab) {
+        showCustomAlert('warning', 'Popup Diblokir', 'Browser memblokir tab baru. Izinkan pop-up untuk aplikasi ini, lalu coba lagi.');
+        return;
+    }
+
+    try {
+        const copied = await copySectionOutputToClipboard(sectionId);
+        if (copied) {
+            showCustomAlert('success', 'Disalin', 'Teks sudah disalin. Tempelkan (Ctrl+V) di tool yang dibuka.');
+        } else {
+            showCustomAlert('warning', 'Copy Gagal', 'Tool sudah dibuka, tapi teks output kosong. Coba pilih bagian lain atau copy manual.');
+        }
+    } catch (e) {
+        showCustomAlert('warning', 'Copy Gagal', 'Tool sudah dibuka, tapi teks gagal disalin. Coba copy manual dari output.');
+    }
+}
+
+function openExternalToolsModal() {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-[160] flex items-center justify-center p-4';
+    modal.innerHTML = `
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-6 relative z-10 animate-fade-in-up">
+            <div class="flex items-start justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                        <i class="fas fa-toolbox"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-extrabold text-gray-900">Tools Eksternal</h3>
+                        <p class="text-sm text-gray-600">Klik tool → output bagian aktif disalin otomatis → tool dibuka di tab baru.</p>
+                    </div>
+                </div>
+                <button class="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center"
+                        aria-label="Tutup" onclick="this.closest('.fixed').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="rounded-2xl border border-gray-200 p-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-robot text-indigo-600"></i>
+                        <h4 class="font-bold text-gray-900">AI Detector</h4>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="openExternalWritingTool('gptzero_ai')" class="w-full px-4 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition">GPTZero</button>
+                        <button onclick="openExternalWritingTool('sapling_ai')" class="w-full px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 font-bold hover:bg-indigo-100 transition border border-indigo-100">Sapling</button>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-gray-200 p-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-shield-alt text-orange-600"></i>
+                        <h4 class="font-bold text-gray-900">Plagiarism Checker</h4>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="openExternalWritingTool('quetext_plag')" class="w-full px-4 py-3 rounded-xl bg-orange-600 text-white font-bold hover:bg-orange-700 transition">Quetext</button>
+                        <button onclick="openExternalWritingTool('gptzero_plag')" class="w-full px-4 py-3 rounded-xl bg-orange-50 text-orange-700 font-bold hover:bg-orange-100 transition border border-orange-100">GPTZero</button>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-gray-200 p-4">
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="fas fa-pen-nib text-emerald-600"></i>
+                        <h4 class="font-bold text-gray-900">Paraphrase</h4>
+                    </div>
+                    <div class="space-y-2">
+                        <button onclick="openExternalWritingTool('quillbot_para')" class="w-full px-4 py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition">QuillBot</button>
+                        <button onclick="openExternalWritingTool('paperpal_para')" class="w-full px-4 py-3 rounded-xl bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 transition border border-emerald-100">Paperpal</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 rounded-xl bg-gray-50 border border-gray-200 p-4 text-sm text-gray-700">
+                <div class="flex items-start gap-2">
+                    <i class="fas fa-info-circle mt-0.5 text-gray-500"></i>
+                    <p>Tip: buka salah satu bagian dulu (mis. Pendahuluan) sebelum klik tool.</p>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+window.openExternalToolsModal = openExternalToolsModal;
+window.openPlagiarismSettings = openExternalToolsModal;
+
+
+
+window.openExternalWritingTool = openExternalWritingTool;

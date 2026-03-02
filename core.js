@@ -156,23 +156,27 @@ window.toggleApiProvider = function() {
     const provider = document.getElementById('aiProviderSelect').value;
     const pSelect = document.getElementById('aiProviderSelect');
     
+    // 1. Sembunyikan semua grup input
     ['geminiInputGroup', 'mistralInputGroup', 'groqInputGroup', 'githubInputGroup'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.classList.add('hidden');
+        const el = document.getElementById(id); 
+        if (el) el.classList.add('hidden');
     });
 
-    if (provider === 'mistral') {
-        document.getElementById('mistralInputGroup').classList.remove('hidden');
-        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 outline-none text-sm font-bold text-purple-700 bg-purple-50";
-    } else if (provider === 'groq') {
-        document.getElementById('groqInputGroup').classList.remove('hidden');
-        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-red-500 outline-none text-sm font-bold text-red-700 bg-red-50";
-    } else if (provider === 'github') {
-        document.getElementById('githubInputGroup').classList.remove('hidden');
-        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-gray-800 outline-none text-sm font-bold text-gray-800 bg-gray-100";
-    } else {
-        document.getElementById('geminiInputGroup').classList.remove('hidden');
-        pSelect.className = "w-full p-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 outline-none text-sm font-bold text-indigo-700 bg-indigo-50";
-    }
+    // 2. Mapping warna dan class untuk setiap provider
+    const styles = {
+        mistral: { group: 'mistralInputGroup', class: "text-purple-700 bg-purple-50 focus:border-purple-500" },
+        groq: { group: 'groqInputGroup', class: "text-red-700 bg-red-50 focus:border-red-500" },
+        github: { group: 'githubInputGroup', class: "text-gray-800 bg-gray-100 focus:border-gray-800" },
+        gemini: { group: 'geminiInputGroup', class: "text-indigo-700 bg-indigo-50 focus:border-indigo-500" }
+    };
+
+    const active = styles[provider] || styles['gemini'];
+    
+    // 3. Tampilkan grup aktif dan ubah warna dropdown
+    const activeGroup = document.getElementById(active.group);
+    if (activeGroup) activeGroup.classList.remove('hidden');
+    
+    pSelect.className = `w-full p-3 border-2 border-gray-200 rounded-xl outline-none text-sm font-bold ${active.class}`;
 };
 
 window.openApiSettings = function() {
@@ -187,7 +191,6 @@ window.openApiSettings = function() {
     setVal('mistralApiKeyInput', AppState._tempMistralKey || '');
     setVal('groqApiKeyInput', AppState._tempGroqKey || '');
     setVal('githubApiKeyInput', AppState._tempGithubKey || '');
-    setVal('edenAiKeyInputMain', AppState._tempEdenAiKey || '');
     
     setVal('aiToneSelect', AppState.tone || 'akademis');
     setVal('aiProviderSelect', AppState.aiProvider || 'gemini');
@@ -203,16 +206,21 @@ window.openApiSettings = function() {
 };
 
 function closeApiSettings() {
-    document.getElementById('apiSettingsModal').classList.add('hidden');
+    const modal = document.getElementById('apiSettingsModal');
+    if (modal) modal.classList.add('hidden');
 }
 
 async function saveApiKey() {
     const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
-    const gemini = getVal('geminiApiKeyInput'), mistral = getVal('mistralApiKeyInput'), groq = getVal('groqApiKeyInput');
-    const github = getVal('githubApiKeyInput'), edenai = getVal('edenAiKeyInputMain'), pin = getVal('apiPinInput');
-    
-    if ((gemini || mistral || groq || github || edenai) && !pin) {
-        showCustomAlert('warning', 'PIN Diperlukan', 'Harap buat PIN keamanan (wajib) untuk mengenkripsi API Key Anda.');
+    const gemini = getVal('geminiApiKeyInput');
+    const mistral = getVal('mistralApiKeyInput');
+    const groq   = getVal('groqApiKeyInput');
+    const github = getVal('githubApiKeyInput');
+    const pin    = getVal('apiPinInput');
+
+    // Jika user mengisi salah satu API key, PIN wajib untuk enkripsi
+    if ((gemini || mistral || groq || github) && !pin) {
+        showCustomAlert('warning', 'PIN Diperlukan', 'Harap buat/masukkan PIN keamanan (wajib) untuk mengenkripsi API Key Anda.');
         return;
     }
 
@@ -225,29 +233,26 @@ async function saveApiKey() {
     if(document.getElementById('groqModelSelect')) AppState.groqModel = getVal('groqModelSelect');
     if(document.getElementById('githubModelSelect')) AppState.githubModel = getVal('githubModelSelect');
     
-    await AppState.setAndEncryptKeys(gemini, mistral, groq, github, edenai, pin);
+    await AppState.setAndEncryptKeys(gemini, mistral, groq, github, pin);
     await saveStateToLocal();
     closeApiSettings(); 
-    
-    // PERBAIKAN: Refresh tombol Eden AI di semua bab secara otomatis
-    document.querySelectorAll('[id^="plagiarism-panel-"]').forEach(el => {
-        const sectionId = el.id.replace('plagiarism-panel-', '');
-        if (typeof window.injectPlagiarismPanel === 'function') {
-            window.injectPlagiarismPanel(sectionId);
-        }
-    });
 
     showCustomAlert('success', 'Tersimpan', `Pengaturan AI & API diperbarui.`);
 }
 
 async function removeApiKey() {
-    await AppState.setAndEncryptKeys('', '', '', '', '', ''); 
-    const ids = ['geminiApiKeyInput', 'mistralApiKeyInput', 'groqApiKeyInput', 'githubApiKeyInput', 'edenAiKeyInputMain', 'apiPinInput'];
-    ids.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    await AppState.setAndEncryptKeys('', '', '', '', ''); 
+    const ids = ['geminiApiKeyInput','mistralApiKeyInput','groqApiKeyInput','githubApiKeyInput','apiPinInput'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     await saveStateToLocal(); closeApiSettings();
     const unlockModal = document.getElementById('unlockModal'); if (unlockModal) unlockModal.remove();
     showCustomAlert('success', 'Terhapus', 'Semua API Key telah dihapus.');
 }
+
+window.saveApiKey = saveApiKey;
+window.removeApiKey = removeApiKey;
+window.closeApiSettings = closeApiSettings;
+
 
 // ==========================================
 // 🌟 FUNGSI GENERATE MULTI-PROVIDER
@@ -872,6 +877,7 @@ function selectTitleForProposal(title, element) {
 }
 
 function showProposalSection(section) {
+    window.__currentSectionId = section;
     document.querySelectorAll('.proposal-section').forEach(el => el.classList.add('hidden'));
     const target = document.getElementById('section-' + section);
     if(target) {

@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parafrase Teks</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .gradient-bg {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glow-btn {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+      transition: all 0.3s ease;
+    }
+    .glow-btn:hover {
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
+      transform: translateY(-2px);
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .typing-indicator span {
+      animation: bounce 1.4s infinite ease-in-out;
+    }
+    .typing-indicator span:nth-child(1) { animation-delay: 0s; }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .style-btn {
+      transition: all 0.2s ease;
+    }
+    .style-btn.active {
+      background: #6366f1;
+      color: white;
+    }
+    .style-btn:not(.active):hover {
+      background: rgba(99, 102, 241, 0.2);
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full gradient-bg text-white overflow-auto">
+  <div class="min-h-full w-full p-4 md:p-8">
+   <div class="max-w-4xl mx-auto"><!-- Header -->
+    <header class="text-center mb-8 fade-in">
+     <div class="inline-flex items-center gap-3 mb-4">
+      <svg class="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+      </svg>
+      <h1 id="app-title" class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Parafrase Teks</h1>
+     </div>
+     <p class="text-gray-400 text-lg">Ubah teks Anda menjadi lebih natural seperti buatan manusia</p>
+    </header><!-- Style Selection -->
+    <div class="glass-card rounded-2xl p-4 mb-6 fade-in">
+     <p class="text-sm text-gray-400 mb-3 font-medium">Pilih Gaya Penulisan:</p>
+     <div class="flex flex-wrap gap-2"><button class="style-btn active px-4 py-2 rounded-lg text-sm font-medium border border-indigo-500/30" data-style="casual"> 😊 Santai </button> <button class="style-btn px-4 py-2 rounded-lg text-sm font-medium border border-indigo-500/30" data-style="formal"> 👔 Formal </button> <button class="style-btn px-4 py-2 rounded-lg text-sm font-medium border border-indigo-500/30" data-style="creative"> 🎨 Kreatif </button> <button class="style-btn px-4 py-2 rounded-lg text-sm font-medium border border-indigo-500/30" data-style="simple"> 📝 Sederhana </button> <button class="style-btn px-4 py-2 rounded-lg text-sm font-medium border border-indigo-500/30" data-style="academic"> 🎓 Akademis </button>
+     </div>
+    </div><!-- Main Content -->
+    <div class="grid md:grid-cols-2 gap-6"><!-- Input Section -->
+     <div class="glass-card rounded-2xl p-6 fade-in">
+      <div class="flex items-center justify-between mb-4"><label class="text-lg font-semibold text-indigo-300">Teks Asli</label> <span id="char-count" class="text-sm text-gray-500">0 karakter</span>
+      </div><textarea id="input-text" class="w-full h-48 bg-white/5 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 resize-none" placeholder="Masukkan teks yang ingin diparafrase..."></textarea>
+      <div class="flex gap-3 mt-4"><button id="paraphrase-btn" class="flex-1 glow-btn bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-6 rounded-xl flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg><span>Parafrase</span> </button> <button id="clear-btn" class="px-4 py-3 bg-white/10 hover:bg-white/20 rounded-xl transition-colors" title="Hapus teks">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg></button>
+      </div>
+     </div><!-- Output Section -->
+     <div class="glass-card rounded-2xl p-6 fade-in">
+      <div class="flex items-center justify-between mb-4"><label class="text-lg font-semibold text-purple-300">Hasil Parafrase</label> <button id="copy-btn" class="text-sm text-gray-400 hover:text-white flex items-center gap-1 transition-colors" style="display: none;">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg> Salin </button>
+      </div>
+      <div id="output-container" class="w-full h-48 bg-white/5 border border-white/10 rounded-xl p-4 overflow-auto">
+       <p id="output-text" class="text-gray-400 italic">Hasil parafrase akan muncul di sini...</p>
+       <div id="loading-indicator" class="hidden flex items-center gap-2 text-indigo-400"><span>Memproses</span>
+        <div class="typing-indicator flex gap-1"><span class="w-2 h-2 bg-indigo-400 rounded-full"></span> <span class="w-2 h-2 bg-indigo-400 rounded-full"></span> <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>
+        </div>
+       </div>
+      </div>
+      <div id="plagiarism-container" class="mt-4 hidden">
+       <div class="flex items-center justify-between mb-2">
+        <p class="text-sm text-gray-400 font-medium">📊 Skor Orisinalitas</p><span id="originality-score" class="text-sm font-bold">0%</span>
+       </div>
+       <div class="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+        <div id="originality-bar" class="h-full rounded-full transition-all duration-500 bg-green-500" style="width: 0%"></div>
+       </div>
+       <p id="originality-status" class="text-xs text-gray-400 mt-2">Sangat Tinggi ✓</p>
+      </div>
+     </div>
+    </div><!-- Tips Section -->
+    <div class="glass-card rounded-2xl p-6 mt-6 fade-in">
+     <h3 class="text-lg font-semibold text-amber-400 mb-3 flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+      </svg> Tips untuk Hasil Terbaik</h3>
+     <ul class="text-gray-400 text-sm space-y-1">
+      <li>• Gunakan kalimat lengkap untuk hasil yang lebih akurat</li>
+      <li>• Pilih gaya penulisan yang sesuai dengan kebutuhan Anda</li>
+      <li>• Periksa kembali hasil parafrase untuk memastikan makna tetap sama</li>
+     </ul>
+    </div><!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300"><span id="toast-message">Teks berhasil disalin!</span>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      app_title: 'Parafrase Teks',
+      input_placeholder: 'Masukkan teks yang ingin diparafrase...',
+      primary_color: '#6366f1',
+      secondary_color: '#1a1a2e',
+      text_color: '#ffffff',
+      accent_color: '#a855f7',
+      surface_color: 'rgba(255, 255, 255, 0.05)',
+      font_family: 'Plus Jakarta Sans',
+      font_size: 16
+    };
+
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          document.getElementById('app-title').textContent = config.app_title || defaultConfig.app_title;
+          document.getElementById('input-text').placeholder = config.input_placeholder || defaultConfig.input_placeholder;
+          
+          const fontFamily = config.font_family || defaultConfig.font_family;
+          document.body.style.fontFamily = `${fontFamily}, sans-serif`;
+          
+          const fontSize = config.font_size || defaultConfig.font_size;
+          document.body.style.fontSize = `${fontSize}px`;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.secondary_color || defaultConfig.secondary_color,
+              set: (value) => window.elementSdk.setConfig({ secondary_color: value })
+            },
+            {
+              get: () => config.surface_color || defaultConfig.surface_color,
+              set: (value) => window.elementSdk.setConfig({ surface_color: value })
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => window.elementSdk.setConfig({ text_color: value })
+            },
+            {
+              get: () => config.primary_color || defaultConfig.primary_color,
+              set: (value) => window.elementSdk.setConfig({ primary_color: value })
+            },
+            {
+              get: () => config.accent_color || defaultConfig.accent_color,
+              set: (value) => window.elementSdk.setConfig({ accent_color: value })
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => window.elementSdk.setConfig({ font_family: value })
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => window.elementSdk.setConfig({ font_size: value })
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['app_title', config.app_title || defaultConfig.app_title],
+          ['input_placeholder', config.input_placeholder || defaultConfig.input_placeholder]
+        ])
+      });
+    }
+
+    // State
+    let selectedStyle = 'casual';
+
+    // Comprehensive synonym dictionaries for different styles
+    const synonyms = {
+      'bagus': ['baik', 'hebat', 'keren', 'mantap', 'oke', 'luar biasa', 'memuaskan', 'bernilai', 'berkualitas'],
+      'besar': ['luas', 'raksasa', 'jumbo', 'megah', 'masif', 'berskala', 'ekstensif', 'monumental'],
+      'kecil': ['mini', 'mungil', 'cilik', 'ringkas', 'kompak', 'diminutif', 'terbatas', 'minim'],
+      'cepat': ['kilat', 'sigap', 'gesit', 'tangkas', 'lekas', 'tergesa', 'bergegas', 'ekspresif'],
+      'lambat': ['pelan', 'santai', 'perlahan', 'tak terburu', 'bertahap', 'berangsur', 'melata'],
+      'penting': ['krusial', 'vital', 'esensial', 'signifikan', 'utama', 'mencakup', 'fundamental', 'pokok'],
+      'mudah': ['gampang', 'simpel', 'sederhana', 'praktis', 'ringan', 'tanpa hambatan', 'lancar'],
+      'sulit': ['susah', 'rumit', 'kompleks', 'menantang', 'pelik', 'berbelit', 'menyulitkan', 'problematik'],
+      'banyak': ['melimpah', 'berlimpah', 'segudang', 'beragam', 'numerous', 'menggenap', 'berlipat', 'sejumlah besar'],
+      'sedikit': ['minim', 'terbatas', 'secuil', 'sekelumit', 'sebagian kecil', 'tidak banyak'],
+      'baru': ['anyar', 'fresh', 'terkini', 'mutakhir', 'modern', 'kontemporer', 'segar', 'inovatif'],
+      'lama': ['usang', 'lawas', 'klasik', 'tempo dulu', 'kuno', 'tradisional', 'berusia'],
+      'baik': ['bagus', 'oke', 'positif', 'menyenangkan', 'memuaskan', 'kondusif', 'layak'],
+      'buruk': ['jelek', 'negatif', 'tidak bagus', 'kurang baik', 'memprihatinkan', 'menurun', 'merosot'],
+      'membuat': ['menciptakan', 'menghasilkan', 'merancang', 'membangun', 'memproduksi', 'mengerjakan', 'memfasilitasi'],
+      'menggunakan': ['memakai', 'memanfaatkan', 'menerapkan', 'mengaplikasikan', 'mempergunakan', 'menyukai'],
+      'memiliki': ['punya', 'mempunyai', 'mengandung', 'dilengkapi', 'mempunyai keistimewaan', 'berpenampilan'],
+      'memberikan': ['menyajikan', 'menyediakan', 'menghadirkan', 'menawarkan', 'menampilkan', 'menyerahkan'],
+      'mendapatkan': ['memperoleh', 'meraih', 'mencapai', 'menggapai', 'menerima', 'memiliki kesempatan'],
+      'melakukan': ['mengerjakan', 'menjalankan', 'mengeksekusi', 'menuntaskan', 'memprakarsai', 'mengadakan'],
+      'mengatakan': ['menyatakan', 'mengungkapkan', 'menyebutkan', 'menuturkan', 'berkata', 'menerangkan'],
+      'melihat': ['memandang', 'mengamati', 'meninjau', 'menyaksikan', 'memerhatikan', 'menyadari'],
+      'perlu': ['butuh', 'memerlukan', 'harus', 'wajib', 'diperlukan', 'mendesak'],
+      'sangat': ['amat', 'begitu', 'sungguh', 'benar-benar', 'luar biasa', 'sepenuhnya', 'dengan sangat'],
+      'juga': ['pula', 'turut', 'serta', 'bahkan', 'demikian pula', 'sekaligus'],
+      'tetapi': ['namun', 'akan tetapi', 'tapi', 'meski demikian', 'sebaliknya', 'walaupun demikian'],
+      'karena': ['sebab', 'lantaran', 'dikarenakan', 'mengingat', 'oleh', 'berkat', 'akibat'],
+      'untuk': ['guna', 'demi', 'buat', 'dalam rangka', 'tujuan', 'kebutuhan'],
+      'dengan': ['bersama', 'melalui', 'lewat', 'via', 'menggunakan', 'berserta'],
+      'pada': ['di', 'dalam', 'ketika', 'saat', 'terhadap', 'bagi'],
+      'dari': ['berasal', 'bersumber', 'bermula', 'sejak', 'mulai'],
+      'ini': ['hal ini', 'yang satu ini', 'tersebut', 'sedemikian', 'situasi ini'],
+      'itu': ['hal itu', 'yang itu', 'tersebut', 'demikian', 'keadaan tersebut'],
+      'adalah': ['merupakan', 'ialah', 'yakni', 'yaitu', 'menjadi', 'bersifat'],
+      'akan': ['bakal', 'hendak', 'mau', 'berencana', 'nanti', 'kelak'],
+      'dapat': ['bisa', 'mampu', 'sanggup', 'berpeluang', 'berkemungkinan'],
+      'harus': ['wajib', 'mesti', 'perlu', 'kudu', 'semestinya'],
+      'sudah': ['telah', 'udah', 'selesai', 'tandasnya', 'lampaui'],
+      'belum': ['tak', 'tidak', 'masih belum', 'belom', 'masih saja'],
+      'tidak': ['tak', 'bukan', 'tiada', 'tanpa', 'bukan lah'],
+      'atau': ['ataupun', 'maupun', 'entah', 'alias'],
+      'dan': ['serta', 'juga', 'plus', 'maupun', 'beserta', 'sampai']
+    };
+
+    // Enhanced style-specific transformations
+    const styleTransformations = {
+      casual: {
+        prefix: ['Nah, ', 'Jadi gini, ', 'Singkatnya, ', 'Intinya, ', 'Gini nih, ', 'Begini deh, ', 'Yaudah, '],
+        suffix: [' gitu deh.', ' sih.', ' lho.', ' kan.', ' ya.', ' tuh.', ' nih.'],
+        replacements: {
+          'saya': 'aku',
+          'anda': 'kamu',
+          'tidak': 'nggak',
+          'sudah': 'udah',
+          'belum': 'belom',
+          'bagaimana': 'gimana',
+          'mengapa': 'kenapa',
+          'kepada': 'ke',
+          'adalah': 'tuh',
+          'tersebut': 'itu',
+          'perlu': 'perlu banget',
+          'harus': 'harus',
+          'memang': 'emang'
+        }
+      },
+      formal: {
+        prefix: ['Perlu diketahui bahwa ', 'Dapat dijelaskan bahwa ', 'Sebagaimana diuraikan, ', 'Merujuk pada hal tersebut, ', 'Berdasarkan pemaparan di atas, ', 'Menurut analisis, ', 'Dalam hal ini, '],
+        suffix: ['.', ' demikian penjelasannya.', ' sebagaimana mestinya.', ' dengan demikian.', ' oleh karenanya.'],
+        replacements: {
+          'aku': 'saya',
+          'kamu': 'Anda',
+          'nggak': 'tidak',
+          'udah': 'sudah',
+          'gimana': 'bagaimana',
+          'kenapa': 'mengapa',
+          'banget': 'sangat',
+          'kayak': 'seperti',
+          'emang': 'memang'
+        }
+      },
+      creative: {
+        prefix: ['Bayangkan, ', 'Coba pikirkan, ', 'Menariknya, ', 'Yang unik adalah, ', 'Percaya atau tidak, ', 'Ternyata, ', 'Ambil perhatian bahwa '],
+        suffix: [' — sungguh menarik bukan?', ' yang membuat kita berpikir.', ' dan itulah keajaibannya!', '!', ' seperti sihir.', ' mengagumkan sekali.'],
+        replacements: {}
+      },
+      simple: {
+        prefix: ['', 'Singkatnya, ', 'Sederhananya, ', 'Intinya, ', 'Mudahnya, ', 'Begini, '],
+        suffix: ['.'],
+        replacements: {
+          'mengimplementasikan': 'menerapkan',
+          'komprehensif': 'lengkap',
+          'signifikan': 'penting',
+          'fundamental': 'dasar',
+          'kontemporer': 'modern',
+          'konvensional': 'biasa',
+          'dapat': 'bisa'
+        }
+      },
+      academic: {
+        prefix: ['Berdasarkan analisis, ', 'Menurut kajian ini, ', 'Secara teoretis, ', 'Dari perspektif akademis, ', 'Hasil penelaahan menunjukkan bahwa ', 'Dalam konteks ilmiah, ', 'Sebagaimana dibuktikan, '],
+        suffix: [' (dalam konteks yang relevan).', ' sebagaimana teridentifikasi.', ' berdasarkan bukti empiris.', ' menurut penelitian.', ' yang terbukti signifikan.'],
+        replacements: {
+          'bagus': 'berkualitas',
+          'jelek': 'kurang optimal',
+          'banyak': 'signifikan',
+          'sedikit': 'minimal',
+          'penting': 'krusial',
+          'membuat': 'mengonstruksi',
+          'tidak': 'tidak'
+        }
+      }
+    };
+
+    // Advanced sentence structure variations
+    const sentencePatterns = [
+      (s) => s,
+      (s) => rearrangeSentence(s),
+      (s) => splitComplexSentence(s),
+      (s) => changeVoice(s),
+      (s) => emphasisPlacement(s),
+      (s) => reorderClauses(s)
+    ];
+
+    function rearrangeSentence(sentence) {
+      const parts = sentence.split(',').map(p => p.trim()).filter(p => p);
+      if (parts.length > 1 && Math.random() > 0.4) {
+        return parts.reverse().join(', ');
+      }
+      return sentence;
+    }
+
+    function splitComplexSentence(sentence) {
+      // Split long sentences with 'dan' or 'tetapi' into separate parts
+      if (sentence.length > 80 && (sentence.includes(' dan ') || sentence.includes(' tetapi '))) {
+        let result = sentence;
+        const replacements = [
+          [' dan ', '. '],
+          [' tetapi ', '. Akan tetapi, '],
+          [' karena ', '. Hal ini dikarenakan ']
+        ];
+        
+        const chosen = replacements[Math.floor(Math.random() * replacements.length)];
+        if (result.includes(chosen[0]) && Math.random() > 0.3) {
+          result = result.replace(chosen[0], chosen[1]);
+        }
+      }
+      return sentence;
+    }
+
+    function reorderClauses(sentence) {
+      // Move time/condition clauses to beginning or end
+      const timePatterns = [
+        { pattern: /,\s+(ketika|saat|ketika|pada|sewaktu)\s+/gi, prefix: true },
+        { pattern: /,\s+(yang mana|dimana|di mana|yang)\s+/gi, prefix: true }
+      ];
+      
+      for (const {pattern, prefix} of timePatterns) {
+        if (pattern.test(sentence) && Math.random() > 0.5) {
+          const matches = sentence.match(pattern);
+          if (matches) {
+            const parts = sentence.split(pattern);
+            if (parts.length === 2 && prefix) {
+              return parts[0] + ' ' + parts[1].trim();
+            }
+          }
+        }
+      }
+      return sentence;
+    }
+
+    function changeVoice(sentence) {
+      // Transform between active and passive voice
+      const activePattern = /([A-Z][a-z\s]+?)\s+(membuat|menghasilkan|menciptakan|mengubah|melakukan)\s+(.+?)\./i;
+      const match = sentence.match(activePattern);
+      
+      if (match && Math.random() > 0.6) {
+        const [, subject, verb, object] = match;
+        const passiveVerbs = {
+          'membuat': 'dibuat',
+          'menghasilkan': 'dihasilkan',
+          'menciptakan': 'diciptakan',
+          'mengubah': 'diubah',
+          'melakukan': 'dilakukan'
+        };
+        
+        const passiveVerb = passiveVerbs[verb] || verb;
+        return `${object.trim()} ${passiveVerb} oleh ${subject.trim()}.`;
+      }
+      
+      // Also try transforming passive to active
+      const passivePattern = /(.+?)\s+(di[a-z]+)\s+(oleh|karena)\s+(.+?)\./i;
+      const passiveMatch = sentence.match(passivePattern);
+      
+      if (passiveMatch && Math.random() > 0.6) {
+        const [, object, passiveVerb, preposition, subject] = passiveMatch;
+        const activeVerbs = {
+          'dibuat': 'membuat',
+          'dihasilkan': 'menghasilkan',
+          'diciptakan': 'menciptakan',
+          'diubah': 'mengubah'
+        };
+        
+        const activeVerb = activeVerbs[passiveVerb] || passiveVerb;
+        return `${subject.trim()} ${activeVerb} ${object.trim()}.`;
+      }
+      
+      return sentence;
+    }
+
+    function emphasisPlacement(sentence) {
+      // Move important words to different positions for emphasis
+      const importantWords = ['penting', 'sangat', 'khusus', 'terutama', 'utama', 'kunci', 'crucial'];
+      
+      for (const word of importantWords) {
+        if (sentence.includes(word)) {
+          if (Math.random() > 0.6) {
+            // Move to beginning
+            let result = sentence.replace(new RegExp(`\\s*${word}\\s*`, 'i'), '').trim();
+            return `Terutama, ${result}`;
+          }
+        }
+      }
+      return sentence;
+    }
+
+    function replaceSynonyms(text, style) {
+      let result = text;
+      const styleReplacements = styleTransformations[style]?.replacements || {};
+      
+      // Apply style-specific replacements
+      for (const [original, replacement] of Object.entries(styleReplacements)) {
+        const regex = new RegExp(`\\b${original}\\b`, 'gi');
+        result = result.replace(regex, replacement);
+      }
+      
+      // Apply synonym replacements with variation
+      for (const [word, alternatives] of Object.entries(synonyms)) {
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        const matches = result.match(regex);
+        
+        if (matches) {
+          // Apply synonyms to multiple instances with variation
+          let replacementCount = 0;
+          result = result.replace(regex, (match) => {
+            replacementCount++;
+            // Replace 60-80% of instances
+            if (Math.random() > 0.2 && replacementCount <= Math.ceil(matches.length * 0.8)) {
+              const randomAlternative = alternatives[Math.floor(Math.random() * alternatives.length)];
+              return match[0].toUpperCase() === match[0] ? randomAlternative.charAt(0).toUpperCase() + randomAlternative.slice(1) : randomAlternative;
+            }
+            return match;
+          });
+        }
+      }
+      
+      return result;
+    }
+
+    function addHumanTouches(text) {
+      let result = text;
+      
+      // Add natural pauses and variations
+      const touches = [
+        // Add filler phrases
+        (t) => Math.random() > 0.75 ? t.replace(/\. ([A-Z])/g, '. Nah, $1') : t,
+        // Add connecting phrases
+        (t) => Math.random() > 0.8 ? t.replace(/([a-z]+)\. ([A-Z])/g, '$1. Dengan demikian, $2') : t,
+        // Vary punctuation
+        (t) => Math.random() > 0.85 ? t.replace(/([.!?])$/, '$1..') : t,
+        // Add emphasis variations
+        (t) => Math.random() > 0.82 ? t.replace(/\bsangat\s+([a-z]+)/gi, 'benar-benar $1') : t,
+        // Restructure for naturalism
+        (t) => Math.random() > 0.8 ? t.replace(/\bini\s+(adalah|merupakan)/gi, 'hal ini ialah') : t,
+        // Add rhetorical questions
+        (t) => Math.random() > 0.85 ? t.replace(/\b(penting|utama|krusial)\b/gi, 'hal yang $1') : t
+      ];
+      
+      touches.forEach(touch => {
+        result = touch(result);
+      });
+      
+      return result;
+    }
+
+    function addContextualTransitions(text) {
+      // Add more natural transitions between ideas
+      const transitions = {
+        'tetapi': ['namun demikian, ', 'akan tetapi, ', 'sebaliknya, ', 'sebaliknya, '],
+        'karena': ['berkat ', 'mengingat ', 'akibat ', 'sejalan dengan '],
+        'sehingga': ['akibatnya, ', 'dengan demikian, ', 'itulah mengapa ', 'oleh karenanya, '],
+        'meskipun': ['sekalipun ', 'terlepas dari ', 'meski ', 'walaupun ']
+      };
+      
+      for (const [word, alts] of Object.entries(transitions)) {
+        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        if (regex.test(text) && Math.random() > 0.5) {
+          const alt = alts[Math.floor(Math.random() * alts.length)];
+          text = text.replace(regex, alt);
+        }
+      }
+      
+      return text;
+    }
+
+    function paraphrase(text, style) {
+      if (!text.trim()) return '';
+      
+      const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+      const styleConfig = styleTransformations[style];
+      
+      const paraphrasedSentences = sentences.map((sentence, index) => {
+        let result = sentence.trim();
+        
+        // Apply contextual transitions first
+        result = addContextualTransitions(result);
+        
+        // Apply synonym replacements
+        result = replaceSynonyms(result, style);
+        
+        // Apply sentence pattern variation (multiple patterns for better results)
+        for (let i = 0; i < 2; i++) {
+          const patternIndex = Math.floor(Math.random() * sentencePatterns.length);
+          result = sentencePatterns[patternIndex](result);
+        }
+        
+        // Add style-specific prefix to first sentence
+        if (index === 0 && styleConfig.prefix.length > 0 && Math.random() > 0.4) {
+          const prefix = styleConfig.prefix[Math.floor(Math.random() * styleConfig.prefix.length)];
+          result = prefix + result.charAt(0).toLowerCase() + result.slice(1);
+        }
+        
+        // Add human touches based on style
+        if (style === 'casual' || style === 'creative') {
+          result = addHumanTouches(result);
+        }
+        
+        // Additional structure variation for longer sentences
+        if (result.length > 100 && Math.random() > 0.6) {
+          result = splitComplexSentence(result);
+        }
+        
+        return result;
+      });
+      
+      let finalText = paraphrasedSentences.join(' ').trim();
+      
+      // Add contextual transitions between sentences
+      finalText = addContextualTransitions(finalText);
+      
+      // Add style-specific suffix occasionally
+      if (styleConfig.suffix.length > 0 && Math.random() > 0.4) {
+        const lastChar = finalText.slice(-1);
+        if (['.', '!', '?'].includes(lastChar)) {
+          finalText = finalText.slice(0, -1);
+        }
+        const suffix = styleConfig.suffix[Math.floor(Math.random() * styleConfig.suffix.length)];
+        finalText += suffix;
+      }
+      
+      // Final polish: ensure proper spacing and punctuation
+      finalText = finalText.replace(/\s+/g, ' ').replace(/\s+([.!?,])/g, '$1');
+      
+      return finalText;
+    }
+
+    function generateVariations(text, style, count = 2) {
+      const variations = [];
+      const seen = new Set();
+      
+      // Generate multiple variations until we have enough unique ones
+      let attempts = 0;
+      while (variations.length < count && attempts < count * 3) {
+        const variation = paraphrase(text, style);
+        if (variation && !seen.has(variation) && variation !== text) {
+          variations.push(variation);
+          seen.add(variation);
+        }
+        attempts++;
+      }
+      
+      return variations;
+    }
+
+    // DOM Elements
+    const inputText = document.getElementById('input-text');
+    const outputText = document.getElementById('output-text');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const paraphraseBtn = document.getElementById('paraphrase-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const charCount = document.getElementById('char-count');
+    const styleButtons = document.querySelectorAll('.style-btn');
+    const plagiarismContainer = document.getElementById('plagiarism-container');
+    const originalityScore = document.getElementById('originality-score');
+    const originalityBar = document.getElementById('originality-bar');
+    const originalityStatus = document.getElementById('originality-status');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+
+    // Calculate originality percentage based on similarity
+    function calculateOriginality(original, paraphrased) {
+      const origWords = original.toLowerCase().match(/\b\w+\b/g) || [];
+      const paraWords = paraphrased.toLowerCase().match(/\b\w+\b/g) || [];
+      
+      // Calculate word overlap
+      const commonWords = origWords.filter(word => 
+        paraWords.includes(word) && 
+        !['dan', 'atau', 'di', 'ke', 'dari', 'untuk', 'yang', 'ini', 'itu', 'adalah', 'dengan', 'pada', 'tidak', 'juga', 'sudah', 'akan', 'dapat', 'harus', 'tetapi', 'karena'].includes(word)
+      );
+      
+      const wordSimilarity = origWords.length > 0 ? (commonWords.length / origWords.length) : 0;
+      
+      // Calculate structure similarity (sentence count, length)
+      const origSentences = original.split(/[.!?]+/).length;
+      const paraSentences = paraphrased.split(/[.!?]+/).length;
+      const structureSimilarity = Math.abs(origSentences - paraSentences) / Math.max(origSentences, paraSentences);
+      
+      // Originality = inverse of similarity (weighted)
+      const similarityScore = (wordSimilarity * 0.6) + (structureSimilarity * 0.4);
+      const originality = Math.max(0, Math.min(100, (1 - similarityScore) * 100));
+      
+      return Math.round(originality);
+    }
+
+    function getStatusColor(score) {
+      if (score >= 85) return 'bg-green-500';
+      if (score >= 70) return 'bg-lime-500';
+      if (score >= 50) return 'bg-yellow-500';
+      if (score >= 30) return 'bg-orange-500';
+      return 'bg-red-500';
+    }
+
+    function getStatusText(score) {
+      if (score >= 85) return '🟢 Sangat Tinggi ✓';
+      if (score >= 70) return '🟢 Tinggi ✓';
+      if (score >= 50) return '🟡 Sedang';
+      if (score >= 30) return '🟠 Rendah';
+      return '🔴 Sangat Rendah';
+    }
+
+    // Event Listeners
+    inputText.addEventListener('input', () => {
+      charCount.textContent = `${inputText.value.length} karakter`;
+    });
+
+    styleButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        styleButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedStyle = btn.dataset.style;
+      });
+    });
+
+    paraphraseBtn.addEventListener('click', async () => {
+      const text = inputText.value.trim();
+      if (!text) {
+        showToast('Silakan masukkan teks terlebih dahulu', 'warning');
+        return;
+      }
+
+      // Show loading
+      outputText.classList.add('hidden');
+      loadingIndicator.classList.remove('hidden');
+      plagiarismContainer.classList.add('hidden');
+      copyBtn.style.display = 'none';
+      paraphraseBtn.disabled = true;
+
+      // Simulate processing delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
+
+      // Generate main paraphrase
+      const result = paraphrase(text, selectedStyle);
+      
+      // Calculate originality score
+      const score = calculateOriginality(text, result);
+
+      // Show results
+      loadingIndicator.classList.add('hidden');
+      outputText.classList.remove('hidden');
+      outputText.textContent = result;
+      outputText.classList.remove('text-gray-400', 'italic');
+      outputText.classList.add('text-white');
+      copyBtn.style.display = 'flex';
+      paraphraseBtn.disabled = false;
+
+      // Show plagiarism detection
+      plagiarismContainer.classList.remove('hidden');
+      originalityScore.textContent = `${score}%`;
+      originalityBar.style.width = `${score}%`;
+      originalityBar.className = `h-full rounded-full transition-all duration-500 ${getStatusColor(score)}`;
+      originalityStatus.textContent = getStatusText(score);
+    });
+
+    clearBtn.addEventListener('click', () => {
+      inputText.value = '';
+      outputText.textContent = 'Hasil parafrase akan muncul di sini...';
+      outputText.classList.add('text-gray-400', 'italic');
+      outputText.classList.remove('text-white');
+      charCount.textContent = '0 karakter';
+      copyBtn.style.display = 'none';
+      plagiarismContainer.classList.add('hidden');
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const text = outputText.textContent;
+      if (text && text !== 'Hasil parafrase akan muncul di sini...') {
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('Teks berhasil disalin!');
+        } catch (err) {
+          // Fallback for older browsers
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          showToast('Teks berhasil disalin!');
+        }
+      }
+    });
+
+    function showToast(message, type = 'success') {
+      toastMessage.textContent = message;
+      toast.className = `fixed bottom-4 right-4 ${type === 'warning' ? 'bg-amber-600' : 'bg-green-600'} text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300`;
+      toast.style.transform = 'translateY(0)';
+      toast.style.opacity = '1';
+      
+      setTimeout(() => {
+        toast.style.transform = 'translateY(20px)';
+        toast.style.opacity = '0';
+      }, 2500);
+    }
+  </script>
+</body>
+</html>

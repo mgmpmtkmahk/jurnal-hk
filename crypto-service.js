@@ -86,7 +86,6 @@ const CryptoService = {
         const components = [
             navigator.userAgent,
             navigator.language,
-            // screen.width + 'x' + screen.height, <-- HAPUS BARIS INI
             new Date().getTimezoneOffset()
         ];
         return btoa(components.join('|')).slice(0, 16);

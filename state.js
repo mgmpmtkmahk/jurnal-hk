@@ -18,14 +18,12 @@ const AppState = {
     _encryptedMistralKey: null,
     _encryptedGroqKey: null,
     _encryptedGithubKey: null,
-    _encryptedEdenAiKey: null, // TAMBAHAN BARU
     
     // Memori sementara saat runtime (Plaintext)
     _tempGeminiKey: null,
     _tempMistralKey: null,
     _tempGroqKey: null,
     _tempGithubKey: null,
-    _tempEdenAiKey: null,      // TAMBAHAN BARU
     
     journals: [],
     analysisData: {},
@@ -33,7 +31,6 @@ const AppState = {
     selectedTitle: '',
     proposalData: {},
     customPrompts: {},
-    plagiarismConfig: { provider: 'local', similarityThreshold: 15, lastScanResults: {} } // Bersih dari API Key
 };
 
 // ==========================================
@@ -53,14 +50,12 @@ AppState._clearTempKeysTimeout = null;
 AppState._startTempKeysTimer = function() {
     if (this._clearTempKeysTimeout) clearTimeout(this._clearTempKeysTimeout);
     this._clearTempKeysTimeout = setTimeout(() => {
-        this._tempGeminiKey = null; this._tempMistralKey = null; this._tempGroqKey = null;
-        this._tempGithubKey = null; this._tempEdenAiKey = null;
-        console.log("Sesi API Key berakhir.");
+        this._tempGeminiKey = null; this._tempMistralKey = null; this._tempGroqKey = null; this._tempGithubKey = null;
     }, 60 * 60 * 1000); 
 };
 
-// UPDATE: Enkripsi 5 Key Sekaligus (Menambahkan Eden AI)
-AppState.setAndEncryptKeys = async function(gemini, mistral, groq, github, edenai, pin) {
+// UPDATE: Enkripsi 4 Key Sekaligus (Gemini/Mistral/Groq/GitHub)
+AppState.setAndEncryptKeys = async function(gemini, mistral, groq, github, pin) {
     const salt = CryptoService.getDeviceFingerprint();
     const strongPin = pin + salt;
 
@@ -68,13 +63,11 @@ AppState.setAndEncryptKeys = async function(gemini, mistral, groq, github, edena
     this._tempMistralKey = mistral || null;
     this._tempGroqKey = groq || null; 
     this._tempGithubKey = github || null;
-    this._tempEdenAiKey = edenai || null;
 
     this._encryptedGeminiKey = gemini ? await CryptoService.encrypt(gemini, strongPin) : null;
     this._encryptedMistralKey = mistral ? await CryptoService.encrypt(mistral, strongPin) : null;
     this._encryptedGroqKey = groq ? await CryptoService.encrypt(groq, strongPin) : null;
     this._encryptedGithubKey = github ? await CryptoService.encrypt(github, strongPin) : null;
-    this._encryptedEdenAiKey = edenai ? await CryptoService.encrypt(edenai, strongPin) : null;
 
     this._startTempKeysTimer();
 };
@@ -94,7 +87,6 @@ AppState.decryptKeys = async function(pin) {
     this._tempMistralKey = await tryDecrypt(this._encryptedMistralKey);
     this._tempGroqKey = await tryDecrypt(this._encryptedGroqKey);
     this._tempGithubKey = await tryDecrypt(this._encryptedGithubKey);
-    this._tempEdenAiKey = await tryDecrypt(this._encryptedEdenAiKey);
     
     if (!unlocked && hasErrors) throw new Error("PIN Salah atau Data Korup.");
     if (!unlocked) throw new Error("Tidak ada kunci tersimpan.");
@@ -115,11 +107,9 @@ async function saveStateToLocal() {
         
         encryptedGeminiKey: AppState._encryptedGeminiKey, encryptedMistralKey: AppState._encryptedMistralKey,
         encryptedGroqKey: AppState._encryptedGroqKey, encryptedGithubKey: AppState._encryptedGithubKey,
-        encryptedEdenAiKey: AppState._encryptedEdenAiKey, // TAMBAHAN
         
         journals: AppState.journals, analysisData: AppState.analysisData, generatedTitles: AppState.generatedTitles,
         selectedTitle: AppState.selectedTitle, proposalData: AppState.proposalData, customPrompts: AppState.customPrompts,
-        plagiarismConfig: AppState.plagiarismConfig, lastSaved: new Date().toISOString()
     };
     await localforage.setItem('scientificDocGenState', stateToSave);
 }
@@ -132,7 +122,6 @@ async function loadStateFromLocal() {
             AppState._encryptedMistralKey = parsed.encryptedMistralKey || null;
             AppState._encryptedGroqKey = parsed.encryptedGroqKey || null;
             AppState._encryptedGithubKey = parsed.encryptedGithubKey || null;
-            AppState._encryptedEdenAiKey = parsed.encryptedEdenAiKey || null; // TAMBAHAN
 
             Object.assign(AppState, {
                 documentType: parsed.documentType || 'proposal', currentStep: parsed.currentStep || 1, aiProvider: parsed.aiProvider || 'gemini',
@@ -141,7 +130,6 @@ async function loadStateFromLocal() {
                 tone: parsed.tone || 'akademis', aiTemperature: parsed.aiTemperature || 0.3, journals: parsed.journals || [],
                 analysisData: parsed.analysisData || {}, generatedTitles: parsed.generatedTitles || [], selectedTitle: parsed.selectedTitle || '',
                 customPrompts: parsed.customPrompts || {}, proposalData: Object.assign(AppState.proposalData, parsed.proposalData || {}),
-                plagiarismConfig: Object.assign(AppState.plagiarismConfig, parsed.plagiarismConfig || {})
             });
         }
     } catch (e) { console.error("Failed to load state:", e); }
