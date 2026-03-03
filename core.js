@@ -459,17 +459,6 @@ function getDynamicPromptText(elementId, isForAPI = false) {
         text = text.replace(/\[INSERT RESEARCH GAP DARI STEP 3\]/g, () => AppState.analysisData.raw || '[PERINGATAN: DATA ANALISIS KOSONG]'); 
     }
 
-    const textLatar = AppState.proposalData.latar || AppState.proposalData.mpendahuluan || AppState.proposalData.jpendahuluan || AppState.proposalData.slrpendahuluan || '';
-    text = text.replace(/\[KONTEKS_LATAR\]/g, () => textLatar);
-    const textRumusan = AppState.proposalData.rumusan || ''; 
-    text = text.replace(/\[KONTEKS_RUMUSAN\]/g, () => textRumusan);
-    const textTeori = AppState.proposalData.landasan || AppState.proposalData.mpembahasan || '';
-    text = text.replace(/\[KONTEKS_TEORI\]/g, () => textTeori);
-    const textMetode = AppState.proposalData.metode || AppState.proposalData.jmetode || AppState.proposalData.slrmetode || '';
-    text = text.replace(/\[KONTEKS_METODE\]/g, () => textMetode);
-    const textHasil = (AppState.proposalData.sdeskripsi + '\n' + AppState.proposalData.sanalisis + '\n' + AppState.proposalData.spembahasan) || AppState.proposalData.jhasil || AppState.proposalData.slrhasil || '';
-    text = text.replace(/\[KONTEKS_HASIL\]/g, () => textHasil);
-
     if (elementId.includes('daftar') || elementId.includes('abstrak')) {
         let fullDraft = "";
         Object.keys(AppState.proposalData).forEach(key => { 
